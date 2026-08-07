@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Balão Enchendo | Clube da Massinha</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-top:#EAF6FF;
+    --bg-bottom:#CDE9FA;
+    --orange:#FF8C42;
+    --orange-dark:#E8672A;
+    --gold:#FFD166;
+    --gold-dark:#E8A93C;
+    --green:#4CAF7D;
+    --green-dark:#379563;
+    --blue:#4FA8E0;
+    --blue-dark:#2E86C1;
+    --brown:#5B4033;
+    --brown-soft:#7A8FA6;
+    --white:#FFFFFF;
+    --card:#FFFFFF;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent; user-select:none;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    min-height:100vh;
+    min-height:100dvh;
+    background: radial-gradient(circle at 50% -10%, var(--bg-top), var(--bg-bottom) 80%);
+    font-family:'Nunito', sans-serif;
+    color:var(--brown);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    overflow:hidden;
+    touch-action: manipulation;
+  }
+  h1,h2,.title,.btn,.big-msg{font-family:'Fredoka', sans-serif;}
+
+  .screen{
+    position:fixed; inset:0;
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    width:100%;
+    height:100%;
+  }
+  .screen.active{ display:flex; }
+
+  /* ================= TELA DO TERAPEUTA ================= */
+  #screenTherapist{
+    justify-content:center;
+    gap:26px;
+    padding:36px 26px;
+    text-align:center;
+  }
+  .screen-badge{
+    font-size:13px;
+    font-weight:800;
+    color:var(--blue-dark);
+    background:#fff;
+    padding:6px 16px;
+    border-radius:20px;
+    letter-spacing:.5px;
+    text-transform:uppercase;
+    box-shadow:0 3px 8px rgba(0,0,0,.06);
+  }
+  #screenTherapist h1{
+    font-size:clamp(24px,7vw,32px);
+    color:var(--blue-dark);
+    margin:0;
+  }
+  #screenTherapist p.sub{
+    max-width:340px;
+    font-size:16px;
+    font-weight:700;
+    color:#6b7f93;
+    line-height:1.5;
+    margin:0;
+  }
+
+  .unit-toggle{
+    display:flex;
+    background:#fff;
+    border-radius:50px;
+    padding:5px;
+    box-shadow:0 3px 10px rgba(0,0,0,.06);
+    gap:4px;
+  }
+  .unit-btn{
+    border:none;
+    background:transparent;
+    padding:10px 22px;
+    border-radius:40px;
+    font-family:'Fredoka';
+    font-weight:600;
+    font-size:15px;
+    color:var(--brown-soft);
+    cursor:pointer;
+    transition: all .2s ease;
+  }
+  .unit-btn.active{
+    background: linear-gradient(180deg, var(--blue), var(--blue-dark));
+    color:#fff;
+  }
+
+  .stepper{
+    display:flex;
+    align-items:center;
+    gap:20px;
+  }
+  .step-btn{
+    width:54px; height:54px;
+    border-radius:50%;
+    border:none;
+    background:#fff;
+    box-shadow:0 4px 10px rgba(0,0,0,.08);
+    font-size:26px;
+    font-weight:800;
+    color:var(--blue-dark);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+  }
+  .step-btn:active{ transform:scale(.92); }
+  .step-value{
+    min-width:120px;
+    text-align:center;
+    font-size:44px;
+    font-weight:700;
+    color:var(--blue-dark);
+  }
+  .step-unit{
+    font-size:16px;
+    font-weight:800;
+    color:var(--brown-soft);
+    margin-top:-14px;
+  }
+
+  .presets{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:center;
+    max-width:320px;
+  }
+  .preset-chip{
+    border:none;
+    background:#fff;
+    color:var(--blue-dark);
+    font-weight:800;
+    font-size:14px;
+    padding:8px 16px;
+    border-radius:20px;
+    box-shadow:0 2px 6px rgba(0,0,0,.06);
+    cursor:pointer;
+  }
+  .preset-chip.active{
+    background: linear-gradient(180deg, var(--gold), var(--gold-dark));
+    color:#fff;
+  }
+
+  /* ================= BOTOES GERAIS ================= */
+  .btn{
+    border:none;
+    background: linear-gradient(180deg, var(--orange), var(--orange-dark));
+    color:#fff;
+    font-size:19px;
+    font-weight:600;
+    padding:16px 40px;
+    border-radius:50px;
+    box-shadow:0 6px 0 #C24F1F, 0 10px 16px rgba(0,0,0,.15);
+    cursor:pointer;
+    transition: transform .1s ease;
+  }
+  .btn:active{ transform: translateY(4px); box-shadow:0 2px 0 #C24F1F; }
+  .btn.blue{
+    background: linear-gradient(180deg, var(--blue), var(--blue-dark));
+    box-shadow:0 6px 0 #1F6A99, 0 10px 16px rgba(0,0,0,.15);
+  }
+  .btn.blue:active{ box-shadow:0 2px 0 #1F6A99; }
+
+  .credit{
+    font-size:12px;
+    font-weight:800;
+    color:var(--brown-soft);
+    opacity:.7;
+    letter-spacing:.3px;
+    position:absolute;
+    bottom:max(14px, env(safe-area-inset-bottom));
+  }
+
+  /* ================= TELA DO DESAFIO (CRIANÇA) ================= */
+  #screenChallenge{
+    justify-content:center;
+    align-items:center;
+    gap:22px;
+    padding:36px 26px;
+    text-align:center;
+  }
+  .challenge-emoji{
+    font-size:64px;
+    animation: floatUpDown 2.4s ease-in-out infinite;
+  }
+  @keyframes floatUpDown{
+    0%,100%{ transform:translateY(0); }
+    50%{ transform:translateY(-10px); }
+  }
+  #screenChallenge h1{
+    font-size:clamp(26px,8vw,36px);
+    color:var(--blue-dark);
+    margin:0;
+  }
+  #screenChallenge p{
+    max-width:340px;
+    font-size:18px;
+    font-weight:700;
+    color:#4a6178;
+    line-height:1.55;
+    margin:0;
+  }
+  #screenChallenge p.welcome{
+    font-size:19px;
+    color:var(--blue-dark);
+  }
+
+  /* ================= TELA DE COR ================= */
+  #screenColor{
+    justify-content:center;
+    align-items:center;
+    gap:26px;
+    padding:36px 26px;
+    text-align:center;
+  }
+  #screenColor h1{
+    font-size:clamp(22px,7vw,30px);
+    color:var(--blue-dark);
+    margin:0;
+  }
+  .color-grid{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:26px 34px;
+  }
+  .color-choice{
+    width:96px; height:128px;
+    border-radius: 50% 50% 50% 50% / 58% 58% 42% 42%;
+    border:none;
+    box-shadow:0 8px 16px rgba(0,0,0,.14);
+    cursor:pointer;
+    transition: transform .15s ease;
+    position:relative;
+  }
+  .color-choice:active{ transform:scale(.92); }
+  .color-choice::before{
+    content:"";
+    position:absolute;
+    top:16%; left:20%;
+    width:22%; height:30%;
+    border-radius:50%;
+    background:rgba(255,255,255,.35);
+  }
+  .color-choice.verde{ background: radial-gradient(circle at 35% 28%, #6FD79B, var(--green-dark)); }
+  .color-choice.rosa{ background: radial-gradient(circle at 35% 28%, #FFB6CE, #E8628C); }
+  .color-choice.azul{ background: radial-gradient(circle at 35% 28%, #7FC4EE, var(--blue-dark)); }
+  .color-choice.amarelo{ background: radial-gradient(circle at 35% 28%, #FFE18A, #E8A93C); }
+
+  /* ================= TELA DO JOGO ================= */
+  #screenGame{
+    justify-content:flex-start;
+    width:100%;
+  }
+  .topbar{
+    width:100%;
+    max-width:520px;
+    padding: max(14px, env(safe-area-inset-top)) 18px 6px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    position:relative;
+  }
+  .new-session-btn{
+    position:fixed;
+    top:max(10px, env(safe-area-inset-top));
+    right:10px;
+    width:34px;height:34px;
+    border-radius:50%;
+    border:none;
+    background:#fff;
+    color:var(--brown-soft);
+    font-size:15px;
+    box-shadow:0 2px 6px rgba(0,0,0,.08);
+    opacity:.6;
+    display:flex; align-items:center; justify-content:center;
+    z-index:5;
+  }
+  .title{
+    font-size:clamp(18px,5vw,22px);
+    font-weight:600;
+    color:var(--blue-dark);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .levels{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .level-dot{
+    width:12px;height:12px;border-radius:50%;
+    background:#fff;
+    border:2px solid #CDE3F5;
+    transition:all .3s ease;
+  }
+  .level-dot.done{ background:var(--green); border-color:var(--green-dark); }
+  .level-dot.current{
+    width:16px;height:16px;
+    background:var(--gold);
+    border-color:var(--orange-dark);
+    box-shadow:0 0 0 4px rgba(255,209,102,.35);
+  }
+
+  .stage{
+    flex:1;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:16px;
+    padding:6px 20px 90px;
+    position:relative;
+  }
+
+  .game-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+  }
+  .clock-track{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+    align-items:center;
+    width:30px;
+  }
+  .clock-icon{
+    font-size:20px;
+    line-height:1;
+    transition: opacity .3s ease, transform .3s ease;
+  }
+  .clock-icon.gone{
+    opacity:0;
+    transform: scale(.3) rotate(20deg);
+  }
+
+  .balloon-count{
+    position:fixed;
+    bottom:max(16px, env(safe-area-inset-bottom));
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:#fff;
+    padding:10px 22px;
+    border-radius:30px;
+    box-shadow:0 6px 14px rgba(0,0,0,.12);
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:20px;
+    color:var(--orange-dark);
+    z-index:4;
+  }
+  .balloon-count .icon{ font-size:24px; }
+
+  .balloon-zone{
+    width:min(66vw, 300px);
+    height:min(74vw, 340px);
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    position:relative;
+  }
+  .balloon-anchor{
+    width:100%;
+    height:100%;
+    position:relative;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    transition: transform .7s cubic-bezier(.4,0,.2,1), opacity .7s ease;
+    cursor:pointer;
+  }
+  .balloon-anchor.float-away{
+    transform: translateY(-120%) rotate(-8deg);
+    opacity:0;
+  }
+  svg.balloon-svg{ width:100%; height:100%; overflow:visible; }
+  #balloonScale{
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+  }
+  #balloonScale.wobble{ animation: wobble 2.2s ease-in-out infinite; }
+  @keyframes wobble{
+    0%,100%{ rotate:-3deg; }
+    50%{ rotate:3deg; }
+  }
+  #balloonScale.pulse{ animation: pulseGlow .85s ease-in-out infinite; }
+  @keyframes pulseGlow{
+    0%,100%{ filter: drop-shadow(0 0 0px rgba(255,209,102,0)); }
+    50%{ filter: drop-shadow(0 0 24px rgba(255,209,102,.9)); }
+  }
+  #balloonScale.pop-anim{ animation: popOut .4s ease forwards; }
+  @keyframes popOut{
+    0%{ transform: scale(var(--cur-scale,0.3)); opacity:1; }
+    40%{ transform: scale(calc(var(--cur-scale,0.3) * 1.25)); opacity:1; }
+    100%{ transform: scale(calc(var(--cur-scale,0.3) * 1.5)); opacity:0; }
+  }
+  .pop-pieces{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+  }
+  .pop-piece{
+    position:absolute;
+    width:14px; height:14px;
+    border-radius:3px;
+    opacity:0;
+  }
+
+  .big-msg{
+    font-size:clamp(19px,5.6vw,26px);
+    font-weight:600;
+    color:var(--brown);
+    text-align:center;
+    min-height:32px;
+    transition: color .3s ease;
+  }
+  .big-msg.go-color{ color:var(--gold-dark); }
+  .big-msg.wait-color{ color:var(--blue-dark); }
+  .big-msg.pop-color{ color:#E85D5D; }
+
+  .duration-tag{
+    font-size:14px;
+    font-weight:800;
+    color:var(--brown-soft);
+    background:#fff;
+    padding:6px 14px;
+    border-radius:20px;
+    box-shadow:0 3px 8px rgba(0,0,0,.06);
+  }
+
+  /* ================= CONFETTI ================= */
+  .confetti{
+    position:fixed; top:0; left:0; width:100%; height:100%;
+    pointer-events:none; overflow:hidden; z-index:20;
+  }
+  .confetti span{
+    position:absolute; top:-10%; font-size:22px;
+    animation: fall linear forwards;
+  }
+  @keyframes fall{ to{ transform: translateY(115vh) rotate(360deg); opacity:.2; } }
+
+  /* ================= LEVEL UP ================= */
+  .levelup{
+    position:fixed; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(46,70,90,.28);
+    z-index:15;
+    opacity:0; pointer-events:none;
+    transition:opacity .25s ease;
+  }
+  .levelup.show{ opacity:1; pointer-events:all; }
+  .levelup-card{
+    background:#fff;
+    border-radius:28px;
+    padding:32px 30px;
+    text-align:center;
+    max-width:300px;
+    box-shadow:0 14px 30px rgba(0,0,0,.2);
+    transform:scale(.85);
+    transition:transform .25s ease;
+  }
+  .levelup.show .levelup-card{ transform:scale(1); }
+  .levelup-card .emoji{ font-size:48px; }
+  .levelup-card h2{ margin:8px 0 4px; color:var(--blue-dark); font-family:'Fredoka'; font-size:22px; }
+  .levelup-card p{ margin:0 0 18px; color:var(--brown-soft); font-weight:700; font-size:15px; }
+</style>
+</head>
+<body>
+
+<!-- ================= TELA DO TERAPEUTA ================= -->
+<div class="screen active" id="screenTherapist">
+  <div class="screen-badge">Tela do Terapeuta</div>
+  <h1>🎈 Balão Enchendo</h1>
+  <p class="sub">Defina o tempo inicial de espera para esta sessão. O jogo vai aumentando aos poucos a partir daqui.</p>
+
+  <div class="unit-toggle">
+    <button class="unit-btn active" id="unitSeconds">Segundos</button>
+    <button class="unit-btn" id="unitMinutes">Minutos</button>
+  </div>
+
+  <div>
+    <div class="stepper">
+      <button class="step-btn" id="stepDown">−</button>
+      <div>
+        <div class="step-value" id="stepValue">3</div>
+        <div class="step-unit" id="stepUnitLabel">segundos</div>
+      </div>
+      <button class="step-btn" id="stepUp">+</button>
+    </div>
+  </div>
+
+  <div class="presets" id="presets"></div>
+
+  <button class="btn blue" id="therapistContinue">Continuar</button>
+
+  <span class="credit">Clube da Massinha</span>
+</div>
+
+<!-- ================= TELA DO DESAFIO ================= -->
+<div class="screen" id="screenChallenge">
+  <div class="screen-badge">Tela do Paciente</div>
+  <div class="challenge-emoji">🎈</div>
+  <h1>Topa um desafio?</h1>
+  <p class="welcome">Oi! Que bom ter você aqui hoje! 👋</p>
+  <p>Sua missão é soltar o máximo de balões possíveis, esperando que eles encham bem para que não estourem antes da hora!</p>
+  <button class="btn" id="acceptChallenge">Topo o desafio!</button>
+</div>
+
+<!-- ================= TELA DE COR ================= -->
+<div class="screen" id="screenColor">
+  <h1>Escolha a cor do seu balão 🎨</h1>
+  <div class="color-grid">
+    <button class="color-choice verde" data-color="verde" data-hex="#4CAF7D"></button>
+    <button class="color-choice rosa" data-color="rosa" data-hex="#FF8FB1"></button>
+    <button class="color-choice azul" data-color="azul" data-hex="#4FA8E0"></button>
+    <button class="color-choice amarelo" data-color="amarelo" data-hex="#FFCB3D"></button>
+  </div>
+</div>
+
+<!-- ================= TELA DO JOGO ================= -->
+<div class="screen" id="screenGame">
+  <button class="new-session-btn" id="newSessionBtn" title="Nova sessão">↺</button>
+  <div class="topbar">
+    <div class="title">🎈 Balão Enchendo</div>
+    <div class="levels" id="levels"></div>
+  </div>
+
+  <div class="stage">
+    <div class="duration-tag" id="durationTag">O balão vai encher em 1 segundo</div>
+
+    <div class="game-row">
+      <div class="clock-track" id="clockTrack"></div>
+
+      <div class="balloon-zone">
+        <div class="balloon-anchor" id="balloonAnchor">
+          <svg class="balloon-svg" viewBox="0 0 220 320">
+            <path id="string" d="M110,244 Q100,262 110,278 Q120,296 112,312" stroke="#B9C7D6" stroke-width="3" fill="none" stroke-linecap="round"></path>
+            <g id="balloonScale">
+              <ellipse cx="110" cy="130" rx="88" ry="98" fill="#4FA8E0" id="balloonBody"></ellipse>
+              <polygon points="98,222 122,222 110,242" fill="#4FA8E0" id="balloonKnot"></polygon>
+              <ellipse cx="80" cy="88" rx="20" ry="32" fill="rgba(255,255,255,.32)"></ellipse>
+              <g id="faceGroup">
+                <path class="eye-sleepy" id="eyeL" d="M68,118 q12,-10 24,0" stroke="#5B4033" stroke-width="6" fill="none" stroke-linecap="round"></path>
+                <path class="eye-sleepy" id="eyeR" d="M128,118 q12,-10 24,0" stroke="#5B4033" stroke-width="6" fill="none" stroke-linecap="round"></path>
+                <path class="mouth-shape" id="mouth" d="M92,150 q18,8 36,0" stroke="#5B4033" stroke-width="6" fill="none" stroke-linecap="round"></path>
+              </g>
+            </g>
+          </svg>
+          <div class="pop-pieces" id="popPieces"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="big-msg wait-color" id="bigMsg">O balão está enchendo…</div>
+  </div>
+
+  <div class="balloon-count" id="balloonCount"><span class="icon">🎈</span><span id="balloonCountValue">x 0</span></div>
+</div>
+
+<div class="levelup" id="levelup">
+  <div class="levelup-card">
+    <div class="emoji">🎈</div>
+    <h2 id="levelupTitle">Nível completo!</h2>
+    <p id="levelupText">Agora vamos esperar um pouquinho mais.</p>
+    <button class="btn" id="levelupBtn">Continuar</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const OFFSETS = [0,1,2,3,4,6,9,12,15,19]; // segundos somados ao valor inicial, por nível
+  const NEEDED = 3; // acertos por nível
+  const MIN_SCALE = 0.28;
+  const MAX_SCALE = 1.0;
+
+  const COLOR_HEX = { verde:'#4CAF7D', rosa:'#FF8FB1', azul:'#4FA8E0', amarelo:'#FFCB3D' };
+
+  /* ---------- estado ---------- */
+  let session = {
+    unit: 'segundos', // 'segundos' | 'minutos'
+    value: 3,
+    startSeconds: 3,
+    color: 'azul'
+  };
+  let state = { levelIndex:0, successes:0, totalReleased:0, durations:[] };
+
+  /* ---------- TELA DO TERAPEUTA ---------- */
+  const screenTherapist = document.getElementById('screenTherapist');
+  const screenChallenge = document.getElementById('screenChallenge');
+  const screenColor = document.getElementById('screenColor');
+  const screenGame = document.getElementById('screenGame');
+
+  const unitSecondsBtn = document.getElementById('unitSeconds');
+  const unitMinutesBtn = document.getElementById('unitMinutes');
+  const stepValue = document.getElementById('stepValue');
+  const stepUnitLabel = document.getElementById('stepUnitLabel');
+  const stepDown = document.getElementById('stepDown');
+  const stepUp = document.getElementById('stepUp');
+  const presetsWrap = document.getElementById('presets');
+  const therapistContinue = document.getElementById('therapistContinue');
+
+  const PRESETS = { segundos:[1,3,5,10,15], minutos:[1,2,3,5] };
+
+  function unitLimits(){
+    return session.unit === 'segundos' ? {min:1,max:59} : {min:1,max:10};
+  }
+
+  function renderPresets(){
+    presetsWrap.innerHTML = '';
+    PRESETS[session.unit].forEach(v=>{
+      const chip = document.createElement('button');
+      chip.className = 'preset-chip' + (v===session.value ? ' active' : '');
+      chip.textContent = v + (session.unit==='segundos' ? 's' : 'min');
+      chip.addEventListener('click', ()=>{ session.value = v; syncStepper(); });
+      presetsWrap.appendChild(chip);
+    });
+  }
+
+  function syncStepper(){
+    stepValue.textContent = session.value;
+    stepUnitLabel.textContent = session.unit === 'segundos'
+      ? (session.value===1 ? 'segundo' : 'segundos')
+      : (session.value===1 ? 'minuto' : 'minutos');
+    renderPresets();
+  }
+
+  unitSecondsBtn.addEventListener('click', ()=>{
+    session.unit = 'segundos';
+    session.value = 3;
+    unitSecondsBtn.classList.add('active');
+    unitMinutesBtn.classList.remove('active');
+    syncStepper();
+  });
+  unitMinutesBtn.addEventListener('click', ()=>{
+    session.unit = 'minutos';
+    session.value = 1;
+    unitMinutesBtn.classList.add('active');
+    unitSecondsBtn.classList.remove('active');
+    syncStepper();
+  });
+
+  stepDown.addEventListener('click', ()=>{
+    const lim = unitLimits();
+    session.value = Math.max(lim.min, session.value - 1);
+    syncStepper();
+  });
+  stepUp.addEventListener('click', ()=>{
+    const lim = unitLimits();
+    session.value = Math.min(lim.max, session.value + 1);
+    syncStepper();
+  });
+
+  therapistContinue.addEventListener('click', ()=>{
+    session.startSeconds = session.unit === 'segundos' ? session.value : session.value * 60;
+    goToScreen(screenChallenge);
+  });
+
+  /* ---------- TELA DO DESAFIO ---------- */
+  document.getElementById('acceptChallenge').addEventListener('click', ()=>{
+    goToScreen(screenColor);
+  });
+
+  /* ---------- TELA DE COR ---------- */
+  document.querySelectorAll('.color-choice').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      session.color = btn.getAttribute('data-color');
+      applyBalloonColor(COLOR_HEX[session.color]);
+      startSession();
+      goToScreen(screenGame);
+    });
+  });
+
+  function goToScreen(target){
+    [screenTherapist, screenChallenge, screenColor, screenGame].forEach(s=> s.classList.remove('active'));
+    target.classList.add('active');
+  }
+
+  /* ---------- JOGO ---------- */
+  const balloonAnchor = document.getElementById('balloonAnchor');
+  const balloonScale = document.getElementById('balloonScale');
+  const balloonBody = document.getElementById('balloonBody');
+  const balloonKnot = document.getElementById('balloonKnot');
+  const eyeL = document.getElementById('eyeL');
+  const eyeR = document.getElementById('eyeR');
+  const mouth = document.getElementById('mouth');
+  const bigMsg = document.getElementById('bigMsg');
+  const durationTag = document.getElementById('durationTag');
+  const clockTrack = document.getElementById('clockTrack');
+  const balloonCountValue = document.getElementById('balloonCountValue');
+  const levelsWrap = document.getElementById('levels');
+  const popPieces = document.getElementById('popPieces');
+  const levelupEl = document.getElementById('levelup');
+  const levelupTitle = document.getElementById('levelupTitle');
+  const levelupText = document.getElementById('levelupText');
+  const levelupBtn = document.getElementById('levelupBtn');
+  const newSessionBtn = document.getElementById('newSessionBtn');
+
+  function applyBalloonColor(hex){
+    balloonBody.setAttribute('fill', hex);
+    balloonKnot.setAttribute('fill', hex);
+  }
+
+  function buildDurations(){
+    state.durations = OFFSETS.map(off => session.startSeconds + off);
+  }
+
+  function buildLevelDots(){
+    levelsWrap.innerHTML = '';
+    state.durations.forEach((d,i)=>{
+      const dot = document.createElement('div');
+      dot.className = 'level-dot';
+      if(i < state.levelIndex) dot.classList.add('done');
+      if(i === state.levelIndex) dot.classList.add('current');
+      levelsWrap.appendChild(dot);
+    });
+  }
+
+  const CLOCK_SEGMENTS = 6;
+
+  function buildClockTrack(){
+    clockTrack.innerHTML = '';
+    for(let i=0;i<CLOCK_SEGMENTS;i++){
+      const icon = document.createElement('span');
+      icon.className = 'clock-icon';
+      icon.textContent = '⏰';
+      clockTrack.appendChild(icon);
+    }
+  }
+
+  function updateClockTrack(pct){
+    const visibleCount = Math.max(0, CLOCK_SEGMENTS - Math.floor(pct * CLOCK_SEGMENTS));
+    const icons = clockTrack.querySelectorAll('.clock-icon');
+    icons.forEach((icon, i)=>{
+      icon.classList.toggle('gone', i >= visibleCount);
+    });
+  }
+
+  function updateBalloonCount(){
+    balloonCountValue.textContent = 'x ' + state.totalReleased;
+  }
+
+  function fmtDuration(sec){
+    if(sec < 60) return sec + (sec===1 ? ' segundo' : ' segundos');
+    const m = Math.floor(sec/60), s = sec%60;
+    let txt = m + (m===1?' minuto':' minutos');
+    if(s>0) txt += ' e ' + s + (s===1?' segundo':' segundos');
+    return txt;
+  }
+
+  /* ---------- audio ---------- */
+  let audioCtx;
+  function ctx(){
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+  function tone(freq, dur, type, vol){
+    try{
+      const ac = ctx();
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.type = type || 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(vol||0.12, ac.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + dur);
+      osc.connect(gain).connect(ac.destination);
+      osc.start();
+      osc.stop(ac.currentTime + dur);
+    }catch(e){}
+  }
+  function playReady(){ tone(523.25,0.18,'triangle',0.14); setTimeout(()=>tone(783.99,0.28,'triangle',0.14),120); }
+  function playSuccess(){ tone(659.25,0.15,'triangle',0.13); setTimeout(()=>tone(880,0.22,'triangle',0.13),100); }
+  function playPop(){ tone(300,0.06,'square',0.10); setTimeout(()=>tone(180,0.12,'sine',0.08),50); }
+  function playLevelUp(){ [523.25,659.25,783.99,1046.5].forEach((f,i)=> setTimeout(()=>tone(f,0.22,'triangle',0.13), i*110) ); }
+
+  /* ---------- ciclo da rodada ---------- */
+  let rafId = null;
+  let phase = 'idle'; // idle | waiting | ready
+  let startTime = 0;
+  let duration = 1;
+
+  function setScale(s){
+    balloonScale.style.setProperty('--cur-scale', s);
+    balloonScale.style.transform = 'scale(' + s + ')';
+  }
+  function setSleepyFace(){
+    eyeL.setAttribute('d','M68,118 q12,-10 24,0');
+    eyeR.setAttribute('d','M128,118 q12,-10 24,0');
+    mouth.setAttribute('d','M92,150 q18,8 36,0');
+  }
+  function setHappyFace(){
+    eyeL.setAttribute('d','M68,110 a12,12 0 1,0 24,0 a12,12 0 1,0 -24,0');
+    eyeR.setAttribute('d','M128,110 a12,12 0 1,0 24,0 a12,12 0 1,0 -24,0');
+    mouth.setAttribute('d','M88,146 q22,26 44,0');
+  }
+
+  function startRound(){
+    phase = 'waiting';
+    duration = state.durations[state.levelIndex];
+    durationTag.textContent = 'O balão vai encher em ' + fmtDuration(duration);
+    balloonAnchor.classList.remove('float-away');
+    balloonScale.classList.remove('pulse','pop-anim');
+    balloonScale.style.opacity = 1;
+    balloonScale.classList.add('wobble');
+    setSleepyFace();
+    bigMsg.textContent = 'O balão está enchendo…';
+    bigMsg.classList.remove('go-color','pop-color');
+    bigMsg.classList.add('wait-color');
+    setScale(MIN_SCALE);
+    updateClockTrack(0);
+    startTime = performance.now();
+    cancelAnimationFrame(rafId);
+    tick();
+  }
+
+  function tick(){
+    const elapsed = (performance.now() - startTime) / 1000;
+    const pct = Math.min(elapsed / duration, 1);
+    setScale(MIN_SCALE + (MAX_SCALE - MIN_SCALE) * pct);
+    updateClockTrack(pct);
+    if(pct >= 1){ goReady(); return; }
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function goReady(){
+    phase = 'ready';
+    balloonScale.classList.remove('wobble');
+    balloonScale.classList.add('pulse');
+    setHappyFace();
+    bigMsg.textContent = 'Agora! Solta o balão! 🎉';
+    bigMsg.classList.remove('wait-color');
+    bigMsg.classList.add('go-color');
+    playReady();
+  }
+
+  function spawnPopPieces(){
+    popPieces.innerHTML = '';
+    const hex = COLOR_HEX[session.color];
+    for(let i=0;i<14;i++){
+      const p = document.createElement('div');
+      p.className = 'pop-piece';
+      p.style.background = hex;
+      p.style.left = '45%';
+      p.style.top = '55%';
+      const angle = (Math.PI*2 * i)/14;
+      const dist = 60 + Math.random()*40;
+      const dx = Math.cos(angle)*dist, dy = Math.sin(angle)*dist;
+      p.animate([
+        { transform:'translate(0,0) scale(1)', opacity:1 },
+        { transform:`translate(${dx}px, ${dy}px) scale(0.4)`, opacity:0 }
+      ], { duration: 520, easing:'ease-out' });
+      popPieces.appendChild(p);
+    }
+    setTimeout(()=>{ popPieces.innerHTML=''; }, 550);
+  }
+
+  function handleTap(){
+    if(phase === 'ready'){
+      phase = 'idle';
+      playSuccess();
+      balloonScale.classList.remove('pulse');
+      balloonAnchor.classList.add('float-away');
+      launchConfetti(10);
+      state.totalReleased++;
+      state.successes++;
+      updateBalloonCount();
+
+      if(state.successes >= NEEDED){
+        setTimeout(levelUp, 550);
+      } else {
+        setTimeout(startRound, 750);
+      }
+    } else if(phase === 'waiting'){
+      phase = 'idle';
+      cancelAnimationFrame(rafId);
+      balloonScale.classList.remove('wobble');
+      balloonScale.classList.add('pop-anim');
+      spawnPopPieces();
+      playPop();
+      bigMsg.textContent = 'Ops! Estourou cedo demais! Vamos tentar outro 🎈';
+      bigMsg.classList.remove('wait-color','go-color');
+      bigMsg.classList.add('pop-color');
+      setTimeout(startRound, 750);
+    }
+  }
+
+  function levelUp(){
+    phase = 'idle';
+    const isLast = state.levelIndex >= state.durations.length - 1;
+    if(!isLast){ state.levelIndex++; }
+    state.successes = 0;
+    buildLevelDots();
+    playLevelUp();
+    launchConfetti(26);
+
+    levelupTitle.textContent = isLast ? 'Você é um campeão da espera! 🏆' : 'Nível completo! 🎈';
+    levelupText.textContent = isLast
+      ? 'Você já soltou ' + state.totalReleased + ' balões esperando o tempo certo! Vamos continuar treinando?'
+      : 'Agora o balão vai demorar ' + fmtDuration(state.durations[state.levelIndex]) + ' pra encher.';
+    levelupEl.classList.add('show');
+  }
+
+  levelupBtn.addEventListener('click', ()=>{
+    levelupEl.classList.remove('show');
+    startRound();
+  });
+
+  balloonAnchor.addEventListener('click', handleTap);
+  balloonAnchor.addEventListener('touchstart', (e)=>{ e.preventDefault(); handleTap(); }, {passive:false});
+
+  newSessionBtn.addEventListener('click', ()=>{
+    if(confirm('Voltar para configurar uma nova sessão?')){
+      goToScreen(screenTherapist);
+    }
+  });
+
+  function startSession(){
+    buildDurations();
+    state.levelIndex = 0;
+    state.successes = 0;
+    state.totalReleased = 0;
+    buildLevelDots();
+    buildClockTrack();
+    updateBalloonCount();
+    startRound();
+  }
+
+  function launchConfetti(n){
+    const wrap = document.createElement('div');
+    wrap.className = 'confetti';
+    const emojis = ['🎉','⭐','🎈','✨'];
+    for(let i=0;i<n;i++){
+      const s = document.createElement('span');
+      s.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+      s.style.left = Math.random()*100 + '%';
+      s.style.animationDuration = (1.6 + Math.random()*1.2) + 's';
+      s.style.fontSize = (16 + Math.random()*14) + 'px';
+      wrap.appendChild(s);
+    }
+    document.body.appendChild(wrap);
+    setTimeout(()=> wrap.remove(), 3200);
+  }
+
+  /* ---------- init ---------- */
+  syncStepper();
+})();
+</script>
+</body>
+</html>

@@ -12,6 +12,16 @@ const activities = [
     tag: "Habilidades Sociais",
   },
   {
+    emoji: "🦊",
+    title: "Trilha das Habilidades Sociais v2",
+    description:
+      "Nova versão da trilha com layout vertical e novas categorias de desafios. Explore mais situações de comunicação, empatia e conflito.",
+    href: "/atividades/trilha-habilidades-sociais-v2.html",
+    color: "bg-[oklch(0.93_0.06_35)]",
+    badgeColor: "bg-[oklch(0.87_0.09_35)] text-[oklch(0.28_0.1_35)]",
+    tag: "Habilidades Sociais",
+  },
+  {
     emoji: "💗",
     title: "Como o Reforcinho se Sente?",
     description:
@@ -20,6 +30,16 @@ const activities = [
     color: "bg-[oklch(0.94_0.04_10)]",
     badgeColor: "bg-[oklch(0.88_0.07_10)] text-[oklch(0.28_0.1_10)]",
     tag: "Emoções",
+  },
+  {
+    emoji: "🎈",
+    title: "Balão Enchendo",
+    description:
+      "Atividade de tolerância à espera: a criança segura o balão enquanto ele enche, treinando o controle do impulso de forma lúdica.",
+    href: "/atividades/balao-enchendo.html",
+    color: "bg-[oklch(0.93_0.05_220)]",
+    badgeColor: "bg-[oklch(0.87_0.07_220)] text-[oklch(0.28_0.1_220)]",
+    tag: "Regulação Emocional",
   },
 ]
 
@@ -39,8 +59,8 @@ export function ActivitiesSection() {
           </p>
         </div>
 
-        {/* Cards grid — centralized for 2 items */}
-        <div className="flex flex-col sm:flex-row gap-6 justify-center max-w-3xl mx-auto">
+        {/* Cards grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {activities.map(({ emoji, title, description, href, color, badgeColor, tag }) => (
             <div
               key={title}

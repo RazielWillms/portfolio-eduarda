@@ -7,7 +7,7 @@ export function Footer() {
           <p className="text-sm opacity-60">Psicóloga Infantil · Especialista em TEA</p>
         </div>
         <p className="text-xs opacity-40 text-center">
-          © {new Date().getFullYear()} Todos os direitos reservados. CRP em registro.
+          © {new Date().getFullYear()} Todos os direitos reservados. CRP 07/39525
         </p>
         <div className="flex items-center gap-4 text-xs opacity-60">
           <a href="#sobre" className="hover:opacity-100 transition-opacity">Sobre</a>

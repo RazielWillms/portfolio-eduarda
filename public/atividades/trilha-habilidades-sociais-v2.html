@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Trilha das Habilidades Sociais | Clube da Massinha</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --laranja: #FF8C3B;
+    --laranja-escuro: #E8650F;
+    --laranja-claro: #FFD9B0;
+    --creme: #FFF6EC;
+    --azul: #4A9FD8;
+    --verde: #5FB87A;
+    --roxo: #8C6FD8;
+    --rosa: #E8709C;
+    --texto: #4A3826;
+    --branco: #FFFFFF;
+    --sombra: rgba(232,101,15,0.25);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+  body{
+    margin:0;
+    font-family:'Nunito', sans-serif;
+    background: radial-gradient(circle at 20% 10%, #FFE8D1 0%, #FFD9B0 45%, #FFC585 100%);
+    color: var(--texto);
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.fredoka{ font-family:'Fredoka', sans-serif; }
+
+  /* ---------- TELA GENÉRICA ---------- */
+  .screen{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:24px 16px;
+    position:relative;
+  }
+  .hidden{ display:none !important; }
+
+  /* ---------- BOAS-VINDAS ---------- */
+  .mascote-boas-vindas{
+    font-size: 64px;
+    margin-bottom: 10px;
+    animation: balancar 2.4s ease-in-out infinite;
+  }
+  @keyframes balancar{
+    0%,100%{ transform: rotate(-6deg); }
+    50%{ transform: rotate(6deg); }
+  }
+  .titulo-boas-vindas{
+    font-size: 32px;
+    font-weight:700;
+    text-align:center;
+    color: var(--laranja-escuro);
+    margin: 0 0 14px;
+    line-height:1.2;
+    text-shadow: 2px 2px 0 rgba(255,255,255,0.6);
+  }
+  .texto-boas-vindas{
+    text-align:center;
+    font-size:15px;
+    font-weight:700;
+    color:#9C6B3E;
+    margin:0 0 24px;
+    max-width:340px;
+    line-height:1.5;
+  }
+  .nome-input-boas-vindas{
+    width:100%;
+    max-width: 300px;
+    font-family:'Nunito';
+    font-weight:700;
+    font-size:16px;
+    text-align:center;
+    padding:14px 18px;
+    border-radius:16px;
+    border:3px solid var(--laranja-claro);
+    background:white;
+    color:var(--texto);
+    outline:none;
+  }
+  .nome-input-boas-vindas:focus{ border-color: var(--laranja); }
+
+  /* ---------- HOME ---------- */
+  #home .blob{
+    position:absolute;
+    border-radius:50%;
+    opacity:0.35;
+    filter: blur(2px);
+  }
+  .logo-badge{
+    background: var(--laranja);
+    color:white;
+    font-family:'Fredoka';
+    font-weight:600;
+    font-size:13px;
+    padding:6px 16px;
+    border-radius:999px;
+    letter-spacing:0.5px;
+    margin-bottom:18px;
+    box-shadow: 0 4px 0 var(--laranja-escuro);
+  }
+  .titulo-principal{
+    font-size: 38px;
+    font-weight:700;
+    text-align:center;
+    color: var(--laranja-escuro);
+    margin:0 0 6px;
+    line-height:1.1;
+    text-shadow: 2px 2px 0 rgba(255,255,255,0.6);
+  }
+  .subtitulo{
+    text-align:center;
+    font-size:16px;
+    font-weight:600;
+    color:#9C6B3E;
+    margin:0 0 30px;
+    max-width:340px;
+  }
+  .trilha-preview{
+    display:flex;
+    gap:8px;
+    margin-bottom:34px;
+  }
+  .trilha-preview .ponto{
+    width:14px; height:14px; border-radius:50%;
+    animation: pulsar 1.6s ease-in-out infinite;
+  }
+  .trilha-preview .ponto:nth-child(1){background:var(--verde); animation-delay:0s;}
+  .trilha-preview .ponto:nth-child(2){background:var(--azul); animation-delay:0.2s;}
+  .trilha-preview .ponto:nth-child(3){background:var(--rosa); animation-delay:0.4s;}
+  .trilha-preview .ponto:nth-child(4){background:var(--roxo); animation-delay:0.6s;}
+  @keyframes pulsar{ 0%,100%{transform:scale(1); opacity:0.6;} 50%{transform:scale(1.4); opacity:1;} }
+
+  .btn{
+    font-family:'Fredoka';
+    font-weight:600;
+    font-size:18px;
+    border:none;
+    border-radius:18px;
+    padding:16px 38px;
+    cursor:pointer;
+    color:white;
+    background: var(--laranja);
+    box-shadow: 0 6px 0 var(--laranja-escuro);
+    transition: transform 0.08s ease;
+  }
+  .btn:active{ transform: translateY(4px); box-shadow: 0 2px 0 var(--laranja-escuro); }
+  .btn-secundario{
+    background: white;
+    color: var(--laranja-escuro);
+    box-shadow: 0 5px 0 #E8C9A6;
+  }
+  .btn-pequeno{ font-size:14px; padding:10px 20px; border-radius:14px; }
+
+  /* ---------- SETUP ---------- */
+  .card{
+    background: white;
+    border-radius: 26px;
+    padding: 28px 24px;
+    box-shadow: 0 14px 30px var(--sombra);
+    width:100%;
+    max-width: 420px;
+  }
+  .card h2{
+    color: var(--laranja-escuro);
+    font-size:24px;
+    margin: 0 0 4px;
+    text-align:center;
+  }
+  .card p.lead{
+    text-align:center;
+    color:#9C6B3E;
+    font-weight:700;
+    margin:0 0 20px;
+    font-size:14px;
+  }
+  .qtd-jogadores{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    margin-bottom:22px;
+  }
+  .qtd-btn{
+    width:52px; height:52px;
+    border-radius:16px;
+    border:3px solid var(--laranja-claro);
+    background:white;
+    font-family:'Fredoka';
+    font-weight:700;
+    font-size:20px;
+    color: var(--laranja-escuro);
+    cursor:pointer;
+  }
+  .qtd-btn.ativo{
+    background: var(--laranja);
+    color:white;
+    border-color: var(--laranja-escuro);
+  }
+  .lista-nomes{ display:flex; flex-direction:column; gap:12px; margin-bottom:22px; }
+  .nome-linha{ display:flex; align-items:center; gap:10px; }
+  .avatar-circ{
+    width:42px; height:42px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px; flex-shrink:0;
+    border:3px solid white;
+    box-shadow:0 0 0 2px var(--laranja-claro);
+  }
+  .nome-input{
+    flex:1;
+    font-family:'Nunito';
+    font-weight:700;
+    font-size:16px;
+    padding:11px 14px;
+    border-radius:12px;
+    border:2px solid #FFE3C4;
+    background:#FFFBF6;
+    color:var(--texto);
+    outline:none;
+  }
+  .nome-input:focus{ border-color: var(--laranja); }
+  .modo-row{ display:flex; gap:10px; margin-bottom:22px; }
+  .modo-opt{
+    flex:1;
+    text-align:center;
+    border:3px solid var(--laranja-claro);
+    border-radius:16px;
+    padding:12px 6px;
+    font-family:'Fredoka';
+    font-weight:600;
+    font-size:13px;
+    color:#9C6B3E;
+    cursor:pointer;
+  }
+  .modo-opt.ativo{ background: var(--laranja); color:white; border-color:var(--laranja-escuro); }
+  .modo-opt span{ display:block; font-size:22px; margin-bottom:2px; }
+
+  /* ---------- JOGO ---------- */
+  #jogo{
+    justify-content: flex-start;
+    align-items: stretch;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .topo-jogo{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(8px);
+    flex-shrink: 0;
+  }
+  .tabuleiro-wrap{
+    flex: 1;
+    padding: 10px 10px 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .tabuleiro-inner{
+    background: white;
+    border-radius: 20px;
+    padding: 10px;
+    box-shadow: 0 10px 28px var(--sombra);
+    width: 100%;
+    max-width: 900px;
+  }
+  .rodape-jogo{
+    width: 100%;
+    background: white;
+    box-shadow: 0 -6px 20px rgba(0,0,0,0.09);
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .jogadores-painel{
+    display: flex;
+    gap: 8px;
+    flex: 1;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+  .jog-card{
+    flex-shrink: 0;
+    background: #FFF6EC;
+    border-radius: 14px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    border: 2.5px solid transparent;
+    white-space: nowrap;
+  }
+  .jog-card.vez-atual{ border-color: var(--laranja); background: var(--laranja-claro); }
+  .jog-card .avatar-circ{ width:32px; height:32px; font-size:16px; flex-shrink:0; }
+  .jog-card .info-j{ display:flex; flex-direction:column; }
+  .jog-card .nome-j{ font-family:'Fredoka'; font-weight:600; font-size:13px; color:var(--texto); }
+  .jog-card .casa-j{ font-size:10px; color:#9C6B3E; font-weight:700; }
+  .dado-bloco{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .voltar-link{
+    font-family:'Fredoka';
+    font-weight:600;
+    color:var(--laranja-escuro);
+    background:white;
+    border:none;
+    border-radius:12px;
+    padding:8px 14px;
+    font-size:13px;
+    cursor:pointer;
+    box-shadow:0 3px 0 #E8C9A6;
+  }
+  .vez-badge{
+    background:white;
+    border-radius:14px;
+    padding:8px 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-family:'Fredoka';
+    font-weight:600;
+    font-size:14px;
+    color: var(--texto);
+  }
+  #grid-tabuleiro{
+    display:grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(7, 1fr);
+    gap:5px;
+    width: 100%;
+    aspect-ratio: 12/7;
+  }
+  .casa{
+    position:relative;
+    border-radius: 9px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    font-size: 13px;
+    font-weight:800;
+    font-family:'Fredoka';
+    color:white;
+    overflow:visible;
+    border: 2px solid rgba(255,255,255,0.5);
+  }
+  .casa .num{ position:absolute; top:1px; left:3px; font-size:7px; opacity:0.8; font-family:'Nunito'; font-weight:800;}
+  .casa.tipo-comunicacao{ background: var(--azul); }
+  .casa.tipo-emocao{ background: var(--rosa); }
+  .casa.tipo-conflito{ background: var(--roxo); }
+  .casa.tipo-empatia{ background: var(--verde); }
+  .casa.tipo-bonus{ background: #FFC93C; }
+  .casa.tipo-final{ background: linear-gradient(135deg, var(--laranja), var(--laranja-escuro)); }
+  .casa.tipo-inicio{ background: #B0B0B0; }
+  .fichas-na-casa{
+    position:absolute;
+    bottom:-4px;
+    display:flex;
+    gap:1px;
+    flex-wrap:wrap;
+    justify-content:center;
+    width:100%;
+  }
+  .ficha{
+    width:12px; height:12px;
+    border-radius:50%;
+    border:1.5px solid white;
+    box-shadow:0 1px 3px rgba(0,0,0,0.3);
+    display:flex; align-items:center; justify-content:center;
+    font-size:8px;
+    transition: all 0.4s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  #dado-visual{
+    width:62px; height:62px;
+    background: linear-gradient(145deg, #fff, #f2f2f2);
+    border-radius:16px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:30px;
+    box-shadow: 0 4px 0 #d8d8d8, 0 6px 16px rgba(0,0,0,0.15);
+    cursor:pointer;
+    user-select:none;
+  }
+  #dado-visual.rolando{ animation: girar 0.6s ease; }
+  @keyframes girar{
+    0%{transform:rotate(0deg) scale(1);}
+    50%{transform:rotate(180deg) scale(1.15);}
+    100%{transform:rotate(360deg) scale(1);}
+  }
+  .btn-jogar-dado{
+    font-family:'Fredoka';
+    font-weight:600;
+    font-size:16px;
+    color:white;
+    background: var(--laranja);
+    border:none;
+    border-radius:16px;
+    padding:16px 30px;
+    box-shadow: 0 5px 0 var(--laranja-escuro);
+    cursor:pointer;
+  }
+  .btn-jogar-dado:disabled{ background:#ccc; box-shadow:0 5px 0 #aaa; cursor:default; }
+
+  /* ---------- RESULTADO DO DADO ---------- */
+  .resultado-dado-popup{
+    position:fixed;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:150;
+    pointer-events:none;
+  }
+  .resultado-dado-conteudo{
+    background:white;
+    border-radius: 24px;
+    padding: 22px 38px;
+    text-align:center;
+    box-shadow: 0 20px 44px rgba(0,0,0,0.28);
+    animation: popResultado 0.9s cubic-bezier(.34,1.56,.64,1) forwards;
+  }
+  .resultado-dado-conteudo span{ font-size:48px; display:block; margin-bottom:4px; }
+  .resultado-dado-conteudo p{
+    margin:0;
+    font-family:'Fredoka';
+    font-weight:600;
+    font-size:19px;
+    color: var(--laranja-escuro);
+  }
+  .resultado-dado-conteudo strong{ font-size:26px; }
+  @keyframes popResultado{
+    0%{ transform: scale(0.5); opacity:0; }
+    18%{ transform: scale(1.1); opacity:1; }
+    28%{ transform: scale(1); }
+    80%{ transform: scale(1); opacity:1; }
+    100%{ transform: scale(0.9); opacity:0; }
+  }
+
+  /* ---------- MODAL CARTA ---------- */
+  .modal-bg{
+    position:fixed; inset:0;
+    background:rgba(74,56,38,0.55);
+    display:flex; align-items:center; justify-content:center;
+    z-index:200;
+    padding:20px;
+    animation: fadeIn 0.25s ease;
+  }
+  @keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
+  .carta{
+    background:white;
+    border-radius: 28px;
+    max-width: 380px;
+    width:100%;
+    padding: 0 0 26px;
+    text-align:center;
+    box-shadow: 0 24px 50px rgba(0,0,0,0.3);
+    animation: popIn 0.35s cubic-bezier(.34,1.56,.64,1);
+    overflow:hidden;
+  }
+  @keyframes popIn{ from{transform:scale(0.7) translateY(30px); opacity:0;} to{transform:scale(1) translateY(0); opacity:1;} }
+  .carta-topo{
+    padding: 22px 20px 50px;
+    color:white;
+    position:relative;
+  }
+  .carta-topo .icone-grande{ font-size:46px; display:block; margin-bottom:6px; }
+  .carta-topo .categoria-nome{ font-family:'Fredoka'; font-weight:600; font-size:15px; letter-spacing:0.5px; }
+  .carta-corpo{
+    margin-top:-32px;
+    background:white;
+    border-radius: 24px 24px 0 0;
+    padding: 26px 24px 4px;
+    position:relative;
+  }
+  .carta-corpo p{
+    font-size:17px;
+    font-weight:700;
+    line-height:1.5;
+    color: var(--texto);
+    margin:0 0 22px;
+  }
+  .carta-botoes{ display:flex; flex-direction:column; gap:10px; padding:0 22px; }
+
+  /* tipo-comunicacao -> azul; emocao -> rosa; conflito -> roxo; empatia -> verde; bonus -> amarelo */
+  .carta.tipo-comunicacao .carta-topo{ background: var(--azul); }
+  .carta.tipo-emocao .carta-topo{ background: var(--rosa); }
+  .carta.tipo-conflito .carta-topo{ background: var(--roxo); }
+  .carta.tipo-empatia .carta-topo{ background: var(--verde); }
+  .carta.tipo-bonus .carta-topo{ background:#FFC93C; }
+
+  /* ---------- VITORIA ---------- */
+  #vitoria .confete{ position:absolute; top:-20px; border-radius:2px; animation: cair linear forwards; }
+  @keyframes cair{ to{ transform: translateY(110vh) rotate(360deg); } }
+  .podio-emoji{ font-size:64px; margin-bottom:6px; }
+  .nome-vencedor{
+    font-family:'Fredoka';
+    font-weight:700;
+    font-size:30px;
+    color: var(--laranja-escuro);
+    margin: 0 0 6px;
+  }
+
+  @media (max-width:380px){
+    .titulo-principal{font-size:30px;}
+    .casa{font-size:15px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ TELA BOAS-VINDAS ============ -->
+<div id="boasvindas" class="screen">
+  <div class="mascote-boas-vindas">🦊</div>
+  <h1 class="titulo-boas-vindas">Oi! Que bom<br>te ver por aqui!</h1>
+  <p class="texto-boas-vindas">Vamos brincar e treinar juntos algumas habilidades importantes: conversar, entender sentimentos e resolver probleminhas com os amigos. Pronto para começar essa aventura? 🌟</p>
+  <input class="nome-input-boas-vindas" id="nomeBoasVindas" placeholder="Como você se chama?">
+  <button class="btn" style="margin-top:20px;" onclick="confirmarBoasVindas()">Vamos lá! 🚀</button>
+</div>
+
+<!-- ============ TELA HOME ============ -->
+<div id="home" class="screen hidden">
+  <div class="blob" style="width:200px;height:200px;background:var(--azul);top:-40px;left:-60px;"></div>
+  <div class="blob" style="width:160px;height:160px;background:var(--rosa);bottom:40px;right:-50px;"></div>
+  <div class="logo-badge">CLUBE DA MASSINHA</div>
+  <h1 class="titulo-principal">Trilha das<br>Habilidades Sociais</h1>
+  <p class="subtitulo">Um jogo de tabuleiro para praticar comunicação, empatia e resolução de conflitos brincando 🎲</p>
+  <div class="trilha-preview">
+    <div class="ponto"></div><div class="ponto"></div><div class="ponto"></div><div class="ponto"></div>
+  </div>
+  <button class="btn" onclick="irPara('setup')">Começar a jogar</button>
+  <button class="btn btn-secundario btn-pequeno" style="margin-top:14px;" onclick="irPara('regras')">Como jogar?</button>
+</div>
+
+<!-- ============ TELA REGRAS ============ -->
+<div id="regras" class="screen hidden">
+  <div class="card">
+    <h2>📜 Como jogar</h2>
+    <p class="lead">É simples e rápido!</p>
+    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:24px; font-weight:700; font-size:14px; color:var(--texto);">
+      <div>🎲 Cada jogador joga o dado na sua vez e anda pela trilha.</div>
+      <div>🃏 Ao parar numa casa colorida, vira uma carta com um desafio de habilidade social.</div>
+      <div>💬 Vale responder em voz alta, encenar ou conversar — o importante é praticar!</div>
+      <div>⭐ Casas amarelas são bônus: avance ou jogue de novo.</div>
+      <div>🏁 Quem chegar primeiro à última casa, vence!</div>
+    </div>
+    <button class="btn" style="width:100%;" onclick="irPara('setup')">Entendi, vamos jogar!</button>
+    <button class="btn btn-secundario btn-pequeno" style="width:100%; margin-top:10px;" onclick="irPara('home')">Voltar</button>
+  </div>
+</div>
+
+<!-- ============ TELA SETUP ============ -->
+<div id="setup" class="screen hidden">
+  <div class="card">
+    <h2>🧩 Preparar jogo</h2>
+    <p class="lead">Quantos vão jogar?</p>
+    <div class="qtd-jogadores" id="qtdJogadoresBtns"></div>
+
+    <div class="lista-nomes" id="listaNomes"></div>
+
+    <p class="lead" style="margin-top:4px;">Foco do jogo</p>
+    <div class="modo-row" id="modoRow"></div>
+
+    <button class="btn" style="width:100%;" onclick="iniciarJogo()">Jogar! 🎲</button>
+    <button class="btn btn-secundario btn-pequeno" style="width:100%; margin-top:10px;" onclick="irPara('home')">Voltar</button>
+  </div>
+</div>
+
+<!-- ============ TELA JOGO ============ -->
+<div id="jogo" class="screen hidden">
+  <div class="topo-jogo">
+    <button class="voltar-link" onclick="confirmarSair()">← Sair</button>
+    <div class="vez-badge"><span id="vezAvatar">🙂</span> Vez de <span id="vezNome">—</span></div>
+  </div>
+
+  <div class="tabuleiro-wrap">
+    <div class="tabuleiro-inner">
+      <div id="grid-tabuleiro"></div>
+    </div>
+  </div>
+
+  <div class="rodape-jogo">
+    <div class="jogadores-painel" id="painelJogadores"></div>
+    <div class="dado-bloco">
+      <div id="dado-visual" onclick="rolarDado()">🎲</div>
+      <button class="btn-jogar-dado" id="btnRolar" onclick="rolarDado()">Jogar o dado</button>
+    </div>
+  </div>
+</div>
+
+<div class="resultado-dado-popup hidden" id="resultadoDadoPopup">
+  <div class="resultado-dado-conteudo">
+    <span id="resultadoDadoIcone">⚀</span>
+    <p>Você tirou <strong id="resultadoDadoNum">1</strong>!</p>
+  </div>
+</div>
+
+<!-- ============ TELA VITORIA ============ -->
+<div id="vitoria" class="screen hidden">
+  <div class="podio-emoji">🏆</div>
+  <h2 class="nome-vencedor" id="nomeVencedorTxt">Vencedor!</h2>
+  <p class="subtitulo">Parabéns por praticar tantas habilidades sociais durante o caminho! 🎉</p>
+  <button class="btn" onclick="irPara('setup')">Jogar novamente</button>
+  <button class="btn btn-secundario btn-pequeno" style="margin-top:14px;" onclick="irPara('home')">Voltar ao início</button>
+</div>
+
+<script>
+/* ===================== DADOS DO JOGO ===================== */
+
+const AVATARES = ['🦊','🐼','🐯','🐸','🐰','🐨','🐵','🦁'];
+const CORES_AVATAR = ['#FFD9B0','#BEE3F8','#FBD0E0','#D6F0DD','#E6DBFA','#FFE9A8','#D0E8F2','#F8D7C4'];
+
+const CARTAS = {
+  comunicacao: {
+    nome: 'Comunicação', icone: '💬',
+    frases: [
+      'Conte para o grupo algo legal que aconteceu com você essa semana, olhando nos olhos de quem está ouvindo.',
+      'Peça emprestado um objeto para alguém do grupo, usando "por favor" e explicando por que precisa dele.',
+      'Diga uma coisa que você gosta em outro jogador, de forma sincera.',
+      'Explique uma regra do jogo para alguém como se essa pessoa nunca tivesse jogado antes.',
+      'Faça uma pergunta para outro jogador sobre algo que ele(a) gosta de fazer no tempo livre.',
+      'Pratique dizer "eu não entendi, pode explicar de novo?" em voz alta.',
+      'Conte uma ideia para o grupo decidir o que fazer depois do jogo.',
+      'Diga "obrigado" e "por favor" em três frases diferentes, inventadas na hora.'
+    ]
+  },
+  emocao: {
+    nome: 'Emoções', icone: '💗',
+    frases: [
+      'Mostre com a cara e o corpo uma emoção (sem falar) para os outros adivinharem.',
+      'Conte uma vez em que você ficou com raiva e o que fez para se acalmar.',
+      'Diga uma coisa que te deixa feliz e por quê.',
+      'Conte uma vez em que você ficou com medo. O que ajudou você a se sentir melhor?',
+      'Descreva como seu corpo fica quando você está nervoso(a) (mãos, barriga, respiração).',
+      'Invente uma frase que você poderia dizer quando está triste, para pedir ajuda.',
+      'Mostre uma cara de surpresa e explique uma coisa que já te surpreendeu.',
+      'Conte uma situação em que você ficou orgulhoso(a) de si mesmo(a).'
+    ]
+  },
+  conflito: {
+    nome: 'Resolver Conflitos', icone: '🤝',
+    frases: [
+      'Dois amigos querem o mesmo brinquedo. O que vocês podem fazer para resolver isso sem brigar?',
+      'Conte uma vez em que você discordou de alguém. Como vocês resolveram?',
+      'Se alguém te empurra sem querer, o que você pode dizer (sem gritar)?',
+      'Invente uma combinação justa para dividir um doce entre duas pessoas.',
+      'Você quer jogar um jogo, mas seu amigo quer jogar outro. O que vocês podem fazer?',
+      'Diga uma frase educada para pedir para alguém parar de fazer algo que te incomoda.',
+      'Conte como você pediria desculpas se machucasse os sentimentos de um amigo sem querer.',
+      'Combine com o grupo uma regra nova e justa para usar no resto do jogo.'
+    ]
+  },
+  empatia: {
+    nome: 'Empatia', icone: '🌱',
+    frases: [
+      'Imagine que um amigo está triste porque perdeu um jogo. O que você diria para ele(a)?',
+      'Escolha alguém do grupo e diga algo gentil sobre o que essa pessoa fez hoje.',
+      'Conte uma vez em que alguém te ajudou. Como você se sentiu?',
+      'Se você vir um colega sozinho no recreio, o que você poderia fazer?',
+      'Imagine como se sente alguém que está chegando numa escola nova. O que ajudaria essa pessoa?',
+      'Pergunte a outro jogador como ele(a) está se sentindo agora, de verdade.',
+      'Conte uma forma de ajudar alguém da sua família hoje.',
+      'Diga como você se sentiria se alguém risse de você, e o que gostaria que essa pessoa fizesse.'
+    ]
+  },
+  bonus: {
+    nome: 'Bônus', icone: '⭐',
+    frases: [
+      'Você foi super gentil! Avance 2 casas.',
+      'Demonstrou empatia agora mesmo! Jogue o dado de novo.',
+      'Casa da sorte! Escolha outro jogador para avançar 1 casa também.',
+      'Você arrasou na escuta! Avance 1 casa.',
+      'Energia boa por aqui! Jogue o dado novamente.'
+    ]
+  }
+};
+
+const TOTAL_CASAS = 32;
+const TRAJETO_COLS = 12;
+const TRAJETO_ROWS = 7;
+
+// coordenadas transpostas: [linha, coluna] em grade 7 linhas × 12 colunas
+// equivalente a girar o tabuleiro vertical 90° para ficar horizontal
+const COORDENADAS_CASAS = [
+  [6,11],[6,10],[5,10],[4,10],[3,10],[3,11],[2,11],[1,11],[0,11],[0,10],
+  [0,9],[0,8],[0,7],[0,6],[1,6],[2,6],[2,5],[2,4],[3,4],[4,4],
+  [5,4],[5,3],[5,2],[6,2],[6,1],[6,0],[5,0],[4,0],[3,0],[2,0],
+  [1,0],[0,0]
+];
+
+// define o tipo de cada casa do tabuleiro (índice 0 = início, último = final)
+const TIPOS_CASA = (() => {
+  const seq = ['comunicacao','emocao','conflito','empatia','bonus'];
+  let arr = ['inicio'];
+  for(let i=1;i<TOTAL_CASAS-1;i++){
+    arr.push(seq[(i-1) % seq.length]);
+  }
+  arr.push('final');
+  return arr;
+})();
+
+const ICONES_CASA = {
+  inicio:'🏁', final:'🏆',
+  comunicacao:'💬', emocao:'💗', conflito:'🤝', empatia:'🌱', bonus:'⭐'
+};
+
+/* ===================== ESTADO ===================== */
+let estado = {
+  numJogadores: 2,
+  nomes: ['',''],
+  modo: 'geral',
+  jogadores: [], // {nome, avatar, cor, posicao}
+  vezAtual: 0,
+  podeJogar: true
+};
+
+function confirmarBoasVindas(){
+  const nome = document.getElementById('nomeBoasVindas').value.trim();
+  if(nome){ estado.nomes[0] = nome; }
+  irPara('home');
+}
+
+function irPara(tela){
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById(tela).classList.remove('hidden');
+  if(tela === 'setup') montarSetup();
+}
+
+/* ===================== SETUP ===================== */
+function montarSetup(){
+  const qtdDiv = document.getElementById('qtdJogadoresBtns');
+  qtdDiv.innerHTML = '';
+  for(let n=2;n<=4;n++){
+    const b = document.createElement('button');
+    b.className = 'qtd-btn' + (n===estado.numJogadores ? ' ativo':'');
+    b.textContent = n;
+    b.onclick = () => { estado.numJogadores = n; montarSetup(); };
+    qtdDiv.appendChild(b);
+  }
+
+  const lista = document.getElementById('listaNomes');
+  lista.innerHTML = '';
+  for(let i=0;i<estado.numJogadores;i++){
+    const linha = document.createElement('div');
+    linha.className = 'nome-linha';
+    linha.innerHTML = `
+      <div class="avatar-circ" style="background:${CORES_AVATAR[i]}">${AVATARES[i]}</div>
+      <input class="nome-input" placeholder="Nome do jogador ${i+1}" value="${estado.nomes[i]||''}" oninput="estado.nomes[${i}]=this.value">
+    `;
+    lista.appendChild(linha);
+  }
+
+  const modos = [
+    {id:'geral', icone:'🎯', label:'Geral'},
+    {id:'comunicacao', icone:'💬', label:'Comunicação'},
+    {id:'empatia', icone:'🌱', label:'Empatia'},
+    {id:'conflito', icone:'🤝', label:'Conflitos'}
+  ];
+  const modoRow = document.getElementById('modoRow');
+  modoRow.innerHTML = '';
+  modos.forEach(m => {
+    const d = document.createElement('div');
+    d.className = 'modo-opt' + (estado.modo===m.id ? ' ativo':'');
+    d.innerHTML = `<span>${m.icone}</span>${m.label}`;
+    d.onclick = () => { estado.modo = m.id; montarSetup(); };
+    modoRow.appendChild(d);
+  });
+}
+
+function iniciarJogo(){
+  estado.jogadores = [];
+  for(let i=0;i<estado.numJogadores;i++){
+    estado.jogadores.push({
+      nome: (estado.nomes[i] && estado.nomes[i].trim()) || `Jogador ${i+1}`,
+      avatar: AVATARES[i],
+      cor: CORES_AVATAR[i],
+      posicao: 0
+    });
+  }
+  estado.vezAtual = 0;
+  estado.podeJogar = true;
+  montarTabuleiro();
+  atualizarPainel();
+  irPara('jogo');
+}
+
+/* ===================== TABULEIRO ===================== */
+function montarTabuleiro(){
+  const grid = document.getElementById('grid-tabuleiro');
+  grid.innerHTML = '';
+  for(let i=0;i<TOTAL_CASAS;i++){
+    const tipo = TIPOS_CASA[i];
+    const [linha, coluna] = COORDENADAS_CASAS[i];
+    const casa = document.createElement('div');
+    casa.className = `casa tipo-${tipo}`;
+    casa.id = `casa-${i}`;
+    casa.style.gridRow = (linha + 1);
+    casa.style.gridColumn = (coluna + 1);
+    casa.innerHTML = `<span class="num">${i+1}</span>${ICONES_CASA[tipo]}<div class="fichas-na-casa" id="fichas-${i}"></div>`;
+    grid.appendChild(casa);
+  }
+  atualizarFichas();
+}
+
+function atualizarFichas(){
+  document.querySelectorAll('.fichas-na-casa').forEach(el => el.innerHTML = '');
+  estado.jogadores.forEach((j, idx) => {
+    const alvo = document.getElementById(`fichas-${j.posicao}`);
+    if(alvo){
+      const f = document.createElement('div');
+      f.className = 'ficha';
+      f.style.background = j.cor;
+      f.textContent = j.avatar;
+      alvo.appendChild(f);
+    }
+  });
+}
+
+function atualizarPainel(){
+  const painel = document.getElementById('painelJogadores');
+  painel.innerHTML = '';
+  estado.jogadores.forEach((j, idx) => {
+    const card = document.createElement('div');
+    card.className = 'jog-card' + (idx===estado.vezAtual ? ' vez-atual':'');
+    card.innerHTML = `
+      <div class="avatar-circ" style="background:${j.cor};width:32px;height:32px;font-size:16px;">${j.avatar}</div>
+      <div class="info-j">
+        <span class="nome-j">${j.nome}</span>
+        <span class="casa-j">Casa ${j.posicao+1}</span>
+      </div>
+    `;
+    painel.appendChild(card);
+  });
+  const atual = estado.jogadores[estado.vezAtual];
+  document.getElementById('vezAvatar').textContent = atual.avatar;
+  document.getElementById('vezNome').textContent = atual.nome;
+}
+
+/* ===================== DADO E MOVIMENTO ===================== */
+function rolarDado(){
+  if(!estado.podeJogar) return;
+  estado.podeJogar = false;
+  document.getElementById('btnRolar').disabled = true;
+  const dadoEl = document.getElementById('dado-visual');
+  dadoEl.classList.add('rolando');
+
+  const valor = Math.floor(Math.random()*6) + 1;
+  const facesDado = ['','⚀','⚁','⚂','⚃','⚄','⚅'];
+
+  let contador = 0;
+  const interval = setInterval(() => {
+    dadoEl.textContent = facesDado[Math.floor(Math.random()*6)+1];
+    contador++;
+    if(contador > 6){
+      clearInterval(interval);
+      dadoEl.textContent = facesDado[valor];
+      dadoEl.classList.remove('rolando');
+      mostrarResultadoDado(valor, () => moverJogador(valor));
+    }
+  }, 70);
+}
+
+function mostrarResultadoDado(valor, callback){
+  const facesDado = ['','⚀','⚁','⚂','⚃','⚄','⚅'];
+  const popup = document.getElementById('resultadoDadoPopup');
+  document.getElementById('resultadoDadoIcone').textContent = facesDado[valor];
+  document.getElementById('resultadoDadoNum').textContent = valor;
+  popup.classList.remove('hidden');
+  const conteudo = popup.querySelector('.resultado-dado-conteudo');
+  conteudo.style.animation = 'none';
+  void conteudo.offsetWidth;
+  conteudo.style.animation = '';
+  setTimeout(() => {
+    popup.classList.add('hidden');
+    callback();
+  }, 1100);
+}
+
+function moverJogador(passos){
+  const j = estado.jogadores[estado.vezAtual];
+  let destino = Math.min(j.posicao + passos, TOTAL_CASAS - 1);
+
+  const passoAPasso = () => {
+    if(j.posicao < destino){
+      j.posicao++;
+      atualizarFichas();
+      atualizarPainel();
+      setTimeout(passoAPasso, 180);
+    } else {
+      onChegouNaCasa(j);
+    }
+  };
+  passoAPasso();
+}
+
+function onChegouNaCasa(jogador){
+  const tipo = TIPOS_CASA[jogador.posicao];
+
+  if(tipo === 'final'){
+    setTimeout(() => mostrarVitoria(jogador), 400);
+    return;
+  }
+
+  if(tipo === 'inicio'){
+    proximaVez();
+    return;
+  }
+
+  setTimeout(() => mostrarCarta(tipo, jogador), 300);
+}
+
+function mostrarCarta(tipo, jogador){
+  const dados = CARTAS[tipo];
+  const frase = dados.frases[Math.floor(Math.random()*dados.frases.length)];
+
+  const bg = document.createElement('div');
+  bg.className = 'modal-bg';
+  bg.id = 'modalCarta';
+
+  let botoesExtra = '';
+  if(tipo === 'bonus'){
+    botoesExtra = `<button class="btn" onclick="fecharCartaBonus()">Aplicar bônus ✨</button>`;
+  } else {
+    botoesExtra = `<button class="btn" onclick="fecharCarta()">Consegui! Próximo ✔️</button>`;
+  }
+
+  bg.innerHTML = `
+    <div class="carta tipo-${tipo}">
+      <div class="carta-topo">
+        <span class="icone-grande">${dados.icone}</span>
+        <span class="categoria-nome">${dados.nome}</span>
+      </div>
+      <div class="carta-corpo">
+        <p>${frase}</p>
+        <div class="carta-botoes">${botoesExtra}</div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(bg);
+  window._cartaBonusAplicada = false;
+}
+
+function fecharCarta(){
+  document.getElementById('modalCarta')?.remove();
+  proximaVez();
+}
+
+function fecharCartaBonus(){
+  // aplica efeito simples de bônus: avança 1-2 casas extra ou joga de novo (aleatório, mas consistente com a frase mostrada)
+  const j = estado.jogadores[estado.vezAtual];
+  document.getElementById('modalCarta')?.remove();
+
+  const efeito = Math.random();
+  if(efeito < 0.4){
+    // joga de novo
+    estado.podeJogar = true;
+    document.getElementById('btnRolar').disabled = false;
+    atualizarPainel();
+  } else {
+    const avanco = efeito < 0.7 ? 1 : 2;
+    j.posicao = Math.min(j.posicao + avanco, TOTAL_CASAS - 1);
+    atualizarFichas();
+    atualizarPainel();
+    if(TIPOS_CASA[j.posicao] === 'final'){
+      setTimeout(() => mostrarVitoria(j), 300);
+    } else {
+      proximaVez();
+    }
+  }
+}
+
+function proximaVez(){
+  estado.vezAtual = (estado.vezAtual + 1) % estado.jogadores.length;
+  estado.podeJogar = true;
+  document.getElementById('btnRolar').disabled = false;
+  atualizarPainel();
+}
+
+/* ===================== VITORIA ===================== */
+function mostrarVitoria(jogador){
+  document.getElementById('nomeVencedorTxt').textContent = `${jogador.avatar} ${jogador.nome} venceu!`;
+  irPara('vitoria');
+  lancarConfetes();
+}
+
+function lancarConfetes(){
+  const cores = ['#FF8C3B','#4A9FD8','#5FB87A','#8C6FD8','#E8709C','#FFC93C'];
+  for(let i=0;i<40;i++){
+    const c = document.createElement('div');
+    c.className = 'confete';
+    c.style.left = Math.random()*100 + 'vw';
+    c.style.width = c.style.height = (6 + Math.random()*6) + 'px';
+    c.style.background = cores[Math.floor(Math.random()*cores.length)];
+    c.style.animationDuration = (2 + Math.random()*2) + 's';
+    document.getElementById('vitoria').appendChild(c);
+    setTimeout(() => c.remove(), 4500);
+  }
+}
+
+function confirmarSair(){
+  if(confirm('Quer sair do jogo e voltar ao início? O progresso será perdido.')){
+    irPara('home');
+  }
+}
+
+/* ===================== INIT ===================== */
+montarSetup();
+</script>
+</body>
+</html>
