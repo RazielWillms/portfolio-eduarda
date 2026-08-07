@@ -1,7 +1,8 @@
-import { MessageCircle, Mail, Instagram, MapPin, Clock } from "lucide-react"
+import { MessageCircle, Mail, Instagram, MapPin } from "lucide-react"
 
 export function ContactSection() {
-  const whatsappUrl = "https://wa.me/5500000000000?text=Olá! Gostaria de agendar um atendimento."
+  const whatsappUrl =
+    "https://wa.me/5559961772440?text=Olá! Gostaria de agendar um atendimento."
 
   return (
     <section id="contato" className="py-24 bg-background">
@@ -34,14 +35,16 @@ export function ContactSection() {
               <div>
                 <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">WhatsApp</p>
                 <p className="font-bold text-foreground group-hover:text-primary transition-colors">
-                  (00) 00000-0000
+                  (55) 9 96177244
                 </p>
               </div>
             </a>
 
             {/* E-mail */}
             <a
-              href="mailto:contato@eduarda.psi.br"
+              href="mailto:eduardachiodi1903@gmail.com"
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-4 bg-[oklch(0.93_0.05_230)] rounded-3xl p-5 border border-white/60 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group"
             >
               <div className="w-12 h-12 bg-[oklch(0.62_0.13_220)] rounded-2xl flex items-center justify-center shadow-sm flex-shrink-0">
@@ -50,14 +53,14 @@ export function ContactSection() {
               <div>
                 <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">E-mail</p>
                 <p className="font-bold text-foreground group-hover:text-primary transition-colors">
-                  contato@eduarda.psi.br
+                  eduardachiodi1903@gmail.com
                 </p>
               </div>
             </a>
 
             {/* Instagram */}
             <a
-              href="https://instagram.com/"
+              href="https://instagram.com/edchiodi"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-4 bg-[oklch(0.93_0.04_295)] rounded-3xl p-5 border border-white/60 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group"
@@ -68,32 +71,20 @@ export function ContactSection() {
               <div>
                 <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Instagram</p>
                 <p className="font-bold text-foreground group-hover:text-primary transition-colors">
-                  @eduarda.psi
+                  @edchiodi
                 </p>
               </div>
             </a>
 
-            {/* Endereço */}
+            {/* Endereco */}
             <div className="flex items-center gap-4 bg-[oklch(0.94_0.04_55)] rounded-3xl p-5 border border-white/60">
               <div className="w-12 h-12 bg-[oklch(0.65_0.14_55)] rounded-2xl flex items-center justify-center shadow-sm flex-shrink-0">
                 <MapPin className="w-6 h-6 text-white" />
               </div>
               <div>
                 <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Endereço</p>
-                <p className="font-bold text-foreground">Clínica — a definir</p>
-                <p className="text-sm text-muted-foreground">Sua cidade, Estado</p>
-              </div>
-            </div>
-
-            {/* Horário */}
-            <div className="flex items-center gap-4 bg-muted/50 rounded-3xl p-5 border border-white/60">
-              <div className="w-12 h-12 bg-muted rounded-2xl flex items-center justify-center shadow-sm flex-shrink-0">
-                <Clock className="w-6 h-6 text-muted-foreground" />
-              </div>
-              <div>
-                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Horário de atendimento</p>
-                <p className="font-bold text-foreground">Segunda a Sexta</p>
-                <p className="text-sm text-muted-foreground">08h às 18h</p>
+                <p className="font-bold text-foreground">Clínica Criare</p>
+                <p className="text-sm text-muted-foreground">Nova Prata, Rio Grande do Sul</p>
               </div>
             </div>
           </div>
