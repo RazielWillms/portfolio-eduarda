@@ -2,20 +2,10 @@ import { ExternalLink } from "lucide-react"
 
 const activities = [
   {
-    emoji: "🎲",
+    emoji: "🦊",
     title: "Trilha das Habilidades Sociais",
     description:
-      "Jogo de tabuleiro interativo para praticar comunicação, empatia e resolução de conflitos brincando. Ideal para 2 a 4 jogadores.",
-    href: "/atividades/trilha-habilidades-sociais.html",
-    color: "bg-[oklch(0.93_0.05_55)]",
-    badgeColor: "bg-[oklch(0.88_0.08_55)] text-[oklch(0.28_0.1_55)]",
-    tag: "Habilidades Sociais",
-  },
-  {
-    emoji: "🦊",
-    title: "Trilha das Habilidades Sociais v2",
-    description:
-      "Nova versão da trilha com layout vertical e novas categorias de desafios. Explore mais situações de comunicação, empatia e conflito.",
+      "Jogo de tabuleiro interativo para praticar comunicação, empatia e resolução de conflitos de forma lúdica e divertida.",
     href: "/atividades/trilha-habilidades-sociais-v2.html",
     color: "bg-[oklch(0.93_0.06_35)]",
     badgeColor: "bg-[oklch(0.87_0.09_35)] text-[oklch(0.28_0.1_35)]",
@@ -60,7 +50,7 @@ export function ActivitiesSection() {
         </div>
 
         {/* Cards grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {activities.map(({ emoji, title, description, href, color, badgeColor, tag }) => (
             <div
               key={title}
@@ -94,10 +84,24 @@ export function ActivitiesSection() {
           ))}
         </div>
 
-        {/* Note */}
-        <p className="mt-10 text-center text-xs text-muted-foreground">
-          As atividades abrem em uma nova guia. Em breve mais conteúdos serão adicionados.
-        </p>
+        {/* Note + crédito */}
+        <div className="mt-10 flex flex-col items-center gap-2">
+          <p className="text-center text-xs text-muted-foreground">
+            As atividades abrem em uma nova guia. Em breve mais conteúdos serão adicionados.
+          </p>
+          <p className="text-center text-xs text-muted-foreground">
+            Atividades desenvolvidas por{" "}
+            <a
+              href="https://www.instagram.com/omateuspsi"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-primary hover:underline"
+            >
+              @omateuspsi
+            </a>
+            .
+          </p>
+        </div>
       </div>
     </section>
   )
