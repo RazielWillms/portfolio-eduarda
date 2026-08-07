@@ -1,11 +1,18 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Suspense } from "react"
+import { Nunito } from "next/font/google"
 import "./globals.css"
 
+const nunito = Nunito({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-nunito",
+})
+
 export const metadata: Metadata = {
-  title: "Fons Mans - Designer Portfolio",
-  description: "Designer based in Rotterdam, The Netherlands",
+  title: "Eduarda — Psicóloga Infantil | Especialista em TEA",
+  description:
+    "Psicóloga infantil especializada em Transtorno do Espectro Autista (TEA) e desenvolvimento infantil. Atendimento acolhedor e humanizado para crianças e famílias.",
   generator: "v0.app",
 }
 
@@ -15,10 +22,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className="font-sans antialiased">
-        <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
-      </body>
+    <html lang="pt-BR" className={`${nunito.variable} bg-background`}>
+      <body className="font-sans antialiased">{children}</body>
     </html>
   )
 }
