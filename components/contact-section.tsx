@@ -2,7 +2,7 @@ import { MessageCircle, Mail, Instagram, MapPin } from "lucide-react"
 
 export function ContactSection() {
   const whatsappUrl =
-    "https://wa.me/5559961772440?text=Olá! Gostaria de agendar um atendimento."
+    "https://wa.me/55996177244?text=Olá! Gostaria de agendar um atendimento."
 
   return (
     <section id="contato" className="py-24 bg-background">
@@ -91,7 +91,7 @@ export function ContactSection() {
 
           {/* CTA Card */}
           <div className="bg-gradient-to-br from-[oklch(0.94_0.05_220)] to-[oklch(0.92_0.06_175)] rounded-3xl p-10 border border-white/60 shadow-md flex flex-col items-center text-center gap-6">
-            <div className="text-6xl">🌿</div>
+            <div className="text-6xl">🤝</div>
             <div>
               <h3 className="text-2xl font-extrabold text-foreground">Pronta para dar o primeiro passo?</h3>
               <p className="mt-3 text-sm text-muted-foreground leading-relaxed">

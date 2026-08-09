@@ -1,4 +1,4 @@
-import { UserCheck, Brain, Layers, Building2, Leaf } from "lucide-react"
+import { UserCheck, Brain, Layers, Building2, HeartHandshake, PawPrint, Leaf } from "lucide-react"
 
 const differentials = [
   {
@@ -34,7 +34,7 @@ const differentials = [
     bg: "bg-[oklch(0.88_0.08_55)]",
   },
   {
-    icon: Leaf,
+    icon: HeartHandshake,
     title: "Equoterapia",
     description:
       "Vivência prática em equoterapia, uma abordagem que utiliza o cavalo como co-terapeuta no desenvolvimento infantil.",

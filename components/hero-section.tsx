@@ -99,7 +99,7 @@ export function HeroSection() {
               </div>
             </div>
             <div className="animate-float delay-200 absolute -bottom-4 -right-4 bg-white shadow-md rounded-2xl px-4 py-2 flex items-center gap-2 z-20">
-              <span className="text-2xl">🌿</span>
+              <span className="text-2xl">🐴</span>
               <div>
                 <p className="text-xs font-bold text-foreground">Equoterapia</p>
                 <p className="text-xs text-muted-foreground">experiência</p>
@@ -117,9 +117,9 @@ export function HeroSection() {
                 className="w-full h-full object-cover object-top"
               />
               {/* Name overlay */}
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-6">
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-6 pb-10">
                 <p className="text-white font-extrabold text-xl">Eduarda</p>
-                <p className="text-white/80 text-sm">Psicóloga Infantil · CRP</p>
+                <p className="text-white/80 text-sm">Psicóloga Infantil · CRP 07/39525</p>
               </div>
             </div>
           </div>
