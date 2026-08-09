@@ -9,7 +9,7 @@ export function Navbar() {
   const links = [
     { label: "Sobre", href: "#sobre" },
     { label: "Especialidades", href: "#especialidades" },
-    { label: "Atividades Lúdicas", href: "#atividades" },
+    { label: "Atividades Lúdicas", href: "#atividades-preview" },
     { label: "Contato", href: "#contato" },
   ]
 

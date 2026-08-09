@@ -58,7 +58,7 @@ export function HeroSection() {
               Agendar Atendimento
             </a>
             <a
-              href="#atividades"
+              href="/atividades"
               className="inline-flex items-center gap-2 bg-white/80 text-foreground font-bold px-6 py-3.5 rounded-2xl border border-border/40 hover:bg-white transition-all hover:-translate-y-0.5 shadow-sm hover:shadow-md"
             >
               <Gamepad2 className="w-5 h-5 text-primary" />
@@ -69,13 +69,13 @@ export function HeroSection() {
           {/* Stats */}
           <div className="flex gap-8 pt-2">
             <div>
-              <div className="text-3xl font-extrabold text-foreground">+5 anos</div>
-              <p className="text-xs text-muted-foreground mt-1">de experiência clínica</p>
+              <div className="text-3xl font-extrabold text-foreground">+3 anos</div>
+              <p className="text-xs text-muted-foreground mt-1">de experiência {/*clínica*/}</p>
             </div>
             <div className="w-px bg-border" />
             <div>
               <div className="text-3xl font-extrabold text-foreground">TEA</div>
-              <p className="text-xs text-muted-foreground mt-1">especialização avançada</p>
+              <p className="text-xs text-muted-foreground mt-1">especialização em ABA</p>
             </div>
             <div className="w-px bg-border" />
             <div>
@@ -99,9 +99,9 @@ export function HeroSection() {
               </div>
             </div>
             <div className="animate-float delay-200 absolute -bottom-4 -right-4 bg-white shadow-md rounded-2xl px-4 py-2 flex items-center gap-2 z-20">
-              <span className="text-2xl">🐴</span>
+              <span className="text-2xl">🧠</span>
               <div>
-                <p className="text-xs font-bold text-foreground">Equoterapia</p>
+                <p className="text-xs font-bold text-foreground">ABA</p>
                 <p className="text-xs text-muted-foreground">experiência</p>
               </div>
             </div>
@@ -112,7 +112,7 @@ export function HeroSection() {
               style={{ background: "linear-gradient(145deg, oklch(0.86 0.07 230), oklch(0.88 0.07 175))" }}
             >
               <img
-                src="/eduarda.jpg"
+                src="/Eduarda-Hero-Section2.jpeg"
                 alt="Eduarda, psicóloga infantil especialista em TEA"
                 className="w-full h-full object-cover object-top"
               />

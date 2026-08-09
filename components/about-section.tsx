@@ -1,4 +1,4 @@
-import { GraduationCap, Puzzle, Leaf, Stethoscope, Heart } from "lucide-react"
+import { GraduationCap, Puzzle, Leaf, HeartHandshake, Stethoscope, Heart } from "lucide-react"
 
 const credentials = [
   {
@@ -12,7 +12,7 @@ const credentials = [
     color: "bg-[oklch(0.82_0.07_295)] text-[oklch(0.25_0.1_295)]",
   },
   {
-    icon: Leaf,
+    icon: HeartHandshake,
     label: "Equoterapia",
     color: "bg-[oklch(0.88_0.07_175)] text-[oklch(0.25_0.1_175)]",
   },
@@ -20,11 +20,6 @@ const credentials = [
     icon: Stethoscope,
     label: "Atendimento Clínico Infantil",
     color: "bg-[oklch(0.88_0.08_55)] text-[oklch(0.28_0.08_55)]",
-  },
-  {
-    icon: Heart,
-    label: "Desenvolvimento Socioemocional",
-    color: "bg-[oklch(0.86_0.07_10)] text-[oklch(0.28_0.1_10)]",
   },
 ]
 
@@ -34,7 +29,7 @@ export function AboutSection() {
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Photo side */}
-          <div className="relative">
+          <div className="hidden lg:block relative">
             <div
               className="absolute inset-0 rounded-[3rem] translate-x-4 translate-y-4"
               style={{ background: "oklch(0.88 0.07 175)", opacity: 0.4 }}
@@ -65,9 +60,8 @@ export function AboutSection() {
             </p>
 
             <p className="text-base text-muted-foreground leading-relaxed">
-              Acredito que cada criança tem seu próprio ritmo e potencial único. Meu trabalho é criar um espaço seguro
-              e afetuoso, onde ela possa se desenvolver com confiança — e onde a família se sinta acolhida e
-              parceira nessa jornada.
+              A abordagem ABA é utilizada de forma individualizada para favorecer o desenvolvimento global da criança, 
+              respeitando suas necessidades, potencialidades e seu ritmo de crescimento, em um ambiente acolhedor, seguro e estruturado.
             </p>
 
             {/* Credential chips */}

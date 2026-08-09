@@ -39,12 +39,12 @@ const specialties = [
   },
   {
     icon: HeartHandshake,
-    title: "Orientação Parental",
+    title: "Intervenção Comportamental",
     description:
-      "Suporte e orientação para famílias, fortalecendo vínculos e oferecendo estratégias para lidar com desafios do dia a dia.",
+      "Intervenções baseadas na abordagem ABA para compreender e manejar comportamentos, favorecendo o desenvolvimento da criança em um ambiente acolhedor e estruturado.",
     color: "bg-[oklch(0.94_0.04_10)]",
     iconColor: "text-[oklch(0.45_0.12_10)]",
-    iconBg: "bg-[oklch(0.88_0.07_10)]",
+    iconBg: "bg-[oklch(0.88_0.07_10)]", 
   },
   {
     icon: Gamepad2,

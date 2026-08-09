@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Robozinho Ajudante | Clube da Massinha</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-top:#EAF0FF;
+    --bg-bottom:#DCE8FA;
+    --orange:#FF8C42;
+    --orange-dark:#E8672A;
+    --gold:#FFD166;
+    --gold-dark:#E8A93C;
+    --green:#4CAF7D;
+    --green-dark:#379563;
+    --blue:#5B8DEF;
+    --blue-dark:#3A66C4;
+    --red:#E85D5D;
+    --red-dark:#C24444;
+    --purple:#8A7DE0;
+    --purple-dark:#6357B8;
+    --brown:#40465A;
+    --brown-soft:#7A8296;
+    --white:#FFFFFF;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent; user-select:none;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    min-height:100vh;
+    min-height:100dvh;
+    background: radial-gradient(circle at 50% -10%, var(--bg-top), var(--bg-bottom) 80%);
+    font-family:'Nunito', sans-serif;
+    color:var(--brown);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    overflow:hidden;
+    touch-action: manipulation;
+  }
+  h1,h2,.title,.btn,.big-msg{font-family:'Fredoka', sans-serif;}
+
+  .screen{
+    position:fixed; inset:0;
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    width:100%;
+    height:100%;
+  }
+  .screen.active{ display:flex; }
+
+  /* ================= TELA DO TERAPEUTA ================= */
+  #screenTherapist{
+    justify-content:center;
+    gap:22px;
+    padding:36px 26px;
+    text-align:center;
+    overflow-y:auto;
+  }
+  .screen-badge{
+    font-size:13px;
+    font-weight:800;
+    color:var(--blue-dark);
+    background:#fff;
+    padding:6px 16px;
+    border-radius:20px;
+    letter-spacing:.5px;
+    text-transform:uppercase;
+    box-shadow:0 3px 8px rgba(0,0,0,.06);
+  }
+  #screenTherapist h1{
+    font-size:clamp(24px,7vw,32px);
+    color:var(--blue-dark);
+    margin:0;
+  }
+  #screenTherapist p.sub{
+    max-width:340px;
+    font-size:16px;
+    font-weight:700;
+    color:#6b7386;
+    line-height:1.5;
+    margin:0;
+  }
+  .field-label{
+    font-size:13px;
+    font-weight:800;
+    color:var(--brown-soft);
+    text-transform:uppercase;
+    letter-spacing:.4px;
+  }
+
+  .unit-toggle{
+    display:flex;
+    background:#fff;
+    border-radius:50px;
+    padding:5px;
+    box-shadow:0 3px 10px rgba(0,0,0,.06);
+    gap:4px;
+  }
+  .unit-btn{
+    border:none;
+    background:transparent;
+    padding:10px 22px;
+    border-radius:40px;
+    font-family:'Fredoka';
+    font-weight:600;
+    font-size:15px;
+    color:var(--brown-soft);
+    cursor:pointer;
+    transition: all .2s ease;
+  }
+  .unit-btn.active{
+    background: linear-gradient(180deg, var(--blue), var(--blue-dark));
+    color:#fff;
+  }
+
+  .stepper{
+    display:flex;
+    align-items:center;
+    gap:20px;
+  }
+  .step-btn{
+    width:54px; height:54px;
+    border-radius:50%;
+    border:none;
+    background:#fff;
+    box-shadow:0 4px 10px rgba(0,0,0,.08);
+    font-size:26px;
+    font-weight:800;
+    color:var(--blue-dark);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+  }
+  .step-btn:active{ transform:scale(.92); }
+  .step-value{
+    min-width:120px;
+    text-align:center;
+    font-size:44px;
+    font-weight:700;
+    color:var(--blue-dark);
+  }
+  .step-unit{
+    font-size:16px;
+    font-weight:800;
+    color:var(--brown-soft);
+    margin-top:-14px;
+  }
+
+  .presets{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:center;
+    max-width:320px;
+  }
+  .preset-chip{
+    border:none;
+    background:#fff;
+    color:var(--blue-dark);
+    font-weight:800;
+    font-size:14px;
+    padding:8px 16px;
+    border-radius:20px;
+    box-shadow:0 2px 6px rgba(0,0,0,.06);
+    cursor:pointer;
+  }
+  .preset-chip.active{
+    background: linear-gradient(180deg, var(--gold), var(--gold-dark));
+    color:#fff;
+  }
+
+  /* ================= BOTOES GERAIS ================= */
+  .btn{
+    border:none;
+    background: linear-gradient(180deg, var(--orange), var(--orange-dark));
+    color:#fff;
+    font-size:19px;
+    font-weight:600;
+    padding:16px 40px;
+    border-radius:50px;
+    box-shadow:0 6px 0 #C24F1F, 0 10px 16px rgba(0,0,0,.15);
+    cursor:pointer;
+    transition: transform .1s ease;
+  }
+  .btn:active{ transform: translateY(4px); box-shadow:0 2px 0 #C24F1F; }
+  .btn.blue{
+    background: linear-gradient(180deg, var(--blue), var(--blue-dark));
+    box-shadow:0 6px 0 #274A8F, 0 10px 16px rgba(0,0,0,.15);
+  }
+  .btn.blue:active{ box-shadow:0 2px 0 #274A8F; }
+  .btn.small{
+    padding:9px 20px;
+    font-size:14px;
+    box-shadow:0 4px 0 #C24F1F, 0 6px 10px rgba(0,0,0,.12);
+  }
+  .btn.small:active{ box-shadow:0 1px 0 #C24F1F; }
+
+  .credit{
+    font-size:12px;
+    font-weight:800;
+    color:var(--brown-soft);
+    opacity:.7;
+    letter-spacing:.3px;
+    position:absolute;
+    bottom:max(14px, env(safe-area-inset-bottom));
+  }
+
+  /* ================= TELA DO DESAFIO (CRIANÇA) ================= */
+  #screenChallenge{
+    justify-content:center;
+    align-items:center;
+    gap:22px;
+    padding:36px 26px;
+    text-align:center;
+  }
+  .challenge-emoji{
+    font-size:64px;
+    animation: floatUpDown 2.4s ease-in-out infinite;
+  }
+  @keyframes floatUpDown{
+    0%,100%{ transform:translateY(0); }
+    50%{ transform:translateY(-10px); }
+  }
+  #screenChallenge h1{
+    font-size:clamp(26px,8vw,36px);
+    color:var(--blue-dark);
+    margin:0;
+  }
+  #screenChallenge p{
+    max-width:340px;
+    font-size:18px;
+    font-weight:700;
+    color:#4a5268;
+    line-height:1.55;
+    margin:0;
+  }
+  #screenChallenge p.welcome{
+    font-size:19px;
+    color:var(--blue-dark);
+  }
+
+  /* ================= TELA DE COR DO ROBO ================= */
+  #screenColor{
+    justify-content:center;
+    align-items:center;
+    gap:26px;
+    padding:36px 26px;
+    text-align:center;
+  }
+  #screenColor h1{
+    font-size:clamp(22px,7vw,30px);
+    color:var(--blue-dark);
+    margin:0;
+  }
+  .color-grid{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:24px 28px;
+  }
+  .color-choice{
+    width:104px; height:104px;
+    border-radius:28px;
+    border:none;
+    box-shadow:0 8px 16px rgba(0,0,0,.14);
+    cursor:pointer;
+    transition: transform .15s ease;
+    position:relative;
+  }
+  .color-choice:active{ transform:scale(.92); }
+  .color-choice::before{
+    content:"";
+    position:absolute;
+    top:14%; left:18%;
+    width:24%; height:22%;
+    border-radius:8px;
+    background:rgba(255,255,255,.4);
+  }
+  .color-choice.azul{ background: radial-gradient(circle at 35% 28%, #8FBDF2, var(--blue-dark)); }
+  .color-choice.verde{ background: radial-gradient(circle at 35% 28%, #6FD79B, var(--green-dark)); }
+  .color-choice.roxo{ background: radial-gradient(circle at 35% 28%, #B3A8F2, var(--purple-dark)); }
+  .color-choice.laranja{ background: radial-gradient(circle at 35% 28%, #FFB37A, var(--orange-dark)); }
+
+  /* ================= TELA DO JOGO ================= */
+  #screenGame{
+    justify-content:flex-start;
+    width:100%;
+  }
+  .topbar{
+    width:100%;
+    max-width:560px;
+    padding: max(14px, env(safe-area-inset-top)) 18px 4px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    position:relative;
+  }
+  .new-session-btn{
+    position:fixed;
+    top:max(10px, env(safe-area-inset-top));
+    right:10px;
+    width:34px;height:34px;
+    border-radius:50%;
+    border:none;
+    background:#fff;
+    color:var(--brown-soft);
+    font-size:15px;
+    box-shadow:0 2px 6px rgba(0,0,0,.08);
+    opacity:.6;
+    display:flex; align-items:center; justify-content:center;
+    z-index:5;
+  }
+  .title{
+    font-size:clamp(17px,4.6vw,21px);
+    font-weight:600;
+    color:var(--blue-dark);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .levels{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .level-dot{
+    width:12px;height:12px;border-radius:50%;
+    background:#fff;
+    border:2px solid #D3DCF2;
+    transition:all .3s ease;
+  }
+  .level-dot.done{ background:var(--green); border-color:var(--green-dark); }
+  .level-dot.current{
+    width:16px;height:16px;
+    background:var(--gold);
+    border-color:var(--orange-dark);
+    box-shadow:0 0 0 4px rgba(255,209,102,.35);
+  }
+
+  .stage{
+    flex:1;
+    width:100%;
+    max-width:560px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    gap:10px;
+    padding:4px 18px 100px;
+    position:relative;
+    overflow-y:auto;
+  }
+
+  .robot-zone{
+    width:min(38vw, 150px);
+    height:min(38vw, 150px);
+    flex-shrink:0;
+  }
+  .robot-svg{ width:100%; height:100%; }
+  .robot-bounce{ animation: floatUpDown 2.6s ease-in-out infinite; }
+  .robot-shake{ animation: robotShake .4s ease; }
+  @keyframes robotShake{
+    0%,100%{ transform:translateX(0); }
+    20%{ transform:translateX(-8px) rotate(-4deg); }
+    40%{ transform:translateX(8px) rotate(4deg); }
+    60%{ transform:translateX(-6px) rotate(-3deg); }
+    80%{ transform:translateX(6px) rotate(3deg); }
+  }
+  .robot-pop{ animation: robotPop .5s ease; }
+  @keyframes robotPop{
+    0%{ transform:scale(1); }
+    40%{ transform:scale(1.14); }
+    100%{ transform:scale(1); }
+  }
+  .antenna-light{ animation: blink 1.4s ease-in-out infinite; }
+  @keyframes blink{
+    0%,100%{ opacity:1; }
+    50%{ opacity:.35; }
+  }
+
+  .big-msg{
+    font-size:clamp(17px,4.8vw,21px);
+    font-weight:700;
+    color:var(--brown);
+    text-align:center;
+    line-height:1.4;
+    max-width:420px;
+  }
+  .big-msg.success-color{ color:var(--green-dark); }
+  .big-msg.error-color{ color:var(--red-dark); }
+
+  .listen-btn{
+    border:none;
+    background:#fff;
+    color:var(--blue-dark);
+    font-weight:800;
+    font-size:13px;
+    padding:8px 16px;
+    border-radius:20px;
+    box-shadow:0 3px 8px rgba(0,0,0,.08);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .listen-btn:active{ transform:scale(.95); }
+
+  .sequence-strip{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    flex-wrap:wrap;
+    justify-content:center;
+    background:#fff;
+    padding:10px 14px;
+    border-radius:20px;
+    box-shadow:0 3px 10px rgba(0,0,0,.06);
+  }
+  .seq-icon{
+    width:40px; height:40px;
+    border-radius:12px;
+    background:#F2F5FB;
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+    border:2px solid transparent;
+  }
+  .seq-icon svg{ width:26px; height:26px; }
+  .seq-icon.current{
+    border-color:var(--gold-dark);
+    box-shadow:0 0 0 4px rgba(255,209,102,.35);
+  }
+  .seq-icon.done{
+    border-color:var(--green-dark);
+    opacity:.55;
+  }
+  .seq-icon.done::after{
+    content:"✓";
+    position:absolute;
+    top:-6px; right:-6px;
+    width:18px; height:18px;
+    background:var(--green);
+    color:#fff;
+    border-radius:50%;
+    font-size:12px;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800;
+  }
+  .seq-arrow{
+    color:var(--brown-soft);
+    font-weight:800;
+    font-size:16px;
+  }
+
+  .board-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:12px;
+    width:100%;
+    max-width:420px;
+    margin-top:4px;
+  }
+  .tile{
+    border:none;
+    background:#fff;
+    border-radius:20px;
+    box-shadow:0 5px 12px rgba(0,0,0,.10);
+    padding:12px 6px 10px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    cursor:pointer;
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .tile:active{ transform:scale(.94); }
+  .tile svg{ width:44px; height:44px; }
+  .tile .tile-label{
+    font-size:11px;
+    font-weight:800;
+    color:var(--brown-soft);
+  }
+  .tile.correct{
+    background:#EAFAF1;
+    box-shadow:0 0 0 3px var(--green);
+  }
+  .tile.wrong{
+    animation: tileShake .4s ease;
+    box-shadow:0 0 0 3px var(--red);
+  }
+  @keyframes tileShake{
+    0%,100%{ transform:translateX(0); }
+    25%{ transform:translateX(-6px); }
+    75%{ transform:translateX(6px); }
+  }
+  .tile:disabled{ cursor:default; }
+
+  .help-count{
+    position:fixed;
+    bottom:max(16px, env(safe-area-inset-bottom));
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:#fff;
+    padding:10px 22px;
+    border-radius:30px;
+    box-shadow:0 6px 14px rgba(0,0,0,.12);
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:20px;
+    color:var(--blue-dark);
+    z-index:4;
+  }
+  .help-count .icon{ font-size:22px; }
+
+  /* ================= CONFETTI ================= */
+  .confetti{
+    position:fixed; top:0; left:0; width:100%; height:100%;
+    pointer-events:none; overflow:hidden; z-index:20;
+  }
+  .confetti span{
+    position:absolute; top:-10%; font-size:22px;
+    animation: fall linear forwards;
+  }
+  @keyframes fall{ to{ transform: translateY(115vh) rotate(360deg); opacity:.2; } }
+
+  /* ================= LEVEL UP ================= */
+  .levelup{
+    position:fixed; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(40,50,70,.28);
+    z-index:15;
+    opacity:0; pointer-events:none;
+    transition:opacity .25s ease;
+  }
+  .levelup.show{ opacity:1; pointer-events:all; }
+  .levelup-card{
+    background:#fff;
+    border-radius:28px;
+    padding:32px 30px;
+    text-align:center;
+    max-width:300px;
+    box-shadow:0 14px 30px rgba(0,0,0,.2);
+    transform:scale(.85);
+    transition:transform .25s ease;
+  }
+  .levelup.show .levelup-card{ transform:scale(1); }
+  .levelup-card .emoji{ font-size:48px; }
+  .levelup-card h2{ margin:8px 0 4px; color:var(--blue-dark); font-family:'Fredoka'; font-size:22px; }
+  .levelup-card p{ margin:0 0 18px; color:var(--brown-soft); font-weight:700; font-size:15px; }
+</style>
+</head>
+<body>
+
+<!-- ================= TELA DO TERAPEUTA ================= -->
+<div class="screen active" id="screenTherapist">
+  <div class="screen-badge">Tela do Terapeuta</div>
+  <h1>🤖 Robozinho Ajudante</h1>
+  <p class="sub">Defina quantos comandos o Robozinho vai dar de uma vez para começar. O jogo vai aumentando a complexidade aos poucos a partir daqui.</p>
+
+  <div>
+    <div class="stepper">
+      <button class="step-btn" id="stepDown">−</button>
+      <div>
+        <div class="step-value" id="stepValue">1</div>
+        <div class="step-unit" id="stepUnitLabel">comando</div>
+      </div>
+      <button class="step-btn" id="stepUp">+</button>
+    </div>
+  </div>
+
+  <div class="presets" id="presets"></div>
+
+  <div class="field-label">Narrar comandos em voz alta</div>
+  <div class="unit-toggle">
+    <button class="unit-btn active" id="narrateYes">Sim</button>
+    <button class="unit-btn" id="narrateNo">Não</button>
+  </div>
+
+  <button class="btn blue" id="therapistContinue">Continuar</button>
+
+  <span class="credit">Clube da Massinha</span>
+</div>
+
+<!-- ================= TELA DO DESAFIO ================= -->
+<div class="screen" id="screenChallenge">
+  <div class="screen-badge">Tela do Paciente</div>
+  <div class="challenge-emoji">🤖</div>
+  <h1>Topa ajudar o Robozinho?</h1>
+  <p class="welcome">Oi! Que bom ter você aqui hoje! 👋</p>
+  <p>O Robozinho vai te dar comandos. Preste atenção na ordem certinha e toque nas coisas certas, uma de cada vez!</p>
+  <button class="btn" id="acceptChallenge">Bora ajudar!</button>
+</div>
+
+<!-- ================= TELA DE COR DO ROBO ================= -->
+<div class="screen" id="screenColor">
+  <h1>Escolha a cor do seu Robozinho 🎨</h1>
+  <div class="color-grid">
+    <button class="color-choice azul" data-color="azul" data-hex="#5B8DEF"></button>
+    <button class="color-choice verde" data-color="verde" data-hex="#4CAF7D"></button>
+    <button class="color-choice roxo" data-color="roxo" data-hex="#8A7DE0"></button>
+    <button class="color-choice laranja" data-color="laranja" data-hex="#FF8C42"></button>
+  </div>
+</div>
+
+<!-- ================= TELA DO JOGO ================= -->
+<div class="screen" id="screenGame">
+  <button class="new-session-btn" id="newSessionBtn" title="Nova sessão">↺</button>
+  <div class="topbar">
+    <div class="title">🤖 Robozinho Ajudante</div>
+    <div class="levels" id="levels"></div>
+  </div>
+
+  <div class="stage">
+    <div class="robot-zone">
+      <svg class="robot-svg robot-bounce" id="robotSvg" viewBox="0 0 200 200">
+        <line x1="100" y1="42" x2="100" y2="16" stroke="#9AA3B8" stroke-width="5" stroke-linecap="round"></line>
+        <circle cx="100" cy="12" r="8" fill="#FFD166" id="antennaLight" class="antenna-light"></circle>
+        <rect x="28" y="42" width="144" height="120" rx="30" fill="#5B8DEF" id="robotHead"></rect>
+        <circle cx="72" cy="98" r="20" fill="#fff"></circle>
+        <circle cx="128" cy="98" r="20" fill="#fff"></circle>
+        <path id="eyeL" d="M62,98 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0" fill="#40465A"></path>
+        <path id="eyeR" d="M118,98 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0" fill="#40465A"></path>
+        <path id="robotMouth" d="M78,136 L122,136" stroke="#40465A" stroke-width="7" fill="none" stroke-linecap="round"></path>
+        <rect x="16" y="90" width="12" height="30" rx="6" fill="#9AA3B8"></rect>
+        <rect x="172" y="90" width="12" height="30" rx="6" fill="#9AA3B8"></rect>
+      </svg>
+    </div>
+
+    <div class="big-msg" id="bigMsg">Preparando o comando…</div>
+    <button class="listen-btn" id="listenBtn">🔊 Ouvir de novo</button>
+
+    <div class="sequence-strip" id="sequenceStrip"></div>
+
+    <div class="board-grid" id="boardGrid"></div>
+  </div>
+
+  <div class="help-count" id="helpCount"><span class="icon">🤖</span><span id="helpCountValue">x 0</span></div>
+</div>
+
+<div class="levelup" id="levelup">
+  <div class="levelup-card">
+    <div class="emoji">🤖</div>
+    <h2 id="levelupTitle">Nível completo!</h2>
+    <p id="levelupText">Agora os comandos vão ficar um pouquinho mais difíceis.</p>
+    <button class="btn" id="levelupBtn">Continuar</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const OFFSETS = [0,0,0,1,1,1,1,2,2,2]; // acrescido ao numero inicial de passos, por nivel
+  const NEEDED = 3; // acertos por nivel
+  const MAX_STEPS = 3;
+
+  const SHAPES = [
+    { id:'estrela', label:'estrela', article:'na', gender:'f' },
+    { id:'sol', label:'sol', article:'no', gender:'m' },
+    { id:'lua', label:'lua', article:'na', gender:'f' },
+    { id:'coracao', label:'coração', article:'no', gender:'m' },
+    { id:'nuvem', label:'nuvem', article:'na', gender:'f' },
+    { id:'flor', label:'flor', article:'na', gender:'f' }
+  ];
+  const COLORS = [
+    { id:'azul', hex:'#4FA8E0', m:'azul', f:'azul' },
+    { id:'vermelho', hex:'#E85D5D', m:'vermelho', f:'vermelha' },
+    { id:'amarelo', hex:'#FFD166', m:'amarelo', f:'amarela' },
+    { id:'verde', hex:'#4CAF7D', m:'verde', f:'verde' },
+    { id:'roxo', hex:'#B18AE0', m:'roxo', f:'roxa' },
+    { id:'laranja', hex:'#FF8C42', m:'laranja', f:'laranja' }
+  ];
+  const ROBOT_HEX = { azul:'#5B8DEF', verde:'#4CAF7D', roxo:'#8A7DE0', laranja:'#FF8C42' };
+
+  /* ---------- estado ---------- */
+  let session = { startSteps: 1, robotColor: 'azul', narrate: true };
+  let state = { levelIndex:0, successes:0, totalHelped:0, stepsLevels:[], sequence:[], currentStep:0, boardCombos:[] };
+
+  /* ---------- geometria dos icones ---------- */
+  function shapeInner(shapeId, hex){
+    switch(shapeId){
+      case 'estrela':
+        return '<path d="M50,6 L61,37 L96,38 L68,59 L79,93 L50,73 L21,93 L32,59 L4,38 L39,37 Z" fill="'+hex+'"/>';
+      case 'sol': {
+        let rays='';
+        for(let i=0;i<8;i++){
+          const a = i*Math.PI/4;
+          const x1=(50+Math.cos(a)*30).toFixed(1), y1=(50+Math.sin(a)*30).toFixed(1);
+          const x2=(50+Math.cos(a)*44).toFixed(1), y2=(50+Math.sin(a)*44).toFixed(1);
+          rays += '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+hex+'" stroke-width="7" stroke-linecap="round"/>';
+        }
+        return rays + '<circle cx="50" cy="50" r="23" fill="'+hex+'"/>';
+      }
+      case 'lua':
+        return '<path d="M92,54 A42,42 0 1,1 46,8 A37,37 0 0,0 92,54 Z" fill="'+hex+'"/>';
+      case 'coracao':
+        return '<path d="M50,88 C18,62 4,42 4,26 C4,10 18,0 33,4 C44,7 50,17 50,17 C50,17 56,7 67,4 C82,0 96,10 96,26 C96,42 82,62 50,88 Z" fill="'+hex+'"/>';
+      case 'nuvem':
+        return '<ellipse cx="30" cy="58" rx="20" ry="18" fill="'+hex+'"/><ellipse cx="55" cy="40" rx="26" ry="24" fill="'+hex+'"/><ellipse cx="78" cy="58" rx="18" ry="16" fill="'+hex+'"/><rect x="14" y="55" width="76" height="24" rx="12" fill="'+hex+'"/>';
+      case 'flor': {
+        let petals='';
+        for(let i=0;i<5;i++){
+          const a = i*(Math.PI*2/5) - Math.PI/2;
+          const cx=(50+Math.cos(a)*24).toFixed(1), cy=(50+Math.sin(a)*24).toFixed(1);
+          petals += '<circle cx="'+cx+'" cy="'+cy+'" r="17" fill="'+hex+'"/>';
+        }
+        return petals + '<circle cx="50" cy="50" r="12" fill="#FFF3D6"/>';
+      }
+    }
+    return '';
+  }
+  function makeIconSVG(shapeId, hex){
+    return '<svg viewBox="0 0 100 100">'+shapeInner(shapeId,hex)+'</svg>';
+  }
+
+  function allCombos(){
+    const combos=[];
+    SHAPES.forEach(sh=> COLORS.forEach(c=> combos.push({ shape:sh, color:c, key:sh.id+'-'+c.id })));
+    return combos;
+  }
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      const t=arr[i]; arr[i]=arr[j]; arr[j]=t;
+    }
+    return arr;
+  }
+  function comboLabel(combo){
+    return combo.shape.article+' '+combo.shape.label+' '+combo.color[combo.shape.gender];
+  }
+  function stepInstructionText(combo){
+    return 'Toque ' + comboLabel(combo) + '.';
+  }
+
+  /* ---------- TELA DO TERAPEUTA ---------- */
+  const screenTherapist = document.getElementById('screenTherapist');
+  const screenChallenge = document.getElementById('screenChallenge');
+  const screenColor = document.getElementById('screenColor');
+  const screenGame = document.getElementById('screenGame');
+
+  const stepValue = document.getElementById('stepValue');
+  const stepUnitLabel = document.getElementById('stepUnitLabel');
+  const stepDown = document.getElementById('stepDown');
+  const stepUp = document.getElementById('stepUp');
+  const presetsWrap = document.getElementById('presets');
+  const therapistContinue = document.getElementById('therapistContinue');
+  const narrateYes = document.getElementById('narrateYes');
+  const narrateNo = document.getElementById('narrateNo');
+
+  const PRESETS = [1,2,3];
+
+  function renderPresets(){
+    presetsWrap.innerHTML = '';
+    PRESETS.forEach(v=>{
+      const chip = document.createElement('button');
+      chip.className = 'preset-chip' + (v===session.startSteps ? ' active' : '');
+      chip.textContent = v + (v===1 ? ' passo' : ' passos');
+      chip.addEventListener('click', ()=>{ session.startSteps = v; syncStepper(); });
+      presetsWrap.appendChild(chip);
+    });
+  }
+  function syncStepper(){
+    stepValue.textContent = session.startSteps;
+    stepUnitLabel.textContent = session.startSteps===1 ? 'comando' : 'comandos';
+    renderPresets();
+  }
+  stepDown.addEventListener('click', ()=>{
+    session.startSteps = Math.max(1, session.startSteps - 1);
+    syncStepper();
+  });
+  stepUp.addEventListener('click', ()=>{
+    session.startSteps = Math.min(MAX_STEPS, session.startSteps + 1);
+    syncStepper();
+  });
+  narrateYes.addEventListener('click', ()=>{
+    session.narrate = true;
+    narrateYes.classList.add('active');
+    narrateNo.classList.remove('active');
+  });
+  narrateNo.addEventListener('click', ()=>{
+    session.narrate = false;
+    narrateNo.classList.add('active');
+    narrateYes.classList.remove('active');
+  });
+
+  therapistContinue.addEventListener('click', ()=>{
+    goToScreen(screenChallenge);
+  });
+
+  /* ---------- TELA DO DESAFIO ---------- */
+  document.getElementById('acceptChallenge').addEventListener('click', ()=>{
+    goToScreen(screenColor);
+  });
+
+  /* ---------- TELA DE COR ---------- */
+  document.querySelectorAll('.color-choice').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      session.robotColor = btn.getAttribute('data-color');
+      robotHead.setAttribute('fill', ROBOT_HEX[session.robotColor]);
+      startSession();
+      goToScreen(screenGame);
+    });
+  });
+
+  function goToScreen(target){
+    [screenTherapist, screenChallenge, screenColor, screenGame].forEach(s=> s.classList.remove('active'));
+    target.classList.add('active');
+  }
+
+  /* ---------- JOGO ---------- */
+  const robotSvg = document.getElementById('robotSvg');
+  const robotHead = document.getElementById('robotHead');
+  const eyeL = document.getElementById('eyeL');
+  const eyeR = document.getElementById('eyeR');
+  const robotMouth = document.getElementById('robotMouth');
+  const bigMsg = document.getElementById('bigMsg');
+  const listenBtn = document.getElementById('listenBtn');
+  const sequenceStrip = document.getElementById('sequenceStrip');
+  const boardGrid = document.getElementById('boardGrid');
+  const levelsWrap = document.getElementById('levels');
+  const helpCountValue = document.getElementById('helpCountValue');
+  const levelupEl = document.getElementById('levelup');
+  const levelupTitle = document.getElementById('levelupTitle');
+  const levelupText = document.getElementById('levelupText');
+  const levelupBtn = document.getElementById('levelupBtn');
+  const newSessionBtn = document.getElementById('newSessionBtn');
+
+  function buildStepsLevels(){
+    state.stepsLevels = OFFSETS.map(off => Math.min(MAX_STEPS, session.startSteps + off));
+  }
+  function buildLevelDots(){
+    levelsWrap.innerHTML = '';
+    state.stepsLevels.forEach((d,i)=>{
+      const dot = document.createElement('div');
+      dot.className = 'level-dot';
+      if(i < state.levelIndex) dot.classList.add('done');
+      if(i === state.levelIndex) dot.classList.add('current');
+      levelsWrap.appendChild(dot);
+    });
+  }
+  function updateHelpCount(){
+    helpCountValue.textContent = 'x ' + state.totalHelped;
+  }
+
+  /* ---------- rosto do robo ---------- */
+  function setNeutralFace(){
+    eyeL.setAttribute('d','M62,98 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0');
+    eyeR.setAttribute('d','M118,98 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0');
+    robotMouth.setAttribute('d','M78,136 L122,136');
+  }
+  function setHappyFace(){
+    eyeL.setAttribute('d','M62,100 q10,-16 20,0');
+    eyeR.setAttribute('d','M118,100 q10,-16 20,0');
+    robotMouth.setAttribute('d','M74,130 q26,26 52,0');
+  }
+  function setOopsFace(){
+    eyeL.setAttribute('d','M62,102 q10,10 20,0');
+    eyeR.setAttribute('d','M118,102 q10,10 20,0');
+    robotMouth.setAttribute('d','M78,140 q11,-10 22,0 q11,10 22,0');
+  }
+
+  /* ---------- audio ---------- */
+  let audioCtx;
+  function ctx(){
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+  function tone(freq, dur, type, vol){
+    try{
+      const ac = ctx();
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.type = type || 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(vol||0.12, ac.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + dur);
+      osc.connect(gain).connect(ac.destination);
+      osc.start();
+      osc.stop(ac.currentTime + dur);
+    }catch(e){}
+  }
+  function playStep(){ tone(600,0.10,'triangle',0.12); }
+  function playSuccess(){ tone(659.25,0.15,'triangle',0.13); setTimeout(()=>tone(880,0.22,'triangle',0.13),100); }
+  function playError(){ tone(220,0.14,'sawtooth',0.09); setTimeout(()=>tone(160,0.18,'sawtooth',0.08),110); }
+  function playLevelUp(){ [523.25,659.25,783.99,1046.5].forEach((f,i)=> setTimeout(()=>tone(f,0.22,'triangle',0.13), i*110) ); }
+
+  function speak(text){
+    if(!session.narrate) return;
+    try{
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'pt-BR';
+      u.rate = 0.95;
+      window.speechSynthesis.speak(u);
+    }catch(e){}
+  }
+
+  /* ---------- rodada ---------- */
+  let currentInstruction = '';
+
+  function renderStrip(){
+    sequenceStrip.innerHTML = '';
+    state.sequence.forEach((combo, i)=>{
+      if(i>0){
+        const arrow = document.createElement('span');
+        arrow.className = 'seq-arrow';
+        arrow.textContent = '→';
+        sequenceStrip.appendChild(arrow);
+      }
+      const box = document.createElement('div');
+      box.className = 'seq-icon';
+      if(i < state.currentStep) box.classList.add('done');
+      else if(i === state.currentStep) box.classList.add('current');
+      box.innerHTML = makeIconSVG(combo.shape.id, combo.color.hex);
+      sequenceStrip.appendChild(box);
+    });
+  }
+
+  function renderBoard(){
+    boardGrid.innerHTML = '';
+    state.boardCombos.forEach(combo=>{
+      const tile = document.createElement('button');
+      tile.className = 'tile';
+      tile.innerHTML = makeIconSVG(combo.shape.id, combo.color.hex) + '<span class="tile-label">'+combo.shape.label+'</span>';
+      tile.addEventListener('click', ()=> handleTileTap(combo, tile));
+      boardGrid.appendChild(tile);
+    });
+  }
+
+  function newRound(){
+    setNeutralFace();
+    robotSvg.classList.remove('robot-shake','robot-pop');
+    bigMsg.classList.remove('success-color','error-color');
+    const steps = state.stepsLevels[state.levelIndex];
+    const combos = shuffle(allCombos());
+    const seq = combos.slice(0, steps);
+    const tileCount = Math.min(9, steps + 4);
+    const distractors = combos.slice(steps, tileCount);
+    const board = shuffle(seq.concat(distractors));
+
+    state.sequence = seq;
+    state.currentStep = 0;
+    state.boardCombos = board;
+
+    renderStrip();
+    renderBoard();
+
+    announceStep(0);
+  }
+
+  /* Fala e mostra somente o passo atual. Nunca antecipa os próximos passos,
+     para manter o comando simples e claro. */
+  function announceStep(i){
+    const combo = state.sequence[i];
+    bigMsg.classList.remove('success-color','error-color');
+    currentInstruction = stepInstructionText(combo);
+    bigMsg.textContent = currentInstruction;
+    speak(currentInstruction);
+  }
+
+  /* Depois de um acerto, mostra um elogio, espera com calma e só então
+     anuncia o próximo passo — nunca fala tudo de uma vez. */
+  function praiseAndAnnounceNext(){
+    bigMsg.classList.remove('error-color');
+    bigMsg.classList.add('success-color');
+    bigMsg.textContent = 'Isso! Muito bem! 👍';
+    speak('Isso! Muito bem!');
+    setTimeout(()=> announceStep(state.currentStep), 1400);
+  }
+
+  function setBoardEnabled(enabled){
+    Array.from(boardGrid.children).forEach(t=>{
+      if(!t.classList.contains('correct')) t.disabled = !enabled;
+    });
+  }
+
+  function handleTileTap(combo, tileEl){
+    if(state.currentStep >= state.sequence.length) return;
+    if(tileEl.disabled) return;
+    const target = state.sequence[state.currentStep];
+    if(combo.key === target.key){
+      playStep();
+      tileEl.classList.add('correct');
+      tileEl.disabled = true;
+      state.currentStep++;
+      renderStrip();
+      if(state.currentStep >= state.sequence.length){
+        setTimeout(roundSuccess, 300);
+      } else {
+        setBoardEnabled(false);
+        praiseAndAnnounceNext();
+        setTimeout(()=> setBoardEnabled(true), 1450);
+      }
+    } else {
+      playError();
+      tileEl.classList.add('wrong');
+      robotSvg.classList.add('robot-shake');
+      setOopsFace();
+      bigMsg.classList.remove('success-color');
+      bigMsg.classList.add('error-color');
+      bigMsg.textContent = 'Ops! Essa não é. Vamos com calma de novo.';
+      speak('Ops! Vamos com calma de novo.');
+      setBoardEnabled(false);
+      setTimeout(()=>{
+        tileEl.classList.remove('wrong');
+        robotSvg.classList.remove('robot-shake');
+        setNeutralFace();
+        setBoardEnabled(true);
+        announceStep(state.currentStep);
+      }, 1600);
+    }
+  }
+
+  function roundSuccess(){
+    playSuccess();
+    robotSvg.classList.remove('robot-shake');
+    robotSvg.classList.add('robot-pop');
+    setHappyFace();
+    bigMsg.textContent = 'Isso! Você ajudou o Robozinho! 🎉';
+    bigMsg.classList.add('success-color');
+    launchConfetti(10);
+    state.totalHelped++;
+    state.successes++;
+    updateHelpCount();
+    if(state.successes >= NEEDED){
+      setTimeout(levelUp, 700);
+    } else {
+      setTimeout(newRound, 900);
+    }
+  }
+
+  function levelUp(){
+    const isLast = state.levelIndex >= state.stepsLevels.length - 1;
+    if(!isLast){ state.levelIndex++; }
+    state.successes = 0;
+    buildLevelDots();
+    playLevelUp();
+    launchConfetti(26);
+
+    levelupTitle.textContent = isLast ? 'Você é um super ajudante! 🏆' : 'Nível completo! 🤖';
+    levelupText.textContent = isLast
+      ? 'Você já ajudou o Robozinho ' + state.totalHelped + ' vezes seguindo os comandos certinhos! Vamos continuar treinando?'
+      : 'Agora o Robozinho vai dar comandos de ' + state.stepsLevels[state.levelIndex] + (state.stepsLevels[state.levelIndex]===1 ? ' passo.' : ' passos.');
+    levelupEl.classList.add('show');
+  }
+
+  levelupBtn.addEventListener('click', ()=>{
+    levelupEl.classList.remove('show');
+    newRound();
+  });
+
+  listenBtn.addEventListener('click', ()=>{
+    if(currentInstruction) speak(currentInstruction);
+  });
+
+  newSessionBtn.addEventListener('click', ()=>{
+    if(confirm('Voltar para configurar uma nova sessão?')){
+      goToScreen(screenTherapist);
+    }
+  });
+
+  function startSession(){
+    buildStepsLevels();
+    state.levelIndex = 0;
+    state.successes = 0;
+    state.totalHelped = 0;
+    buildLevelDots();
+    updateHelpCount();
+    newRound();
+  }
+
+  function launchConfetti(n){
+    const wrap = document.createElement('div');
+    wrap.className = 'confetti';
+    const emojis = ['🎉','⭐','🤖','✨'];
+    for(let i=0;i<n;i++){
+      const s = document.createElement('span');
+      s.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+      s.style.left = Math.random()*100 + '%';
+      s.style.animationDuration = (1.6 + Math.random()*1.2) + 's';
+      s.style.fontSize = (16 + Math.random()*14) + 'px';
+      wrap.appendChild(s);
+    }
+    document.body.appendChild(wrap);
+    setTimeout(()=> wrap.remove(), 3200);
+  }
+
+  /* ---------- init ---------- */
+  syncStepper();
+})();
+</script>
+</body>
+</html>

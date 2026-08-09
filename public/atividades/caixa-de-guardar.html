@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Caixa de Guardar</title>
+<style>
+  :root {
+    --background: #FBF8F3;
+    --foreground: #3A3A3A;
+    --muted: #8A8580;
+    --primary: #5B8A72;      /* verde calmo - caixa de frutas */
+    --primary-soft: #E4EEE7;
+    --secondary: #6B84C7;    /* azul calmo - caixa de brinquedos */
+    --secondary-soft: #E6EAF6;
+    --accent: #F0B15E;       /* amarelo/âmbar calmo - destaques */
+    --accent-soft: #FBEBD3;
+    --card-bg: #FFFFFF;
+    --radius: 22px;
+    --font-heading: 'Baloo 2', ui-rounded, 'SF Pro Rounded', 'Segoe UI Rounded', 'Nunito', system-ui, sans-serif;
+    --font-body: 'Nunito', ui-rounded, 'SF Pro Rounded', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-body);
+    min-height: 100%;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px 16px 40px;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 980px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+  }
+
+  header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  h1 {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: clamp(24px, 4vw, 34px);
+    margin: 0;
+    color: var(--foreground);
+    letter-spacing: 0.2px;
+  }
+
+  .subtitle {
+    margin: 0;
+    font-size: clamp(14px, 2.2vw, 17px);
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: none;
+    background: var(--card-bg);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .icon-btn:hover { transform: scale(1.05); box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
+  .icon-btn:active { transform: scale(0.96); }
+  .icon-btn svg { width: 26px; height: 26px; }
+
+  .hint-banner {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--accent-soft);
+    border-radius: var(--radius);
+    padding: 12px 18px;
+    font-size: 15px;
+    color: #7A5A22;
+    transition: opacity 0.4s ease;
+  }
+  .hint-banner svg { width: 22px; height: 22px; flex-shrink: 0; }
+
+  main {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .tray {
+    width: 100%;
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 22px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 150px;
+    box-shadow: 0 2px 14px rgba(0,0,0,0.05);
+  }
+
+  .item {
+    --item-size: 108px;
+    width: var(--item-size);
+    height: var(--item-size);
+    border-radius: 20px;
+    background: #FFFDF9;
+    border: 2px solid transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+    position: relative;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, opacity 0.25s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .item:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.12); }
+  .item.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-soft), 0 4px 12px rgba(0,0,0,0.12);
+  }
+  .item.dragging {
+    cursor: grabbing;
+    z-index: 50;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+  }
+  .item.placed {
+    opacity: 0;
+    transform: scale(0.5);
+    pointer-events: none;
+  }
+  .item.wrong-shake {
+    animation: shake 0.45s ease;
+  }
+  .item svg { width: 58px; height: 58px; pointer-events: none; }
+  .item .label {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--foreground);
+    pointer-events: none;
+  }
+  .item:focus-visible {
+    outline: 3px solid var(--secondary);
+    outline-offset: 2px;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0) rotate(0); }
+    20% { transform: translateX(-8px) rotate(-4deg); }
+    40% { transform: translateX(7px) rotate(3deg); }
+    60% { transform: translateX(-5px) rotate(-2deg); }
+    80% { transform: translateX(4px) rotate(1deg); }
+  }
+
+  .boxes {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .box {
+    border-radius: var(--radius);
+    padding: 18px;
+    min-height: 190px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    transition: box-shadow 0.2s ease, transform 0.15s ease;
+    position: relative;
+  }
+  .box.fruit { background: var(--primary-soft); }
+  .box.toy { background: var(--secondary-soft); }
+
+  .box-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 18px;
+  }
+  .box.fruit .box-label { color: var(--primary); }
+  .box.toy .box-label { color: var(--secondary); }
+  .box-label svg { width: 26px; height: 26px; }
+
+  .box-slots {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    align-content: flex-start;
+  }
+
+  .box-slots .mini-item {
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.7);
+    border-radius: 12px;
+    animation: pop-in 0.35s ease;
+  }
+  .box-slots .mini-item svg { width: 30px; height: 30px; }
+
+  @keyframes pop-in {
+    0% { transform: scale(0); opacity: 0; }
+    70% { transform: scale(1.15); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .box.drag-over {
+    box-shadow: 0 0 0 4px rgba(0,0,0,0.06) inset;
+    transform: scale(1.015);
+  }
+  .box.success-glow {
+    animation: glow 0.7s ease;
+  }
+  @keyframes glow {
+    0%, 100% { box-shadow: none; }
+    40% { box-shadow: 0 0 0 8px rgba(240, 177, 94, 0.35); }
+  }
+
+  .feedback-msg {
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    background: var(--foreground);
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+  }
+  .feedback-msg.show {
+    opacity: 1;
+    transform: translate(-50%, -120%);
+  }
+
+  footer {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .btn {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 15px;
+    padding: 12px 22px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn:active { transform: scale(0.97); }
+  .btn.primary { background: var(--primary); color: #fff; }
+  .btn.ghost { background: var(--card-bg); color: var(--foreground); }
+  .btn svg { width: 18px; height: 18px; }
+
+  .drag-clone {
+    position: fixed;
+    pointer-events: none;
+    z-index: 200;
+    width: 108px;
+    height: 108px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: #FFFDF9;
+    border-radius: 20px;
+    box-shadow: 0 14px 28px rgba(0,0,0,0.22);
+    transform: translate(-50%, -50%) scale(1.06) rotate(-2deg);
+  }
+  .drag-clone svg { width: 58px; height: 58px; }
+  .drag-clone .label { font-size: 12.5px; font-weight: 700; }
+
+  .celebration {
+    position: fixed;
+    inset: 0;
+    background: rgba(58,58,58,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.35s ease;
+    z-index: 300;
+    padding: 20px;
+  }
+  .celebration.show { opacity: 1; visibility: visible; }
+
+  .celebration-card {
+    background: var(--card-bg);
+    border-radius: 28px;
+    padding: 40px 32px;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+    transform: scale(0.9);
+    transition: transform 0.35s ease;
+  }
+  .celebration.show .celebration-card { transform: scale(1); }
+
+  .celebration-card .stars {
+    display: flex;
+    gap: 6px;
+  }
+  .celebration-card .stars svg {
+    width: 34px;
+    height: 34px;
+    color: var(--accent);
+  }
+
+  .celebration-card h2 {
+    font-family: var(--font-heading);
+    font-size: 26px;
+    margin: 0;
+    color: var(--foreground);
+  }
+  .celebration-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+  }
+
+  @media (max-width: 560px) {
+    .item { --item-size: 92px; }
+    .item svg { width: 48px; height: 48px; }
+    header { align-items: flex-start; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="title-block">
+      <h1>Caixa de Guardar</h1>
+      <p class="subtitle">Arraste cada objeto até a caixa certa.</p>
+    </div>
+    <button class="icon-btn" id="soundToggle" type="button" aria-pressed="false" aria-label="Ativar som">
+      <svg id="soundIconOff" viewBox="0 0 24 24" fill="none" stroke="#3A3A3A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+        <line x1="23" y1="9" x2="17" y2="15"/>
+        <line x1="17" y1="9" x2="23" y2="15"/>
+      </svg>
+      <svg id="soundIconOn" viewBox="0 0 24 24" fill="none" stroke="#3A3A3A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+        <path d="M15.5 8.5a5 5 0 0 1 0 7"/>
+        <path d="M18.5 5.5a9 9 0 0 1 0 13"/>
+      </svg>
+    </button>
+  </header>
+
+  <div class="hint-banner" id="hintBanner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#7A5A22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/>
+    </svg>
+    <span>Toque em um objeto e depois toque na caixa certa. Ou arraste com o dedo até a caixa.</span>
+  </div>
+
+  <main>
+    <div class="tray" id="tray" aria-label="Objetos para guardar"></div>
+
+    <div class="boxes">
+      <div class="box fruit" id="boxFruit" data-category="fruta">
+        <div class="feedback-msg" id="msgFruit"></div>
+        <div class="box-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2s-1.5 1.8-1.5 3.2c0 .8.5 1.3 1 1.3"/>
+            <path d="M12 6.5C7 6.5 4 10 4 14.5A6.5 6.5 0 0 0 10.5 21h3A6.5 6.5 0 0 0 20 14.5C20 10 17 6.5 12 6.5Z"/>
+          </svg>
+          <span>Frutas</span>
+        </div>
+        <div class="box-slots" id="slotsFruit"></div>
+      </div>
+
+      <div class="box toy" id="boxToy" data-category="brinquedo">
+        <div class="feedback-msg" id="msgToy"></div>
+        <div class="box-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 3a9 9 0 0 1 9 9"/>
+            <path d="M12 12l6-6"/>
+          </svg>
+          <span>Brinquedos</span>
+        </div>
+        <div class="box-slots" id="slotsToy"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <button class="btn primary" id="restartBtn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"/>
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+      </svg>
+      Jogar de novo
+    </button>
+  </footer>
+
+  <div class="sr-only" id="liveRegion" aria-live="polite"></div>
+</div>
+
+<div class="celebration" id="celebration" role="dialog" aria-modal="true" aria-labelledby="celebTitle">
+  <div class="celebration-card">
+    <div class="stars">
+      <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15 9 22 9.5 16.5 14 18 21 12 17.5 6 21 7.5 14 2 9.5 9 9"/></svg>
+      <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15 9 22 9.5 16.5 14 18 21 12 17.5 6 21 7.5 14 2 9.5 9 9"/></svg>
+      <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15 9 22 9.5 16.5 14 18 21 12 17.5 6 21 7.5 14 2 9.5 9 9"/></svg>
+    </div>
+    <h2 id="celebTitle">Você guardou tudo!</h2>
+    <p>Muito bem! Cada objeto foi para o lugar certo.</p>
+    <button class="btn primary" id="playAgainBtn" type="button">Jogar de novo</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- Ícones (SVG simples, cores naturais para reconhecimento) ----------
+  const icons = {
+    maca: '<svg viewBox="0 0 64 64"><path d="M32 14c-1-4-4-7-8-8" stroke="#7A5A3B" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M32 16c9-6 20-1 22 11 2 13-6 26-18 26S18 40 18 27C18 15 23 22 32 16Z" fill="#E0533D"/><path d="M32 16c-9-6-20-1-22 11-2 13 6 26 18 26" fill="#F0715C" opacity="0.55"/><ellipse cx="38" cy="24" rx="4" ry="6" fill="#fff" opacity="0.35"/></svg>',
+    banana: '<svg viewBox="0 0 64 64"><path d="M14 40c2 10 14 16 26 12 8-3 13-10 14-16-2 3-6 5-10 5-14 0-24-9-27-19-2 6-4 12-3 18Z" fill="#F4C542"/><path d="M13 39c-1-8 3-16 9-20" stroke="#C89B2E" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M50 33c1 2 1 5-1 7" stroke="#8A6B1F" stroke-width="3" fill="none" stroke-linecap="round"/></svg>',
+    uva: '<svg viewBox="0 0 64 64"><path d="M32 12v6" stroke="#5C7A3D" stroke-width="3" stroke-linecap="round"/><path d="M28 12c4-3 8-3 10 0" stroke="#5C7A3D" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="24" cy="26" r="7" fill="#7C4C9E"/><circle cx="40" cy="26" r="7" fill="#7C4C9E"/><circle cx="32" cy="32" r="7" fill="#8D5CB0"/><circle cx="22" cy="40" r="7" fill="#7C4C9E"/><circle cx="42" cy="40" r="7" fill="#7C4C9E"/><circle cx="32" cy="46" r="7" fill="#8D5CB0"/></svg>',
+    laranja: '<svg viewBox="0 0 64 64"><path d="M31 10c1 3 4 4 6 3" stroke="#5C7A3D" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="32" cy="36" r="22" fill="#F4923B"/><circle cx="32" cy="36" r="22" fill="none" stroke="#D97A28" stroke-width="2"/><path d="M32 20a16 16 0 0 1 0 32" stroke="#FFB05F" stroke-width="2" fill="none" opacity="0.6"/></svg>',
+    morango: '<svg viewBox="0 0 64 64"><path d="M22 16c3-4 8-6 10-2 2-4 7-2 10 2" stroke="#5C9A4D" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 26c0-5 8-9 18-9s18 4 18 9c0 14-8 28-18 28S14 40 14 26Z" fill="#E23B5C"/><circle cx="22" cy="28" r="1.6" fill="#FFE1E8"/><circle cx="30" cy="24" r="1.6" fill="#FFE1E8"/><circle cx="38" cy="29" r="1.6" fill="#FFE1E8"/><circle cx="26" cy="36" r="1.6" fill="#FFE1E8"/><circle cx="34" cy="38" r="1.6" fill="#FFE1E8"/></svg>',
+    pera: '<svg viewBox="0 0 64 64"><path d="M32 10v6" stroke="#7A5A3B" stroke-width="3" stroke-linecap="round"/><path d="M28 18c8 0 14 5 14 15 0 12-8 21-16 21S12 45 12 34c0-8 6-13 12-15 1-1 2-1 4-1Z" fill="#C7D24A"/><ellipse cx="36" cy="22" rx="3" ry="5" fill="#fff" opacity="0.3"/></svg>',
+    bola: '<svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="22" fill="#4C8CE0"/><path d="M32 10v44M10 32h44" stroke="#fff" stroke-width="2.5" opacity="0.8"/><circle cx="32" cy="32" r="22" fill="none" stroke="#3468B0" stroke-width="2"/></svg>',
+    carrinho: '<svg viewBox="0 0 64 64"><rect x="8" y="28" width="48" height="12" rx="4" fill="#E0533D"/><path d="M14 28c2-6 8-9 18-9s16 3 18 9" fill="#F0715C"/><rect x="24" y="22" width="16" height="8" rx="2" fill="#BFE3F0"/><circle cx="20" cy="42" r="6" fill="#3A3A3A"/><circle cx="44" cy="42" r="6" fill="#3A3A3A"/><circle cx="20" cy="42" r="2.4" fill="#C9C9C9"/><circle cx="44" cy="42" r="2.4" fill="#C9C9C9"/></svg>',
+    urso: '<svg viewBox="0 0 64 64"><circle cx="18" cy="16" r="6" fill="#B98552"/><circle cx="46" cy="16" r="6" fill="#B98552"/><circle cx="32" cy="30" r="18" fill="#C99566"/><circle cx="32" cy="34" r="9" fill="#E4C39B"/><circle cx="25" cy="27" r="2.2" fill="#3A3A3A"/><circle cx="39" cy="27" r="2.2" fill="#3A3A3A"/><circle cx="32" cy="35" r="2" fill="#3A3A3A"/></svg>',
+    bloco: '<svg viewBox="0 0 64 64"><rect x="10" y="10" width="20" height="20" rx="4" fill="#4C8CE0"/><rect x="34" y="10" width="20" height="20" rx="4" fill="#F0B15E"/><rect x="10" y="34" width="20" height="20" rx="4" fill="#5B8A72"/><rect x="34" y="34" width="20" height="20" rx="4" fill="#E0533D"/></svg>',
+    piao: '<svg viewBox="0 0 64 64"><path d="M32 8a16 16 0 0 1 16 16c0 14-9 24-16 32-7-8-16-18-16-32A16 16 0 0 1 32 8Z" fill="#8D5CB0"/><circle cx="32" cy="24" r="8" fill="#F0B15E"/><circle cx="32" cy="24" r="3" fill="#fff"/></svg>',
+    patinho: '<svg viewBox="0 0 64 64"><ellipse cx="30" cy="40" rx="20" ry="14" fill="#F4C542"/><circle cx="40" cy="22" r="12" fill="#F4C542"/><path d="M48 20c4-1 7 1 8 4-3 1-6 0-8-2Z" fill="#F0813B"/><circle cx="44" cy="19" r="2" fill="#3A3A3A"/></svg>'
+  };
+
+  const ITEMS = [
+    { id: "maca", name: "Maçã", cat: "fruta" },
+    { id: "banana", name: "Banana", cat: "fruta" },
+    { id: "uva", name: "Uva", cat: "fruta" },
+    { id: "laranja", name: "Laranja", cat: "fruta" },
+    { id: "morango", name: "Morango", cat: "fruta" },
+    { id: "bola", name: "Bola", cat: "brinquedo" },
+    { id: "carrinho", name: "Carrinho", cat: "brinquedo" },
+    { id: "urso", name: "Urso", cat: "brinquedo" },
+    { id: "bloco", name: "Blocos", cat: "brinquedo" },
+    { id: "piao", name: "Pião", cat: "brinquedo" }
+  ];
+
+  const ROUND_SIZE = 8; // itens por rodada (4 frutas + 4 brinquedos), evita sobrecarga visual
+
+  const tray = document.getElementById("tray");
+  const boxFruit = document.getElementById("boxFruit");
+  const boxToy = document.getElementById("boxToy");
+  const slotsFruit = document.getElementById("slotsFruit");
+  const slotsToy = document.getElementById("slotsToy");
+  const msgFruit = document.getElementById("msgFruit");
+  const msgToy = document.getElementById("msgToy");
+  const hintBanner = document.getElementById("hintBanner");
+  const celebration = document.getElementById("celebration");
+  const restartBtn = document.getElementById("restartBtn");
+  const playAgainBtn = document.getElementById("playAgainBtn");
+  const soundToggle = document.getElementById("soundToggle");
+  const soundIconOn = document.getElementById("soundIconOn");
+  const soundIconOff = document.getElementById("soundIconOff");
+  const liveRegion = document.getElementById("liveRegion");
+
+  let soundOn = false;
+  let selectedItem = null;
+  let remaining = 0;
+  let audioCtx = null;
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function pickRound() {
+    const fruits = shuffle(ITEMS.filter((i) => i.cat === "fruta")).slice(0, ROUND_SIZE / 2);
+    const toys = shuffle(ITEMS.filter((i) => i.cat === "brinquedo")).slice(0, ROUND_SIZE / 2);
+    return shuffle(fruits.concat(toys));
+  }
+
+  // ---------- Som (tons gerados, gentis, curtos) ----------
+  function ensureAudio() {
+    if (!audioCtx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) audioCtx = new AC();
+    }
+    return audioCtx;
+  }
+
+  function playTone(freqs, duration) {
+    if (!soundOn) return;
+    const ctx = ensureAudio();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    freqs.forEach((f, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = f;
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.06, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now + idx * 0.09);
+      osc.stop(now + duration + idx * 0.09);
+    });
+  }
+
+  function playSuccessSound() { playTone([523.25, 659.25, 783.99], 0.5); }
+  function playTrySound() { playTone([392], 0.25); }
+
+  soundToggle.addEventListener("click", () => {
+    soundOn = !soundOn;
+    soundToggle.setAttribute("aria-pressed", String(soundOn));
+    soundToggle.setAttribute("aria-label", soundOn ? "Desativar som" : "Ativar som");
+    soundIconOn.style.display = soundOn ? "block" : "none";
+    soundIconOff.style.display = soundOn ? "none" : "block";
+    if (soundOn) ensureAudio();
+  });
+
+  function announce(text) {
+    liveRegion.textContent = text;
+  }
+
+  function showFeedback(box, text) {
+    const el = box === "fruta" ? msgFruit : msgToy;
+    el.textContent = text;
+    el.classList.add("show");
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.classList.remove("show"), 1600);
+  }
+
+  // ---------- Construção dos itens ----------
+  function buildItemEl(data) {
+    const el = document.createElement("div");
+    el.className = "item";
+    el.setAttribute("role", "button");
+    el.setAttribute("tabindex", "0");
+    el.setAttribute("aria-label", data.name);
+    el.dataset.id = data.id;
+    el.dataset.cat = data.cat;
+    el.innerHTML = icons[data.id] + '<span class="label">' + data.name + "</span>";
+    return el;
+  }
+
+  function renderRound() {
+    tray.innerHTML = "";
+    slotsFruit.innerHTML = "";
+    slotsToy.innerHTML = "";
+    selectedItem = null;
+    hintBanner.style.opacity = "1";
+    const round = pickRound();
+    remaining = round.length;
+    round.forEach((data) => tray.appendChild(buildItemEl(data)));
+  }
+
+  function firstDismissHint() {
+    hintBanner.style.opacity = "0";
+  }
+
+  function placeItem(itemEl, boxCat) {
+    const isCorrect = itemEl.dataset.cat === boxCat;
+    const boxEl = boxCat === "fruta" ? boxFruit : boxToy;
+    const slotsEl = boxCat === "fruta" ? slotsFruit : slotsToy;
+    const name = itemEl.getAttribute("aria-label");
+
+    if (isCorrect) {
+      itemEl.classList.add("placed");
+      const mini = document.createElement("div");
+      mini.className = "mini-item";
+      mini.innerHTML = icons[itemEl.dataset.id];
+      slotsEl.appendChild(mini);
+      boxEl.classList.add("success-glow");
+      setTimeout(() => boxEl.classList.remove("success-glow"), 700);
+      playSuccessSound();
+      announce(name + " guardado na caixa de " + (boxCat === "fruta" ? "frutas" : "brinquedos") + ".");
+      setTimeout(() => itemEl.remove(), 300);
+      remaining -= 1;
+      firstDismissHint();
+      if (remaining <= 0) {
+        setTimeout(() => celebration.classList.add("show"), 500);
+      }
+    } else {
+      itemEl.classList.add("wrong-shake");
+      playTrySound();
+      const boxName = boxCat === "fruta" ? "frutas" : "brinquedos";
+      showFeedback(boxCat, "Essa caixa não é para " + itemEl.getAttribute("aria-label").toLowerCase() + ". Tente a outra! 🙂");
+      announce("Tente a outra caixa.");
+      setTimeout(() => itemEl.classList.remove("wrong-shake"), 500);
+    }
+    deselectAll();
+  }
+
+  function deselectAll() {
+    tray.querySelectorAll(".item.selected").forEach((el) => el.classList.remove("selected"));
+    selectedItem = null;
+  }
+
+  // ---------- Clique / seleção (alternativa acessível ao arrastar) ----------
+  tray.addEventListener("click", (e) => {
+    const item = e.target.closest(".item");
+    if (!item || item.classList.contains("placed")) return;
+    if (item === selectedItem) {
+      deselectAll();
+      return;
+    }
+    deselectAll();
+    selectedItem = item;
+    item.classList.add("selected");
+  });
+
+  tray.addEventListener("keydown", (e) => {
+    const item = e.target.closest(".item");
+    if (!item) return;
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      item.click();
+    }
+  });
+
+  [boxFruit, boxToy].forEach((box) => {
+    box.addEventListener("click", () => {
+      if (!selectedItem) return;
+      placeItem(selectedItem, box.dataset.category);
+    });
+    box.addEventListener("keydown", (e) => {
+      if ((e.key === "Enter" || e.key === " ") && selectedItem) {
+        e.preventDefault();
+        placeItem(selectedItem, box.dataset.category);
+      }
+    });
+    box.setAttribute("tabindex", "0");
+    box.setAttribute("role", "button");
+    box.setAttribute("aria-label", "Caixa de " + (box === boxFruit ? "frutas" : "brinquedos"));
+  });
+
+  // ---------- Arrastar com o dedo / mouse (pointer events) ----------
+  let dragEl = null;
+  let dragClone = null;
+  let dragging = false;
+
+  function onPointerDown(e) {
+    const item = e.target.closest(".item");
+    if (!item || item.classList.contains("placed")) return;
+    dragEl = item;
+    dragging = false;
+    item.setPointerCapture && item.setPointerCapture(e.pointerId);
+    item._startX = e.clientX;
+    item._startY = e.clientY;
+  }
+
+  function startDrag(e) {
+    dragging = true;
+    firstDismissHint();
+    deselectAll();
+    dragEl.classList.add("dragging");
+    dragClone = document.createElement("div");
+    dragClone.className = "drag-clone";
+    dragClone.innerHTML = icons[dragEl.dataset.id] + '<span class="label">' + dragEl.getAttribute("aria-label") + "</span>";
+    document.body.appendChild(dragClone);
+    moveClone(e.clientX, e.clientY);
+  }
+
+  function moveClone(x, y) {
+    if (dragClone) {
+      dragClone.style.left = x + "px";
+      dragClone.style.top = y + "px";
+    }
+  }
+
+  function onPointerMove(e) {
+    if (!dragEl) return;
+    if (!dragging) {
+      const dx = e.clientX - dragEl._startX;
+      const dy = e.clientY - dragEl._startY;
+      if (Math.hypot(dx, dy) > 6) startDrag(e);
+      else return;
+    }
+    moveClone(e.clientX, e.clientY);
+    [boxFruit, boxToy].forEach((box) => {
+      const r = box.getBoundingClientRect();
+      const over = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+      box.classList.toggle("drag-over", over);
+    });
+  }
+
+  function onPointerUp(e) {
+    if (!dragEl) return;
+    if (dragging) {
+      let landed = null;
+      [boxFruit, boxToy].forEach((box) => {
+        const r = box.getBoundingClientRect();
+        const over = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+        box.classList.remove("drag-over");
+        if (over) landed = box;
+      });
+      dragEl.classList.remove("dragging");
+      if (dragClone) {
+        dragClone.remove();
+        dragClone = null;
+      }
+      if (landed) {
+        placeItem(dragEl, landed.dataset.category);
+      }
+    }
+    dragEl = null;
+    dragging = false;
+  }
+
+  tray.addEventListener("pointerdown", onPointerDown);
+  window.addEventListener("pointermove", onPointerMove);
+  window.addEventListener("pointerup", onPointerUp);
+  window.addEventListener("pointercancel", onPointerUp);
+
+  // Evita clique fantasma logo após um arraste
+  tray.addEventListener(
+    "click",
+    (e) => {
+      if (dragging) e.stopImmediatePropagation();
+    },
+    true
+  );
+
+  restartBtn.addEventListener("click", () => {
+    celebration.classList.remove("show");
+    renderRound();
+  });
+  playAgainBtn.addEventListener("click", () => {
+    celebration.classList.remove("show");
+    renderRound();
+  });
+
+  renderRound();
+})();
+</script>
+</body>
+</html>

@@ -5,15 +5,15 @@ const differentials = [
     icon: UserCheck,
     title: "Atendimento individualizado",
     description:
-      "Cada criança recebe um plano terapêutico único, adaptado ao seu perfil, necessidades e objetivos familiares.",
+      "Cada criança é acompanhada de forma individualizada, considerando suas necessidades, características, potencialidades e objetivos terapêuticos.",
     color: "text-[oklch(0.45_0.13_230)]",
     bg: "bg-[oklch(0.86_0.07_230)]",
   },
   {
     icon: Brain,
-    title: "Experiência com neurodivergentes",
+    title: "Experiência com crianças neurodivergentes",
     description:
-      "Formação especializada e vivência prática no atendimento de crianças com TEA e outras condições do neurodesenvolvimento.",
+      "Experiência no atendimento de crianças com TEA e outras condições do neurodesenvolvimento, respeitando as particularidades de cada criança.",
     color: "text-[oklch(0.42_0.13_295)]",
     bg: "bg-[oklch(0.82_0.07_295)]",
   },
@@ -21,7 +21,7 @@ const differentials = [
     icon: Layers,
     title: "Abordagem integrada",
     description:
-      "Integração entre desenvolvimento emocional, social e cognitivo para um acompanhamento completo e efetivo.",
+      "Olhar para os aspectos emocionais, sociais, comportamentais e do desenvolvimento, considerando a criança de forma ampla.",
     color: "text-[oklch(0.4_0.12_175)]",
     bg: "bg-[oklch(0.86_0.07_175)]",
   },
@@ -29,15 +29,15 @@ const differentials = [
     icon: Building2,
     title: "Vivência multidisciplinar",
     description:
-      "Experiência em clínicas com equipes de fonoaudiologia, terapia ocupacional, psicopedagogia e neurologia.",
+      "Experiência em clínicas com atuação conjunta de profissionais de diferentes áreas, como fonoaudiologia, terapia ocupacional e psicopedagogia.",
     color: "text-[oklch(0.45_0.12_55)]",
     bg: "bg-[oklch(0.88_0.08_55)]",
   },
   {
     icon: HeartHandshake,
-    title: "Equoterapia",
+    title: "Vivência em equoterapia",
     description:
-      "Vivência prática em equoterapia, uma abordagem que utiliza o cavalo como co-terapeuta no desenvolvimento infantil.",
+      "Experiência prática em equoterapia, ampliando o repertório de estratégias utilizadas no acompanhamento e desenvolvimento infantil.",
     color: "text-[oklch(0.4_0.12_175)]",
     bg: "bg-[oklch(0.88_0.07_175)]",
   },

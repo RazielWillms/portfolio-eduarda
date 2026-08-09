@@ -6,6 +6,7 @@ import { ActivitiesSection } from "@/components/activities-section"
 import { DifferentialsSection } from "@/components/differentials-section"
 import { ContactSection } from "@/components/contact-section"
 import { Footer } from "@/components/footer"
+import { ActivitiesPreview } from "@/components/activities-preview"
 
 export default function HomePage() {
   return (
@@ -14,7 +15,7 @@ export default function HomePage() {
       <HeroSection />
       <AboutSection />
       <SpecialtiesSection />
-      <ActivitiesSection />
+      <ActivitiesPreview />
       <DifferentialsSection />
       <ContactSection />
       <Footer />
