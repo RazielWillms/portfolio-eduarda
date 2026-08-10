@@ -84,4 +84,14 @@ export const activities = [
     badgeColor: "bg-[oklch(0.87_0.07_220)] text-[oklch(0.28_0.1_220)]",
     tag: "Regulação Emocional",
   },
+  {
+    emoji: "✨",
+    title: "Jardim das Estrelas",
+    description:
+      "Atividade de tolerância à espera: a criança toca uma estrela e mantém o toque, com calma, até ela florescer, treinando o controle do impulso de forma lúdica e sensorial.",
+    href: "/atividades/jardim-das-estrelas.html",
+    color: "bg-[oklch(0.93_0.05_220)]",
+    badgeColor: "bg-[oklch(0.87_0.07_220)] text-[oklch(0.28_0.1_220)]",
+    tag: "Regulação Emocional",
+  },
 ]

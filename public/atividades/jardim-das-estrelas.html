@@ -1,0 +1,820 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Jardim das Estrelas</title>
+<meta name="description" content="Uma atividade sensorial calma: toque suave e lento nas estrelas para fazê-las florescer, sem pressa e sem erros." />
+<meta name="theme-color" content="#161233" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    color-scheme: dark;
+    --background: oklch(0.19 0.045 291);
+    --foreground: oklch(0.94 0.02 280);
+    --card: oklch(0.24 0.05 291);
+    --primary: oklch(0.78 0.09 292);
+    --primary-foreground: oklch(0.19 0.045 291);
+    --secondary: oklch(0.29 0.05 291);
+    --muted-foreground: oklch(0.72 0.03 280);
+    --accent: oklch(0.83 0.12 85);
+    --border: oklch(1 0 0 / 12%);
+    --ring: oklch(0.78 0.09 292);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: var(--background);
+    color: var(--foreground);
+  }
+
+  body {
+    font-family: 'Quicksand', ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+
+  button {
+    font-family: inherit;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: inherit;
+  }
+
+  main {
+    position: relative;
+    height: 100dvh;
+    width: 100%;
+    overflow: hidden;
+    background: var(--background);
+  }
+
+  /* radial glow at top */
+  .bg-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 50% at 50% 0%, var(--secondary) 0%, transparent 70%);
+  }
+
+  /* decorative background sky */
+  #background-sky {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  #background-sky span {
+    position: absolute;
+    border-radius: 9999px;
+    background: var(--foreground);
+  }
+
+  /* header */
+  .header {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 1rem;
+    animation: fade-in-slow 1.2s ease-out;
+  }
+  @media (min-width: 640px) {
+    .header { padding: 1.5rem; }
+  }
+  .header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .header-spacer {
+    width: 104px;
+    flex-shrink: 0;
+  }
+  @media (min-width: 640px) {
+    .header-spacer { width: 136px; }
+  }
+  h1 {
+    flex: 1;
+    text-align: center;
+    text-wrap: balance;
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: oklch(0.94 0.02 280 / 90%);
+    margin: 0;
+  }
+  @media (min-width: 640px) {
+    h1 { font-size: 1.25rem; }
+  }
+  .subtitle {
+    text-wrap: pretty;
+    padding-inline: 1rem;
+    text-align: center;
+    font-size: 0.75rem;
+    line-height: 1.6;
+    color: var(--muted-foreground);
+    margin: 0;
+  }
+  @media (min-width: 640px) {
+    .subtitle { font-size: 0.9375rem; }
+  }
+
+  /* controls */
+  .controls {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 4px;
+  }
+  @media (min-width: 640px) {
+    .controls { gap: 8px; }
+  }
+  .control-btn {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    width: 36px;
+    border-radius: 9999px;
+    border: 1px solid oklch(1 0 0 / 12% / 60%);
+    border-color: color-mix(in oklch, var(--border) 60%, transparent);
+    background: color-mix(in oklch, var(--card) 60%, transparent);
+    color: color-mix(in oklch, var(--foreground) 80%, transparent);
+    backdrop-filter: blur(4px);
+    transition: background-color 300ms, color 300ms, opacity 300ms;
+  }
+  @media (min-width: 640px) {
+    .control-btn { height: 40px; width: 40px; }
+  }
+  .control-btn:hover { background: color-mix(in oklch, var(--card) 90%, transparent); }
+  .control-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--ring);
+  }
+  .control-btn[aria-pressed="true"] {
+    background: color-mix(in oklch, var(--primary) 25%, transparent);
+    color: var(--foreground);
+  }
+  .control-btn:disabled { opacity: 0.3; pointer-events: none; }
+  .control-btn svg { width: 16px; height: 16px; }
+
+  /* stars layer */
+  #stars-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .star-flower {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    transform: translate(-50%, -50%);
+    touch-action: none;
+  }
+  .star-flower:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--ring), 0 0 0 4px var(--background);
+  }
+
+  .star-ring {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+    transition: opacity 500ms;
+    opacity: 0;
+  }
+  .star-ring .track { stroke: color-mix(in oklch, var(--foreground) 15%, transparent); }
+  .star-ring .fill.primary { stroke: var(--primary); }
+  .star-ring .fill.accent { stroke: var(--accent); }
+
+  .star-core {
+    position: relative;
+    display: block;
+    border-radius: 9999px;
+    transition: filter 700ms ease-out, transform 700ms ease-out, width 700ms ease-out, height 700ms ease-out, box-shadow 700ms ease-out;
+  }
+
+  .star-petals {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+  }
+  .star-petal {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border-radius: 9999px;
+    opacity: 0.7;
+  }
+  .star-petal.primary { background: var(--primary); }
+  .star-petal.accent { background: var(--accent); }
+
+  .star-particles {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+  }
+  .star-particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 9999px;
+    top: 50%;
+  }
+  .star-particle.primary { background: var(--primary); }
+  .star-particle.accent { background: var(--accent); }
+
+  /* breathing moon */
+  #breathing-moon {
+    pointer-events: none;
+    position: absolute;
+    bottom: 24px;
+    left: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+  }
+  @media (min-width: 640px) {
+    #breathing-moon { bottom: 32px; left: 32px; }
+  }
+  .moon-wrap {
+    position: relative;
+    display: flex;
+    height: 56px;
+    width: 56px;
+    align-items: center;
+    justify-content: center;
+  }
+  @media (min-width: 640px) {
+    .moon-wrap { height: 64px; width: 64px; }
+  }
+  .moon-glow {
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    background: color-mix(in oklch, var(--primary) 25%, transparent);
+    filter: blur(8px);
+    animation: breathe-scale 8s ease-in-out infinite;
+  }
+  .moon-core {
+    position: relative;
+    height: 24px;
+    width: 24px;
+    border-radius: 9999px;
+    background: color-mix(in oklch, var(--primary) 70%, transparent);
+    box-shadow: 0 0 20px oklch(0.78 0.09 292 / 45%);
+  }
+  @media (min-width: 640px) {
+    .moon-core { height: 28px; width: 28px; }
+  }
+  .moon-caption {
+    max-width: 7rem;
+    text-align: center;
+    font-size: 0.75rem;
+    line-height: 1.6;
+    color: color-mix(in oklch, var(--muted-foreground) 80%, transparent);
+    margin: 0;
+  }
+  @media (min-width: 640px) {
+    .moon-caption { font-size: 0.8125rem; }
+  }
+
+  .reduced-motion #background-sky span,
+  .reduced-motion .moon-glow,
+  .reduced-motion .star-core,
+  .reduced-motion .star-petals,
+  .reduced-motion .header {
+    animation: none !important;
+  }
+
+  @keyframes star-twinkle {
+    0%, 100% { opacity: 0.15; transform: scale(0.85); }
+    50% { opacity: var(--twinkle-opacity, 0.6); transform: scale(1); }
+  }
+  @keyframes soft-pulse {
+    0%, 100% { transform: scale(1); filter: brightness(1); }
+    50% { transform: scale(1.08); filter: brightness(1.15); }
+  }
+  @keyframes bloom-in {
+    0% { transform: scale(0.4); opacity: 0.4; }
+    70% { transform: scale(1.12); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes petal-rise {
+    0% { transform: translateY(0) scale(1); opacity: 0.9; }
+    100% { transform: translateY(-46px) scale(0.4); opacity: 0; }
+  }
+  @keyframes breathe-scale {
+    0%, 100% { transform: scale(0.82); opacity: 0.75; }
+    50% { transform: scale(1.15); opacity: 1; }
+  }
+  @keyframes fade-in-slow {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<main id="app">
+  <div class="bg-glow" aria-hidden="true"></div>
+  <div id="background-sky" aria-hidden="true"></div>
+
+  <div class="header">
+    <div class="header-row">
+      <div class="header-spacer" aria-hidden="true"></div>
+      <h1>Jardim das Estrelas</h1>
+      <div class="controls">
+        <button type="button" class="control-btn" id="btn-sound" aria-pressed="true" aria-label="Desativar sons suaves" title="Desativar sons suaves">
+          <svg id="icon-sound" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg>
+        </button>
+        <button type="button" class="control-btn" id="btn-motion" aria-pressed="false" aria-label="Reduzir movimento" title="Reduzir movimento">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9.59 4.59A2 2 0 1 1 11 8H2" />
+            <path d="M12.59 19.41A2 2 0 1 0 14 16H2" />
+            <path d="M17.73 7.73A2.5 2.5 0 1 1 19.5 12H2" />
+          </svg>
+        </button>
+        <button type="button" class="control-btn" id="btn-reset" aria-pressed="false" aria-label="Recomeçar o jardim" title="Recomeçar o jardim" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+            <path d="M3 3v5h5" />
+          </svg>
+        </button>
+      </div>
+    </div>
+    <p class="subtitle">Toque uma estrela e mantenha o toque, com calma, até ela florescer.</p>
+  </div>
+
+  <div id="stars-layer" role="group" aria-label="Estrelas do jardim"></div>
+
+  <div id="breathing-moon" aria-hidden="true">
+    <div class="moon-wrap">
+      <span class="moon-glow"></span>
+      <span class="moon-core"></span>
+    </div>
+    <p class="moon-caption">Respire com a luz</p>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- ícones (lucide, inline) ---------- */
+  var ICON_VOLUME_2 = '<path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.383A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/>';
+  var ICON_VOLUME_X = '<path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.383A.705.705 0 0 0 11 19.298z"/><line x1="22" x2="16" y1="9" y2="15"/><line x1="16" x2="22" y1="9" y2="15"/>';
+
+  /* ---------- seeded random (mulberry32) ---------- */
+  function createSeededRandom(seed) {
+    var a = seed;
+    return function () {
+      a |= 0;
+      a = (a + 0x6d2b79f5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  /* ---------- áudio: sininhos pentatônicos ---------- */
+  var PENTATONIC_HZ = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25, 587.33, 659.25];
+  var audioCtx = null;
+
+  function getContext() {
+    var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return null;
+    if (!audioCtx) audioCtx = new AudioContextClass();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function playChime(noteIndex, volume) {
+    volume = volume === undefined ? 0.16 : volume;
+    var ctx = getContext();
+    if (!ctx) return;
+
+    var freq = PENTATONIC_HZ[Math.abs(noteIndex) % PENTATONIC_HZ.length];
+    var now = ctx.currentTime;
+
+    var master = ctx.createGain();
+    master.gain.value = 0;
+    master.connect(ctx.destination);
+
+    var filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 2200;
+    filter.Q.value = 0.3;
+    filter.connect(master);
+
+    var osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    osc.connect(filter);
+
+    var harmonic = ctx.createOscillator();
+    harmonic.type = 'sine';
+    harmonic.frequency.value = freq * 2;
+    var harmonicGain = ctx.createGain();
+    harmonicGain.gain.value = 0.25;
+    harmonic.connect(harmonicGain);
+    harmonicGain.connect(filter);
+
+    var attack = 0.35;
+    var release = 2.2;
+    master.gain.setValueAtTime(0, now);
+    master.gain.linearRampToValueAtTime(volume, now + attack);
+    master.gain.exponentialRampToValueAtTime(0.0001, now + attack + release);
+
+    osc.start(now);
+    harmonic.start(now);
+    osc.stop(now + attack + release + 0.1);
+    harmonic.stop(now + attack + release + 0.1);
+  }
+
+  /* ---------- dados das estrelas (posições desenhadas à mão) ---------- */
+  var STARS = [
+    { id: 'star-1', top: 16, left: 10, size: 72, hue: 'primary', noteIndex: 0 },
+    { id: 'star-2', top: 30, left: 28, size: 58, hue: 'accent', noteIndex: 1 },
+    { id: 'star-3', top: 18, left: 48, size: 66, hue: 'primary', noteIndex: 2 },
+    { id: 'star-4', top: 26, left: 70, size: 80, hue: 'accent', noteIndex: 3 },
+    { id: 'star-5', top: 42, left: 14, size: 60, hue: 'accent', noteIndex: 1 },
+    { id: 'star-6', top: 50, left: 40, size: 92, hue: 'primary', noteIndex: 4 },
+    { id: 'star-7', top: 40, left: 60, size: 58, hue: 'primary', noteIndex: 2 },
+    { id: 'star-8', top: 52, left: 84, size: 70, hue: 'accent', noteIndex: 5 },
+    { id: 'star-9', top: 66, left: 22, size: 58, hue: 'accent', noteIndex: 6 },
+    { id: 'star-10', top: 62, left: 50, size: 66, hue: 'accent', noteIndex: 4 },
+    { id: 'star-11', top: 74, left: 66, size: 82, hue: 'primary', noteIndex: 5 },
+    { id: 'star-12', top: 66, left: 90, size: 60, hue: 'primary', noteIndex: 0 },
+    { id: 'star-13', top: 84, left: 38, size: 68, hue: 'accent', noteIndex: 7 },
+    { id: 'star-14', top: 86, left: 78, size: 60, hue: 'primary', noteIndex: 3 },
+  ];
+
+  var HOLD_DURATION_MS = 1400;
+  var RELEASE_DURATION_MS = 700;
+
+  /* ---------- estado global ---------- */
+  var state = {
+    soundEnabled: true,
+    reducedMotion: false,
+    bloomedIds: new Set(),
+  };
+
+  var app = document.getElementById('app');
+  var starsLayer = document.getElementById('stars-layer');
+  var backgroundSky = document.getElementById('background-sky');
+
+  /* ---------- céu de fundo decorativo ---------- */
+  function renderBackgroundSky() {
+    backgroundSky.innerHTML = '';
+    var random = createSeededRandom(42);
+    for (var i = 0; i < 70; i++) {
+      var top = random() * 100;
+      var left = random() * 100;
+      var size = 1 + random() * 2.2;
+      var delay = random() * 8;
+      var duration = 6 + random() * 6;
+      var opacity = 0.25 + random() * 0.45;
+
+      var span = document.createElement('span');
+      span.style.top = top + '%';
+      span.style.left = left + '%';
+      span.style.width = size + 'px';
+      span.style.height = size + 'px';
+      span.style.setProperty('--twinkle-opacity', opacity);
+      if (state.reducedMotion) {
+        span.style.opacity = opacity * 0.8;
+      } else {
+        span.style.animation = 'star-twinkle ' + duration + 's ease-in-out ' + delay + 's infinite';
+      }
+      backgroundSky.appendChild(span);
+    }
+  }
+
+  /* ---------- flor-estrela individual ---------- */
+  function createStarFlower(star) {
+    var el = document.createElement('button');
+    el.type = 'button';
+    el.className = 'star-flower';
+    el.style.top = star.top + '%';
+    el.style.left = star.left + '%';
+    el.style.width = star.size + 'px';
+    el.style.height = star.size + 'px';
+
+    var ringRadius = 46;
+    var circumference = 2 * Math.PI * ringRadius;
+
+    el.innerHTML =
+      '<svg class="star-ring" viewBox="0 0 100 100" aria-hidden="true">' +
+      '<circle class="track" cx="50" cy="50" r="' + ringRadius + '" fill="none" stroke-width="3" stroke-linecap="round"></circle>' +
+      '<circle class="fill ' + star.hue + '" cx="50" cy="50" r="' + ringRadius + '" fill="none" stroke-width="3" stroke-linecap="round" stroke-dasharray="' + circumference + '" stroke-dashoffset="' + circumference + '"></circle>' +
+      '</svg>' +
+      '<span class="star-core"></span>' +
+      '<span class="star-petals" aria-hidden="true"></span>' +
+      '<span class="star-particles" aria-hidden="true"></span>';
+
+    var ring = el.querySelector('.star-ring');
+    var ringFill = el.querySelector('.star-ring .fill');
+    var core = el.querySelector('.star-core');
+    var petalsWrap = el.querySelector('.star-petals');
+    var particlesWrap = el.querySelector('.star-particles');
+
+    var local = {
+      progress: 0,
+      isHolding: false,
+      bloomed: false,
+      rafId: null,
+      startTs: null,
+      direction: null,
+      progressAtSwitch: 0,
+    };
+
+    function stopLoop() {
+      if (local.rafId !== null) {
+        cancelAnimationFrame(local.rafId);
+        local.rafId = null;
+      }
+      local.startTs = null;
+      local.direction = null;
+    }
+
+    function renderCore() {
+      var coreSize = local.bloomed ? star.size * 0.62 : star.size * 0.42;
+      core.style.width = coreSize + 'px';
+      core.style.height = coreSize + 'px';
+      core.style.background =
+        star.hue === 'primary'
+          ? 'radial-gradient(circle, oklch(0.95 0.03 292) 0%, var(--primary) 60%, transparent 100%)'
+          : 'radial-gradient(circle, oklch(0.97 0.05 90) 0%, var(--accent) 60%, transparent 100%)';
+      var glowColor = star.hue === 'primary' ? 'oklch(0.78 0.09 292 / 55%)' : 'oklch(0.83 0.12 85 / 55%)';
+      core.style.boxShadow = local.bloomed ? '0 0 35px ' + glowColor : '0 0 16px ' + glowColor;
+
+      if (state.reducedMotion) {
+        core.style.animation = 'none';
+      } else if (local.bloomed) {
+        core.style.animation = 'soft-pulse ' + (5 + (star.noteIndex % 3)) + 's ease-in-out infinite';
+      } else {
+        core.style.animation = 'star-twinkle ' + (4 + (star.noteIndex % 3)) + 's ease-in-out infinite';
+      }
+
+      core.style.transform = local.isHolding ? 'scale(' + (1 + local.progress * 0.35) + ')' : '';
+    }
+
+    function renderRing() {
+      ring.style.opacity = local.isHolding && !local.bloomed ? '1' : '0';
+      ringFill.style.strokeDashoffset = circumference * (1 - local.progress);
+    }
+
+    function renderPetals() {
+      if (!local.bloomed) {
+        petalsWrap.innerHTML = '';
+        return;
+      }
+      if (petalsWrap.childElementCount > 0) return;
+      petalsWrap.style.animation = state.reducedMotion ? 'none' : 'bloom-in 900ms ease-out';
+      var frag = document.createDocumentFragment();
+      for (var i = 0; i < 6; i++) {
+        var petal = document.createElement('span');
+        petal.className = 'star-petal ' + star.hue;
+        petal.style.width = star.size * 0.1 + 'px';
+        petal.style.height = star.size * 0.22 + 'px';
+        petal.style.transform =
+          'translate(-50%, -95%) rotate(' + i * 60 + 'deg) translateY(-' + star.size * 0.16 + 'px)';
+        petal.style.transformOrigin = '50% 100%';
+        frag.appendChild(petal);
+      }
+      petalsWrap.appendChild(frag);
+    }
+
+    function spawnParticles() {
+      if (state.reducedMotion) return;
+      particlesWrap.innerHTML = '';
+      var frag = document.createDocumentFragment();
+      for (var i = 0; i < 4; i++) {
+        var p = document.createElement('span');
+        p.className = 'star-particle ' + star.hue;
+        p.style.left = 50 + (i - 1.5) * 12 + '%';
+        p.style.animation = 'petal-rise ' + (1.4 + i * 0.15) + 's ease-out forwards';
+        p.style.animationDelay = i * 90 + 'ms';
+        frag.appendChild(p);
+      }
+      particlesWrap.appendChild(frag);
+      window.setTimeout(function () {
+        particlesWrap.innerHTML = '';
+      }, 1900);
+    }
+
+    function updateAria() {
+      el.setAttribute(
+        'aria-label',
+        local.bloomed
+          ? 'Estrela florescida. Toque para ouvir seu brilho novamente.'
+          : 'Estrela adormecida. Toque e mantenha o toque, com calma, até ela florescer.'
+      );
+    }
+
+    function tick(timestamp) {
+      if (local.startTs === null) local.startTs = timestamp;
+      var elapsed = timestamp - local.startTs;
+
+      if (local.direction === 'holding') {
+        var delta = elapsed / HOLD_DURATION_MS;
+        var next = Math.min(1, local.progressAtSwitch + delta);
+        local.progress = next;
+        renderRing();
+        renderCore();
+        if (next >= 1) {
+          stopLoop();
+          local.isHolding = false;
+          local.bloomed = true;
+          state.bloomedIds.add(star.id);
+          updateResetButton();
+          updateAria();
+          renderPetals();
+          renderCore();
+          renderRing();
+          spawnParticles();
+          if (state.soundEnabled) playChime(star.noteIndex);
+          return;
+        }
+      } else if (local.direction === 'releasing') {
+        var delta2 = elapsed / RELEASE_DURATION_MS;
+        var next2 = Math.max(0, local.progressAtSwitch - delta2);
+        local.progress = next2;
+        renderRing();
+        renderCore();
+        if (next2 <= 0) {
+          stopLoop();
+          return;
+        }
+      }
+
+      local.rafId = requestAnimationFrame(tick);
+    }
+
+    function beginHold() {
+      if (local.bloomed) {
+        spawnParticles();
+        if (state.soundEnabled) playChime(star.noteIndex);
+        return;
+      }
+      stopLoop();
+      local.progressAtSwitch = local.progress;
+      local.direction = 'holding';
+      local.isHolding = true;
+      renderRing();
+      local.rafId = requestAnimationFrame(tick);
+    }
+
+    function endHold() {
+      if (local.bloomed || local.direction !== 'holding') return;
+      stopLoop();
+      local.progressAtSwitch = local.progress;
+      local.direction = 'releasing';
+      local.isHolding = false;
+      renderRing();
+      local.rafId = requestAnimationFrame(tick);
+    }
+
+    el.addEventListener('pointerdown', function (event) {
+      el.setPointerCapture(event.pointerId);
+      beginHold();
+    });
+    el.addEventListener('pointerup', endHold);
+    el.addEventListener('pointerleave', endHold);
+    el.addEventListener('pointercancel', endHold);
+    el.addEventListener('keydown', function (event) {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      if (event.repeat) return;
+      beginHold();
+    });
+    el.addEventListener('keyup', function (event) {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      endHold();
+    });
+
+    updateAria();
+    renderCore();
+    renderRing();
+
+    return {
+      el: el,
+      reset: function () {
+        stopLoop();
+        local.progress = 0;
+        local.isHolding = false;
+        local.bloomed = false;
+        petalsWrap.innerHTML = '';
+        particlesWrap.innerHTML = '';
+        updateAria();
+        renderCore();
+        renderRing();
+      },
+      refreshMotion: function () {
+        renderCore();
+        renderPetals();
+      },
+    };
+  }
+
+  var starFlowerInstances = [];
+
+  function renderStars() {
+    starsLayer.innerHTML = '';
+    starFlowerInstances = [];
+    STARS.forEach(function (star) {
+      var instance = createStarFlower(star);
+      starsLayer.appendChild(instance.el);
+      starFlowerInstances.push(instance);
+    });
+  }
+
+  /* ---------- controles ---------- */
+  var btnSound = document.getElementById('btn-sound');
+  var iconSound = document.getElementById('icon-sound');
+  var btnMotion = document.getElementById('btn-motion');
+  var btnReset = document.getElementById('btn-reset');
+
+  function updateSoundButton() {
+    btnSound.setAttribute('aria-pressed', String(state.soundEnabled));
+    var label = state.soundEnabled ? 'Desativar sons suaves' : 'Ativar sons suaves';
+    btnSound.setAttribute('aria-label', label);
+    btnSound.setAttribute('title', label);
+    iconSound.innerHTML = state.soundEnabled ? ICON_VOLUME_2 : ICON_VOLUME_X;
+  }
+
+  function updateMotionButton() {
+    btnMotion.setAttribute('aria-pressed', String(state.reducedMotion));
+    var label = state.reducedMotion ? 'Permitir movimento suave' : 'Reduzir movimento';
+    btnMotion.setAttribute('aria-label', label);
+    btnMotion.setAttribute('title', label);
+  }
+
+  function updateResetButton() {
+    var hasBloomed = state.bloomedIds.size > 0;
+    btnReset.disabled = !hasBloomed;
+  }
+
+  function applyReducedMotionClass() {
+    app.classList.toggle('reduced-motion', state.reducedMotion);
+    renderBackgroundSky();
+    starFlowerInstances.forEach(function (instance) {
+      instance.refreshMotion();
+    });
+  }
+
+  btnSound.addEventListener('click', function () {
+    state.soundEnabled = !state.soundEnabled;
+    updateSoundButton();
+  });
+
+  btnMotion.addEventListener('click', function () {
+    state.reducedMotion = !state.reducedMotion;
+    updateMotionButton();
+    applyReducedMotionClass();
+  });
+
+  btnReset.addEventListener('click', function () {
+    state.bloomedIds = new Set();
+    starFlowerInstances.forEach(function (instance) {
+      instance.reset();
+    });
+    updateResetButton();
+  });
+
+  /* ---------- movimento suave ativo por padrão ---------- */
+  // O movimento começa sempre ligado, independente da preferência do
+  // sistema — quem conduz a sessão decide manualmente pelo botão de
+  // controle, conforme a sensibilidade da criança.
+  state.reducedMotion = false;
+
+  /* ---------- inicialização ---------- */
+  updateSoundButton();
+  updateMotionButton();
+  updateResetButton();
+  renderBackgroundSky();
+  renderStars();
+  applyReducedMotionClass();
+})();
+</script>
+</body>
+</html>
