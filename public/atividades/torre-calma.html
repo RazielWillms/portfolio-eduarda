@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Torre Calma</title>
+<style>
+  :root{
+    --bg1:#EAF3F1;
+    --bg2:#F8F2E7;
+    --ink:#3D4A47;
+    --ink-soft:#5B6A67;
+    --teal:#5B8C88;
+    --teal-dark:#456F6B;
+    --blue:#8FB4C9;
+    --sage:#A3C3A0;
+    --sand:#E3C08A;
+    --lavender:#B9A6C9;
+    --coral:#E3AFA6;
+    --panel-bg:#FFFFFFF2;
+    --shadow: rgba(61,74,71,0.20);
+    --focus: #2E6A66;
+    --safe:#5B8C88;
+    --caution:#D9A85C;
+    --risk:#D98E7E;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+
+  body{
+    font-family:'Trebuchet MS','Segoe UI Rounded',-apple-system,system-ui,sans-serif;
+    background:linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
+    color:var(--ink);
+    min-height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:20px 16px 32px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .app{ width:100%; max-width:520px; display:flex; flex-direction:column; align-items:center; }
+
+  header{ width:100%; display:flex; align-items:center; justify-content:center; position:relative; margin-bottom:6px; }
+
+  h1{ font-size:1.6rem; font-weight:700; margin:0; letter-spacing:0.3px; text-align:center; }
+  h1 .tower-emoji{ margin-right:8px; }
+
+  #settingsBtn{
+    position:absolute; right:0; top:50%; transform:translateY(-50%);
+    background:var(--panel-bg); border:1px solid #ffffffaa; border-radius:50%;
+    width:44px; height:44px; font-size:1.2rem; cursor:pointer;
+    box-shadow:0 2px 6px var(--shadow); color:var(--ink-soft);
+  }
+  #settingsBtn:hover{ transform:translateY(-50%) scale(1.05); }
+  #settingsBtn:focus-visible{ outline:3px solid var(--focus); outline-offset:2px; }
+
+  .instructions{
+    text-align:center; font-size:1rem; color:var(--ink-soft);
+    max-width:420px; line-height:1.5; margin:4px 0 16px;
+  }
+
+  .stage{ width:100%; display:flex; flex-direction:column; align-items:center; }
+
+  .counter{
+    font-size:1rem; color:var(--ink-soft); margin-bottom:12px;
+    background:var(--panel-bg); padding:6px 16px; border-radius:999px; box-shadow:0 2px 6px var(--shadow);
+  }
+  .counter b{ color:var(--ink); }
+
+  /* Balance meter */
+  .balance-wrap{ display:flex; flex-direction:column; align-items:center; margin-bottom:10px; }
+  .balance-label{ font-size:0.78rem; color:var(--ink-soft); margin-bottom:5px; }
+  .balance-track{
+    width:200px; height:10px; border-radius:999px;
+    background:#ffffffaa; box-shadow:inset 0 1px 3px var(--shadow);
+    position:relative;
+  }
+  .balance-ball{
+    position:absolute; top:50%; width:18px; height:18px; border-radius:50%;
+    background:var(--safe); left:50%;
+    transform:translate(-50%,-50%);
+    transition:left .35s ease, background .35s ease;
+    box-shadow:0 2px 5px var(--shadow);
+  }
+
+  .stage-frame{
+    position:relative;
+    width:260px;
+    height:400px;
+    margin:0 auto;
+    overflow:hidden;
+    border-radius:12px;
+  }
+
+  .center-guide{
+    position:absolute; left:130px; top:0; bottom:14px; width:2px;
+    background:repeating-linear-gradient(180deg, rgba(61,74,71,0.18) 0 6px, transparent 6px 12px);
+    pointer-events:none;
+    transform:translateX(-1px);
+  }
+
+  .snap-band{
+    position:absolute; top:0; bottom:14px; width:36px; left:112px;
+    background:rgba(91,140,136,0.10);
+    border-left:1px dashed rgba(91,140,136,0.35);
+    border-right:1px dashed rgba(91,140,136,0.35);
+    pointer-events:none;
+  }
+  .snap-band.hidden{ display:none; }
+
+  .world{
+    position:absolute; left:0; top:0; width:260px; height:400px;
+    transition:transform .5s ease;
+    will-change:transform;
+  }
+
+  .tower-inner{
+    position:absolute; left:0; top:0; width:260px; height:400px;
+    transform-origin:50% 100%;
+    transition:transform .5s ease;
+  }
+
+  .block{
+    position:absolute;
+    width:150px; height:30px;
+    border-radius:9px;
+    box-shadow:0 2px 3px var(--shadow) inset, 0 3px 6px var(--shadow);
+  }
+
+  .active-block{
+    cursor:grab;
+    z-index:5;
+    touch-action:none;
+  }
+  .active-block:active{ cursor:grabbing; }
+  .active-block:focus-visible{ outline:3px solid var(--focus); outline-offset:3px; }
+
+  .ground{
+    position:absolute; left:25px; bottom:0; width:210px; height:14px;
+    border-radius:50%;
+    background:radial-gradient(ellipse at center, rgba(61,74,71,0.22) 0%, rgba(61,74,71,0) 72%);
+  }
+
+  .drag-hint{
+    font-size:0.85rem; color:var(--ink-soft); opacity:.85; margin-top:10px; text-align:center;
+  }
+
+  .controls{ display:flex; align-items:center; justify-content:center; gap:12px; margin-top:18px; flex-wrap:wrap; }
+
+  .primary-btn{
+    background:var(--teal); color:#fff; border:none; padding:16px 24px;
+    font-size:1rem; font-weight:700; border-radius:16px; cursor:pointer;
+    box-shadow:0 4px 10px rgba(69,111,107,0.35); min-height:52px;
+    transition:transform .15s ease, background .15s ease;
+  }
+  .primary-btn:hover{ background:var(--teal-dark); transform:translateY(-1px); }
+  .primary-btn:active{ transform:translateY(1px) scale(.98); }
+  .primary-btn:focus-visible{ outline:3px solid var(--focus); outline-offset:3px; }
+  .primary-btn:disabled{ opacity:.5; cursor:not-allowed; transform:none; }
+
+  .icon-btn{
+    background:var(--panel-bg); border:1px solid #ffffffaa; color:var(--ink-soft);
+    width:52px; height:52px; border-radius:16px; font-size:1.3rem; cursor:pointer;
+    box-shadow:0 3px 8px var(--shadow);
+  }
+  .icon-btn:hover{ transform:translateY(-1px); }
+  .icon-btn:focus-visible{ outline:3px solid var(--focus); outline-offset:2px; }
+
+  .panel-backdrop{
+    position:fixed; inset:0; background:rgba(61,74,71,0.35);
+    display:flex; align-items:center; justify-content:center; padding:20px; z-index:20;
+  }
+  .panel{ background:var(--panel-bg); border-radius:20px; padding:24px; max-width:360px; width:100%; box-shadow:0 10px 30px rgba(0,0,0,0.25); }
+  .panel h2{ font-size:1.1rem; margin:0 0 14px; color:var(--ink); }
+  .panel label{ display:block; font-size:0.95rem; color:var(--ink-soft); margin-bottom:16px; }
+  .panel input[type="range"]{ width:100%; margin-top:8px; }
+  .panel .hint{ font-size:0.8rem; color:var(--ink-soft); opacity:.85; margin-top:-10px; margin-bottom:16px; }
+  .panel .checkline{ display:flex; align-items:center; gap:8px; }
+
+  .hidden{ display:none !important; }
+
+  .overlay{
+    position:fixed; inset:0;
+    background:linear-gradient(180deg, rgba(234,243,241,0.97), rgba(248,242,231,0.97));
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:24px; z-index:30;
+  }
+  .breath-circle{
+    width:140px; height:140px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #ffffff, var(--blue) 70%);
+    box-shadow:0 8px 24px rgba(91,140,136,0.35);
+    margin-bottom:24px;
+    animation:breathe 12s ease-in-out infinite;
+  }
+  @keyframes breathe{
+    0%{ transform:scale(0.75); } 33%{ transform:scale(1.15); } 50%{ transform:scale(1.15); }
+    83%{ transform:scale(0.75); } 100%{ transform:scale(0.75); }
+  }
+  .breath-text{ font-size:1.3rem; font-weight:700; color:var(--teal-dark); min-height:1.6em; margin:0 0 6px; }
+  .fall-msg{ font-size:1rem; color:var(--ink-soft); max-width:340px; line-height:1.5; margin:0 0 26px; }
+
+  @media (prefers-reduced-motion: reduce){
+    .breath-circle{ animation:none; }
+    .primary-btn, .icon-btn, .tower-inner, .balance-ball{ transition:none; }
+  }
+
+  footer.credit{ margin-top:24px; font-size:0.78rem; color:var(--ink-soft); opacity:.7; text-align:center; }
+</style>
+</head>
+<body>
+
+  <div class="app">
+    <header>
+      <h1><span class="tower-emoji">🧱</span>Torre Calma</h1>
+      <button id="settingsBtn" aria-label="Configurações (para o adulto)">⚙️</button>
+    </header>
+
+    <p class="instructions">
+      O bloco desliza sozinho da esquerda para a direita. Toque nele ou no botão para soltar e empilhar.
+      Se ela ficar torta demais, cai — e tudo bem! Vamos respirar juntos e começar de novo.
+    </p>
+
+    <div class="stage">
+      <div class="counter" aria-live="polite">
+        Blocos: <b id="count">0</b> &nbsp;·&nbsp; Recorde: <b id="record">0</b>
+      </div>
+
+      <div class="balance-wrap">
+        <span class="balance-label">equilíbrio da torre</span>
+        <div class="balance-track"><div class="balance-ball" id="balanceBall"></div></div>
+      </div>
+
+      <div class="stage-frame" id="stageFrame">
+        <div class="center-guide"></div>
+        <div class="snap-band" id="snapBand"></div>
+        <div class="world" id="world">
+          <div class="tower-inner" id="towerInner"></div>
+          <div class="ground"></div>
+          <!-- active moving block is appended here dynamically -->
+        </div>
+      </div>
+
+      <p class="drag-hint">Ele se move sozinho — toque para soltar. Alinhe com o bloco de baixo, ou ele não tem apoio e cai.</p>
+    </div>
+
+    <div class="controls">
+      <button id="centerDropBtn" class="primary-btn">🎯 Soltar</button>
+      <button id="soundBtn" class="icon-btn" aria-pressed="true" title="Som">🔊</button>
+      <button id="resetBtn" class="icon-btn" title="Recomeçar a torre">↺</button>
+    </div>
+
+    <footer class="credit">Feito para momentos de calma e recomeço.</footer>
+  </div>
+
+  <div id="panelBackdrop" class="panel-backdrop hidden">
+    <div class="panel" role="dialog" aria-labelledby="panelTitle">
+      <h2 id="panelTitle">Configurações (para o adulto)</h2>
+
+      <label for="difficultySlider">
+        Dificuldade de equilíbrio: <span id="difficultyVal">média</span>
+        <input type="range" id="difficultySlider" min="1" max="10" value="4">
+      </label>
+      <p class="hint">Mais fácil = a torre tolera blocos mais desalinhados antes de cair. Mais difícil = pequenos desvios já desequilibram — e cada bloco novo pesa mais que o anterior, então a torre fica mais instável com a altura.</p>
+
+      <label class="checkline"><input type="checkbox" id="snapToggle" checked> Ímã de centralização (ajuda a acertar o centro)</label>
+      <label class="checkline"><input type="checkbox" id="windToggle"> Vento sutil (de vez em quando inclina um pouquinho sozinha)</label>
+      <label class="checkline"><input type="checkbox" id="soundToggle" checked> Sons ativados</label>
+
+      <button id="closeSettings" class="primary-btn">Fechar</button>
+    </div>
+  </div>
+
+  <div id="fallOverlay" class="overlay hidden" role="status" aria-live="polite">
+    <div class="breath-circle" id="breathCircle"></div>
+    <p class="breath-text" id="breathText">Inspira...</p>
+    <p class="fall-msg">A torre caiu. Tudo bem, isso acontece! Vamos respirar juntos e depois começar de novo.</p>
+    <button id="againBtn" class="primary-btn">Vamos de novo</button>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- Layout constants ----------
+  var STAGE_W = 260, STAGE_H = 400, GROUND_H = 14;
+  var BLOCK_W = 150, BLOCK_H = 30, GAP = 4;
+  var CENTER_X = STAGE_W / 2;
+  var GROUND_Y = STAGE_H - GROUND_H;
+  var DRAG_LEFT_MIN = 0, DRAG_LEFT_MAX = STAGE_W - BLOCK_W;
+
+  // ---------- DOM refs ----------
+  var stageFrame = document.getElementById('stageFrame');
+  var world = document.getElementById('world');
+  var towerInner = document.getElementById('towerInner');
+  var snapBand = document.getElementById('snapBand');
+  var countEl = document.getElementById('count');
+  var recordEl = document.getElementById('record');
+  var balanceBall = document.getElementById('balanceBall');
+  var centerDropBtn = document.getElementById('centerDropBtn');
+  var soundBtn = document.getElementById('soundBtn');
+  var resetBtn = document.getElementById('resetBtn');
+  var settingsBtn = document.getElementById('settingsBtn');
+  var panelBackdrop = document.getElementById('panelBackdrop');
+  var closeSettings = document.getElementById('closeSettings');
+  var difficultySlider = document.getElementById('difficultySlider');
+  var difficultyVal = document.getElementById('difficultyVal');
+  var snapToggle = document.getElementById('snapToggle');
+  var windToggle = document.getElementById('windToggle');
+  var soundToggle = document.getElementById('soundToggle');
+  var fallOverlay = document.getElementById('fallOverlay');
+  var breathText = document.getElementById('breathText');
+  var againBtn = document.getElementById('againBtn');
+
+  var palette = ['var(--blue)','var(--sage)','var(--sand)','var(--lavender)','var(--coral)'];
+
+  // ---------- Game state ----------
+  var count = 0;
+  var record = 0;
+  var soundOn = true;
+  var snapAssist = true;
+  var windEnabled = false;
+  var difficulty = 4;
+  var currentTilt = 0;
+  var falling = false;
+  var activeBlock = null;
+  var dragging = false;
+  var grabOffsetX = 0, grabOffsetY = 0;
+  var breathTimer = null, breathWordTimer = null;
+
+  // camera (keeps the growing tower from covering the text above)
+  var TOP_MARGIN = 40;
+  var cameraOffset = 0;
+
+  // auto left-to-right transit of the active block
+  var TRANSIT_SPEED = 1.6; // px per frame
+  var transitDir = 1;
+  var transitRAF = null;
+
+  function collapseThreshold(){
+    // easier (1) -> ~12.7deg tolerance, harder (10) -> ~5deg
+    return Math.max(5, 13.5 - difficulty * 0.8);
+  }
+  function sensitivity(){
+    // easier (1) -> 5.0, harder (10) -> 15.8 (paired with the punitive exponent below)
+    return 3.8 + difficulty * 1.2;
+  }
+  var SNAP_ZONE = 6; // px around perfect alignment with the block below (small — precision matters)
+  var HEIGHT_FACTOR = 0.33; // each block placed makes the NEXT one's misalignment cost more (progressive difficulty)
+  var MISALIGN_EXPONENT = 1.35; // >1 makes big misalignments punished more than proportionally
+  var lastPlacedLeft = null; // world-x of the most recently placed block (its support)
+  var MIN_OVERLAP = BLOCK_W * 0.46; // a block needs at least this much overlap with the one below it, or it isn't supported
+
+  // ---------- Sound engine (Web Audio API, generated tones only) ----------
+  var audioCtx = null;
+  function getCtx(){
+    if(!audioCtx){
+      var AC = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AC();
+    }
+    if(audioCtx.state === 'suspended'){ audioCtx.resume(); }
+    return audioCtx;
+  }
+  function tone(freq, duration, delay, type, gainPeak){
+    if(!soundOn) return;
+    try{
+      var ctx = getCtx();
+      var t0 = ctx.currentTime + (delay || 0);
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = type || 'sine';
+      osc.frequency.setValueAtTime(freq, t0);
+      gain.gain.setValueAtTime(0, t0);
+      gain.gain.linearRampToValueAtTime(gainPeak || 0.08, t0 + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t0);
+      osc.stop(t0 + duration + 0.05);
+    }catch(e){}
+  }
+  var pentatonic = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33];
+  function playPlaceSound(index, accuracy){
+    var note = pentatonic[index % pentatonic.length];
+    var g = 0.06 + accuracy * 0.05; // more centered = slightly brighter
+    tone(note, 0.35, 0, 'sine', g);
+  }
+  function playFallSound(){
+    var notes = [392.00, 349.23, 293.66, 261.63];
+    notes.forEach(function(n, i){ tone(n, 0.6, i * 0.12, 'triangle', 0.07); });
+  }
+  var breathOsc = null, breathGain = null;
+  function startBreathDrone(){
+    if(!soundOn) return;
+    try{
+      var ctx = getCtx();
+      breathOsc = ctx.createOscillator();
+      breathGain = ctx.createGain();
+      breathOsc.type = 'sine';
+      breathOsc.frequency.setValueAtTime(196.0, ctx.currentTime);
+      breathGain.gain.setValueAtTime(0.0001, ctx.currentTime);
+      breathOsc.connect(breathGain).connect(ctx.destination);
+      breathOsc.start();
+      scheduleBreathCycle();
+    }catch(e){}
+  }
+  function scheduleBreathCycle(){
+    if(!breathGain) return;
+    var ctx = getCtx();
+    var t0 = ctx.currentTime;
+    breathGain.gain.cancelScheduledValues(t0);
+    breathGain.gain.setValueAtTime(0.0001, t0);
+    breathGain.gain.linearRampToValueAtTime(0.045, t0 + 4);
+    breathGain.gain.setValueAtTime(0.045, t0 + 6);
+    breathGain.gain.linearRampToValueAtTime(0.0001, t0 + 10);
+    breathGain.gain.setValueAtTime(0.0001, t0 + 12);
+    breathTimer = setTimeout(scheduleBreathCycle, 12000);
+  }
+  function stopBreathDrone(){
+    if(breathTimer){ clearTimeout(breathTimer); breathTimer = null; }
+    if(breathOsc){
+      try{
+        var ctx = getCtx();
+        breathGain.gain.cancelScheduledValues(ctx.currentTime);
+        breathGain.gain.setValueAtTime(breathGain.gain.value, ctx.currentTime);
+        breathGain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.3);
+        breathOsc.stop(ctx.currentTime + 0.35);
+      }catch(e){}
+      breathOsc = null; breathGain = null;
+    }
+  }
+  var breathWords = ['Inspira...', 'Segura...', 'Solta...', 'Segura...'];
+  function startBreathWords(){
+    var i = 0; breathText.textContent = breathWords[0];
+    breathWordTimer = setInterval(function(){ i = (i+1) % breathWords.length; breathText.textContent = breathWords[i]; }, 3000);
+  }
+  function stopBreathWords(){ if(breathWordTimer){ clearInterval(breathWordTimer); breathWordTimer = null; } }
+
+  // ---------- UI helpers ----------
+  function updateCounter(){ countEl.textContent = count; recordEl.textContent = record; }
+
+  function updateBalanceMeter(){
+    var thr = collapseThreshold();
+    var ratio = Math.min(1, Math.abs(currentTilt) / thr);
+    var pct = 50 + (currentTilt / thr) * 45;
+    pct = Math.max(4, Math.min(96, pct));
+    balanceBall.style.left = pct + '%';
+    var color = ratio < 0.5 ? 'var(--safe)' : (ratio < 0.8 ? 'var(--caution)' : 'var(--risk)');
+    balanceBall.style.background = color;
+  }
+
+  function landingTop(h){
+    return GROUND_Y - (h + 1) * BLOCK_H - h * GAP;
+  }
+
+  // ---------- Camera (keeps the growing tower from covering the text above) ----------
+  function cameraOffsetFor(h){
+    return Math.max(0, TOP_MARGIN - landingTop(h));
+  }
+  function updateCamera(instant){
+    cameraOffset = cameraOffsetFor(count);
+    if(instant){
+      world.style.transition = 'none';
+      world.style.transform = 'translateY(' + cameraOffset + 'px)';
+      // force reflow so the transition re-enables cleanly on next change
+      void world.offsetHeight;
+      world.style.transition = '';
+    }else{
+      world.style.transform = 'translateY(' + cameraOffset + 'px)';
+    }
+  }
+
+  // ---------- Auto left-to-right transit of the active block ----------
+  function startTransit(){
+    stopTransit();
+    function step(){
+      if(!activeBlock || dragging || falling){ transitRAF = null; return; }
+      var left = parseFloat(activeBlock.style.left) || 0;
+      left += transitDir * TRANSIT_SPEED;
+      if(left <= DRAG_LEFT_MIN){ left = DRAG_LEFT_MIN; transitDir = 1; }
+      else if(left >= DRAG_LEFT_MAX){ left = DRAG_LEFT_MAX; transitDir = -1; }
+      activeBlock.style.left = left + 'px';
+      transitRAF = requestAnimationFrame(step);
+    }
+    transitRAF = requestAnimationFrame(step);
+  }
+  function stopTransit(){
+    if(transitRAF){ cancelAnimationFrame(transitRAF); transitRAF = null; }
+  }
+
+  // ---------- Active block spawn & drag ----------
+  function spawnActiveBlock(){
+    var b = document.createElement('div');
+    b.className = 'block active-block';
+    b.style.background = palette[count % palette.length];
+    b.style.left = DRAG_LEFT_MIN + 'px';
+    b.style.top = landingTop(count) + 'px';
+    b.setAttribute('tabindex', '0');
+    b.setAttribute('role', 'button');
+    b.setAttribute('aria-label', 'Bloco se movendo. Toque, clique ou pressione Enter para soltar. Use as setas do teclado para ajustar a posição.');
+    world.appendChild(b);
+    activeBlock = b;
+    transitDir = 1;
+    attachHandlers(b);
+    startTransit();
+  }
+
+  function attachHandlers(b){
+    b.addEventListener('pointerdown', function(e){
+      if(falling || b !== activeBlock) return;
+      stopTransit();
+      dragging = true;
+      try{ b.setPointerCapture(e.pointerId); }catch(err){}
+      var rect = b.getBoundingClientRect();
+      grabOffsetX = e.clientX - rect.left;
+      grabOffsetY = e.clientY - rect.top;
+      b.style.transition = 'none';
+      snapBand.classList.remove('hidden');
+      if(!snapAssist) snapBand.classList.add('hidden');
+    });
+    b.addEventListener('pointermove', function(e){
+      if(!dragging) return;
+      var frameRect = stageFrame.getBoundingClientRect();
+      var newLeft = e.clientX - frameRect.left - grabOffsetX;
+      var newTopScreen = e.clientY - frameRect.top - grabOffsetY;
+      newLeft = Math.max(DRAG_LEFT_MIN, Math.min(DRAG_LEFT_MAX, newLeft));
+      newTopScreen = Math.max(0, Math.min(STAGE_H - BLOCK_H, newTopScreen));
+      b.style.left = newLeft + 'px';
+      b.style.top = (newTopScreen - cameraOffset) + 'px';
+    });
+    function release(){
+      if(!dragging) return;
+      dragging = false;
+      snapBand.classList.add('hidden');
+      dropBlock(b);
+    }
+    b.addEventListener('pointerup', release);
+    b.addEventListener('pointercancel', release);
+
+    b.addEventListener('keydown', function(e){
+      if(falling || b !== activeBlock) return;
+      stopTransit();
+      var left = parseFloat(b.style.left) || 0;
+      if(e.key === 'ArrowLeft'){
+        left = Math.max(DRAG_LEFT_MIN, left - 12);
+        b.style.left = left + 'px';
+        e.preventDefault();
+      }else if(e.key === 'ArrowRight'){
+        left = Math.min(DRAG_LEFT_MAX, left + 12);
+        b.style.left = left + 'px';
+        e.preventDefault();
+      }else if(e.key === 'Enter' || e.key === ' '){
+        dropBlock(b);
+        e.preventDefault();
+      }
+    });
+  }
+
+  function dropBlock(b){
+    // Guard against re-entrancy: only the current active block can be dropped,
+    // and only once. Without this, a fast double-tap (or a stray event on a
+    // block that already settled) could run this function twice for the same
+    // block, incrementing the count twice and spawning two active blocks at
+    // once — the "blocks overlap / multiple blocks appear" bug.
+    if(falling || b !== activeBlock) return;
+    activeBlock = null;
+    stopTransit();
+    var h = count;
+    var rawLeft = parseFloat(b.style.left);
+    if(isNaN(rawLeft)) rawLeft = CENTER_X - BLOCK_W/2;
+
+    // reference to align against: the block below, or the frame center for the very first block
+    var baseLeft = (h === 0) ? (CENTER_X - BLOCK_W/2) : lastPlacedLeft;
+    var delta = rawLeft - baseLeft;
+    if(snapAssist && Math.abs(delta) < SNAP_ZONE){ delta = 0; }
+
+    var finalLeft = Math.max(DRAG_LEFT_MIN, Math.min(DRAG_LEFT_MAX, baseLeft + delta));
+    delta = finalLeft - baseLeft;
+
+    var overlapOK = true, overlapWidth = BLOCK_W;
+    if(h > 0){
+      var prevLeft = lastPlacedLeft, prevRight = prevLeft + BLOCK_W;
+      var newRight = finalLeft + BLOCK_W;
+      var oL = Math.max(prevLeft, finalLeft), oR = Math.min(prevRight, newRight);
+      overlapWidth = oR - oL;
+      overlapOK = overlapWidth >= MIN_OVERLAP;
+    }
+
+    b.removeAttribute('tabindex');
+    b.removeAttribute('role');
+    b.style.cursor = 'default';
+
+    if(!overlapOK){
+      // no real support beneath it — it doesn't get to hover in the air, it falls
+      missBlock(b, finalLeft);
+      return;
+    }
+
+    var finalTop = landingTop(h);
+    b.style.transition = 'left .3s ease, top .35s cubic-bezier(.2,.7,.3,1)';
+    b.style.left = finalLeft + 'px';
+    b.style.top = finalTop + 'px';
+
+    var accuracy = h === 0 ? 1 : Math.max(0, Math.min(1, overlapWidth / BLOCK_W));
+
+    setTimeout(function(){
+      b.classList.remove('active-block');
+      towerInner.appendChild(b); // same coordinate space as the world
+
+      var normDelta = delta / (BLOCK_W/2);
+      var punitive = normDelta === 0 ? 0 : Math.sign(normDelta) * Math.pow(Math.abs(normDelta), MISALIGN_EXPONENT);
+      var contribution = h === 0 ? 0 : punitive * sensitivity() * (1 + h * HEIGHT_FACTOR);
+      currentTilt += contribution;
+
+      if(windEnabled && Math.random() < 0.18){
+        currentTilt += (Math.random() < 0.5 ? -1 : 1) * (2 + Math.random() * 3);
+      }
+
+      towerInner.style.transform = 'rotate(' + currentTilt.toFixed(2) + 'deg)';
+      updateBalanceMeter();
+
+      playPlaceSound(h, accuracy);
+      lastPlacedLeft = finalLeft;
+      count += 1;
+      if(count > record) record = count;
+      updateCounter();
+      updateCamera();
+
+      var thr = collapseThreshold();
+      if(Math.abs(currentTilt) >= thr){
+        setTimeout(function(){ triggerFall(currentTilt >= 0 ? 1 : -1); }, 450);
+      }else{
+        spawnActiveBlock();
+      }
+    }, 360);
+  }
+
+  function missBlock(b, finalLeft){
+    falling = true;
+    var dir = (finalLeft + BLOCK_W/2) >= CENTER_X ? 1 : -1;
+    b.style.transition = 'transform .45s cubic-bezier(.5,0,.75,0), opacity .45s ease';
+    b.style.left = finalLeft + 'px';
+    requestAnimationFrame(function(){
+      b.style.transform = 'translateY(200px) rotate(' + (dir * (30 + Math.random()*25)) + 'deg)';
+      b.style.opacity = '0';
+    });
+    setTimeout(function(){
+      if(b.parentNode) b.remove();
+      activeBlock = null;
+      falling = false; // let triggerFall take over the state cleanly
+      triggerFall(dir);
+    }, 420);
+  }
+
+  // ---------- Collapse ----------
+  function triggerFall(direction){
+    if(falling) return;
+    if(towerInner.children.length === 0 && !activeBlock) return;
+    falling = true;
+    stopTransit();
+    if(activeBlock){ activeBlock.remove(); activeBlock = null; }
+
+    playFallSound();
+
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var children = Array.prototype.slice.call(towerInner.children);
+    var maxFinish = 0;
+    var dir = direction || 1;
+
+    children.forEach(function(block, i){
+      var delay = reduceMotion ? 0 : i * 40;
+      var duration = reduceMotion ? 250 : 650 + Math.random() * 200;
+      var dx = dir * (50 + Math.random() * 60);
+      var rot = dir * (28 + Math.random() * 45);
+      try{
+        block.animate([
+          { transform:'translate(0,0) rotate(0deg)', opacity:1 },
+          { transform:'translate(' + dx + 'px, 460px) rotate(' + rot + 'deg)', opacity:0 }
+        ], { duration: duration, delay: delay, easing:'cubic-bezier(.5,0,.75,0)', fill:'forwards' });
+      }catch(e){ block.style.opacity = '0'; }
+      maxFinish = Math.max(maxFinish, delay + duration);
+    });
+
+    setTimeout(function(){
+      towerInner.innerHTML = '';
+      towerInner.style.transition = 'none';
+      towerInner.style.transform = 'rotate(0deg)';
+      requestAnimationFrame(function(){ towerInner.style.transition = 'transform .5s ease'; });
+      currentTilt = 0;
+      count = 0;
+      lastPlacedLeft = null;
+      updateCounter();
+      updateBalanceMeter();
+      updateCamera(true);
+      showBreathOverlay();
+    }, maxFinish + 150);
+  }
+
+  function showBreathOverlay(){
+    fallOverlay.classList.remove('hidden');
+    startBreathWords();
+    startBreathDrone();
+  }
+  function hideBreathOverlay(){
+    fallOverlay.classList.add('hidden');
+    stopBreathWords();
+    stopBreathDrone();
+    falling = false;
+    spawnActiveBlock();
+  }
+
+  // ---------- Controls ----------
+  centerDropBtn.addEventListener('click', function(){
+    if(falling || !activeBlock) return;
+    dropBlock(activeBlock);
+  });
+
+  resetBtn.addEventListener('click', function(){
+    if(falling) return;
+    if(towerInner.children.length === 0 && !activeBlock) return;
+    triggerFall(currentTilt >= 0 ? 1 : -1);
+  });
+
+  soundBtn.addEventListener('click', function(){
+    soundOn = !soundOn;
+    soundBtn.textContent = soundOn ? '🔊' : '🔇';
+    soundBtn.setAttribute('aria-pressed', String(soundOn));
+    soundToggle.checked = soundOn;
+  });
+  soundToggle.addEventListener('change', function(){
+    soundOn = soundToggle.checked;
+    soundBtn.textContent = soundOn ? '🔊' : '🔇';
+    soundBtn.setAttribute('aria-pressed', String(soundOn));
+  });
+
+  settingsBtn.addEventListener('click', function(){ panelBackdrop.classList.remove('hidden'); });
+  closeSettings.addEventListener('click', function(){ panelBackdrop.classList.add('hidden'); });
+  panelBackdrop.addEventListener('click', function(e){ if(e.target === panelBackdrop){ panelBackdrop.classList.add('hidden'); } });
+
+  var difficultyLabels = {1:'muito fácil',2:'fácil',3:'fácil',4:'média',5:'média',6:'média',7:'desafiadora',8:'desafiadora',9:'difícil',10:'difícil'};
+  difficultySlider.addEventListener('input', function(){
+    difficulty = parseInt(difficultySlider.value, 10);
+    difficultyVal.textContent = difficultyLabels[difficulty] || 'média';
+    updateBalanceMeter();
+  });
+  snapToggle.addEventListener('change', function(){ snapAssist = snapToggle.checked; });
+  windToggle.addEventListener('change', function(){ windEnabled = windToggle.checked; });
+
+  againBtn.addEventListener('click', hideBreathOverlay);
+
+  document.body.addEventListener('click', function unlock(){
+    getCtx();
+    document.body.removeEventListener('click', unlock);
+  }, { once:true });
+
+  // ---------- Init ----------
+  updateCounter();
+  updateBalanceMeter();
+  updateCamera(true);
+  snapBand.classList.add('hidden');
+  spawnActiveBlock();
+})();
+</script>
+</body>
+</html>

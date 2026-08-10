@@ -94,4 +94,14 @@ export const activities = [
     badgeColor: "bg-[oklch(0.87_0.07_220)] text-[oklch(0.28_0.1_220)]",
     tag: "Regulação Emocional",
   },
+  {
+    emoji: "🧱",
+    title: "Torre Calma",
+    description:
+      "Atividade de equilíbrio e paciência: a criança empilha blocos com toques precisos, sentindo a torre ficar mais instável a cada peça. Se ela cair, tudo bem — uma pausa para respirar guia o recomeço, treinando tolerância à frustração e regulação após o erro.",
+    href: "/atividades/torre-calma.html",
+    color: "bg-[oklch(0.93_0.05_175)]",
+    badgeColor: "bg-[oklch(0.87_0.07_175)] text-[oklch(0.28_0.1_175)]",
+    tag: "Tolerância à Frustração",
+  },
 ]
