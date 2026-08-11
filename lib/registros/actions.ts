@@ -8,7 +8,8 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
-import type { Papel } from "./types"
+import { buscarPossiveisDuplicatasPaciente } from "./queries"
+import type { CandidatoDuplicataPaciente, Papel } from "./types"
 
 function genericError(message: string) {
   return { error: message }
@@ -36,17 +37,42 @@ export async function signOut() {
 
 // ---------- Pacientes ----------
 
-export async function createPaciente(input: {
+type CreatePacienteInput = {
   nome_completo: string
   nome_responsavel: string | null
+  cpf_responsavel: string | null
   data_nascimento: string | null
   diagnostico: string | null
   contatos: string | null
   observacoes: string | null
-}) {
+}
+
+// Verifica se já existe um paciente com nome/CPF do responsável/nome do responsável
+// coincidentes antes de cadastrar. Retorna candidatos mascarados para o formulário
+// confirmar com o profissional antes de criar um registro duplicado.
+export async function verificarDuplicidadePaciente(
+  input: Pick<CreatePacienteInput, "nome_completo" | "data_nascimento" | "nome_responsavel" | "cpf_responsavel">,
+): Promise<{ candidatos: CandidatoDuplicataPaciente[] }> {
+  const candidatos = await buscarPossiveisDuplicatasPaciente({
+    nomeCompleto: input.nome_completo,
+    dataNascimento: input.data_nascimento,
+    nomeResponsavel: input.nome_responsavel,
+    cpfResponsavel: input.cpf_responsavel,
+  })
+  return { candidatos }
+}
+
+export async function createPaciente(input: CreatePacienteInput, opts?: { ignorarDuplicidade?: boolean }) {
   const supabase = await createClient()
   const { data: userData } = await supabase.auth.getUser()
   if (!userData?.user) return genericError("Sessão expirada. Faça login novamente.")
+
+  if (!opts?.ignorarDuplicidade) {
+    const { candidatos } = await verificarDuplicidadePaciente(input)
+    if (candidatos.length > 0) {
+      return { duplicidade: candidatos }
+    }
+  }
 
   const { data: paciente, error } = await supabase
     .from("pacientes")
@@ -71,11 +97,66 @@ export async function createPaciente(input: {
   redirect(`/registros/pacientes/${paciente.id}`)
 }
 
+// ---------- Solicitações de acesso ----------
+
+export async function solicitarAcessoPaciente(input: {
+  pacienteId: string
+  mensagem: string | null
+  papelNoCaso: string | null
+}) {
+  const supabase = await createClient()
+  const { data: userData } = await supabase.auth.getUser()
+  if (!userData?.user) return genericError("Sessão expirada. Faça login novamente.")
+
+  const { error } = await supabase.from("solicitacoes_acesso").insert({
+    paciente_id: input.pacienteId,
+    solicitante_id: userData.user.id,
+    mensagem: input.mensagem,
+    papel_no_caso: input.papelNoCaso,
+  })
+
+  if (error) {
+    console.log("[v0] solicitarAcessoPaciente error:", error.message)
+    return genericError("Não foi possível enviar a solicitação de acesso.")
+  }
+
+  revalidatePath("/registros/solicitacoes")
+  return { success: true }
+}
+
+export async function aprovarSolicitacaoAcesso(id: string) {
+  const supabase = await createClient()
+  const { error } = await supabase.rpc("aprovar_solicitacao_acesso", { p_solicitacao_id: id })
+
+  if (error) {
+    console.log("[v0] aprovarSolicitacaoAcesso error:", error.message)
+    return genericError("Não foi possível aprovar a solicitação.")
+  }
+
+  revalidatePath("/registros/solicitacoes")
+  revalidatePath("/registros/pacientes")
+  return { success: true }
+}
+
+export async function negarSolicitacaoAcesso(id: string) {
+  const supabase = await createClient()
+  const { error } = await supabase.rpc("negar_solicitacao_acesso", { p_solicitacao_id: id })
+
+  if (error) {
+    console.log("[v0] negarSolicitacaoAcesso error:", error.message)
+    return genericError("Não foi possível negar a solicitação.")
+  }
+
+  revalidatePath("/registros/solicitacoes")
+  return { success: true }
+}
+
 export async function updatePaciente(
   id: string,
   input: {
     nome_completo: string
     nome_responsavel: string | null
+    cpf_responsavel: string | null
     data_nascimento: string | null
     diagnostico: string | null
     contatos: string | null

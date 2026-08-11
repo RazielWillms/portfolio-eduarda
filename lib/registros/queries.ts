@@ -3,7 +3,16 @@
 // então o RLS aplica automaticamente as regras de visibilidade (admin vê tudo,
 // psicólogo só vê seus próprios pacientes/atendimentos).
 import { createClient } from "@/lib/supabase/server"
-import type { Atendimento, AtendimentoComRelacoes, Habilidade, NivelAvaliacao, Paciente, Profile } from "./types"
+import type {
+  Atendimento,
+  AtendimentoComRelacoes,
+  CandidatoDuplicataPaciente,
+  Habilidade,
+  NivelAvaliacao,
+  Paciente,
+  Profile,
+  SolicitacaoAcessoComRelacoes,
+} from "./types"
 
 export async function getProfile(): Promise<Profile | null> {
   const supabase = await createClient()
@@ -110,4 +119,72 @@ export async function getAtendimentosPorPaciente(pacienteId: string): Promise<At
     return []
   }
   return data as unknown as AtendimentoComRelacoes[]
+}
+
+// ---------- Duplicidade de pacientes ----------
+// Roda via RPC de uma função SECURITY DEFINER: compara contra TODOS os pacientes
+// (não só os do usuário atual), mas retorna apenas dados mascarados.
+export async function buscarPossiveisDuplicatasPaciente(input: {
+  nomeCompleto: string
+  dataNascimento: string | null
+  nomeResponsavel: string | null
+  cpfResponsavel: string | null
+}): Promise<CandidatoDuplicataPaciente[]> {
+  if (!input.dataNascimento) return []
+
+  const supabase = await createClient()
+  const { data, error } = await supabase.rpc("buscar_possiveis_duplicatas_paciente", {
+    p_nome_completo: input.nomeCompleto,
+    p_data_nascimento: input.dataNascimento,
+    p_nome_responsavel: input.nomeResponsavel,
+    p_cpf_responsavel: input.cpfResponsavel,
+  })
+
+  if (error) {
+    console.log("[v0] buscarPossiveisDuplicatasPaciente error:", error.message)
+    return []
+  }
+
+  return (data ?? []) as CandidatoDuplicataPaciente[]
+}
+
+// ---------- Solicitações de acesso ----------
+
+export async function getSolicitacoesRecebidas(): Promise<SolicitacaoAcessoComRelacoes[]> {
+  const supabase = await createClient()
+  const { data: userData } = await supabase.auth.getUser()
+  if (!userData?.user) return []
+
+  // Recebidas = solicitações pendentes de pacientes que o usuário já criou/atende,
+  // que a política de RLS já restringe corretamente — aqui só filtramos o status.
+  const { data, error } = await supabase
+    .from("solicitacoes_acesso")
+    .select("*, paciente:pacientes(id, nome_completo), solicitante:profiles!solicitante_id(id, nome, email)")
+    .eq("status", "pendente")
+    .neq("solicitante_id", userData.user.id)
+    .order("created_at", { ascending: false })
+
+  if (error) {
+    console.log("[v0] getSolicitacoesRecebidas error:", error.message)
+    return []
+  }
+  return data as unknown as SolicitacaoAcessoComRelacoes[]
+}
+
+export async function getSolicitacoesEnviadas(): Promise<SolicitacaoAcessoComRelacoes[]> {
+  const supabase = await createClient()
+  const { data: userData } = await supabase.auth.getUser()
+  if (!userData?.user) return []
+
+  const { data, error } = await supabase
+    .from("solicitacoes_acesso")
+    .select("*, paciente:pacientes(id, nome_completo), solicitante:profiles!solicitante_id(id, nome, email)")
+    .eq("solicitante_id", userData.user.id)
+    .order("created_at", { ascending: false })
+
+  if (error) {
+    console.log("[v0] getSolicitacoesEnviadas error:", error.message)
+    return []
+  }
+  return data as unknown as SolicitacaoAcessoComRelacoes[]
 }

@@ -38,6 +38,7 @@ export interface Paciente {
   id: string
   nome_completo: string
   nome_responsavel: string | null
+  cpf_responsavel: string | null
   data_nascimento: string | null // ISO (yyyy-mm-dd)
   diagnostico: string | null
   contatos: string | null
@@ -45,6 +46,37 @@ export interface Paciente {
   status: StatusPaciente
   criado_por: string
   created_at: string
+}
+
+export type StatusSolicitacaoAcesso = "pendente" | "aprovada" | "negada" | "cancelada"
+
+// Candidato a duplicata retornado pela função SECURITY DEFINER, com dados mascarados
+// (nunca expõe diagnóstico, contatos ou nome completo do responsável).
+export interface CandidatoDuplicataPaciente {
+  paciente_id: string
+  nome_mascarado: string
+  responsavel_mascarado: string | null
+  data_nascimento: string | null
+  ja_vinculado: boolean
+  criado_por_nome: string | null
+}
+
+export interface SolicitacaoAcesso {
+  id: string
+  paciente_id: string
+  solicitante_id: string
+  destinatario_id: string | null
+  status: StatusSolicitacaoAcesso
+  mensagem: string | null
+  papel_no_caso: string | null
+  resolvido_por: string | null
+  resolvido_em: string | null
+  created_at: string
+}
+
+export interface SolicitacaoAcessoComRelacoes extends SolicitacaoAcesso {
+  paciente: Pick<Paciente, "id" | "nome_completo">
+  solicitante: Pick<Profile, "id" | "nome" | "email">
 }
 
 export interface Atendimento {
