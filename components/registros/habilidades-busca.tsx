@@ -1,17 +1,14 @@
 "use client"
 
-import { useMemo, useState, type ReactNode } from "react"
+import { useMemo, useState } from "react"
+import Link from "next/link"
 import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import type { Habilidade } from "@/lib/registros/types"
 
-export function HabilidadesBusca({
-  habilidades,
-  children,
-}: {
-  habilidades: Habilidade[]
-  children: (habilidadesFiltradas: Habilidade[]) => ReactNode
-}) {
+export function HabilidadesBusca({ habilidades }: { habilidades: Habilidade[] }) {
   const [busca, setBusca] = useState("")
 
   const habilidadesFiltradas = useMemo(() => {
@@ -33,7 +30,47 @@ export function HabilidadesBusca({
           className="pl-9"
         />
       </div>
-      {children(habilidadesFiltradas)}
+      <div className="rounded-2xl border border-border bg-card overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Habilidade</TableHead>
+              <TableHead>Categoria</TableHead>
+              <TableHead>Peso</TableHead>
+              <TableHead>Status</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {habilidadesFiltradas.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                  Nenhuma habilidade encontrada.
+                </TableCell>
+              </TableRow>
+            )}
+            {habilidadesFiltradas.map((h) => (
+              <TableRow key={h.id}>
+                <TableCell>
+                  <Link
+                    href={`/registros/habilidades/${h.id}`}
+                    className="font-semibold text-foreground hover:text-primary"
+                  >
+                    {h.nome}
+                  </Link>
+                  {h.descricao && <p className="text-xs text-muted-foreground mt-0.5 max-w-sm">{h.descricao}</p>}
+                </TableCell>
+                <TableCell className="text-muted-foreground">{h.categoria ?? "—"}</TableCell>
+                <TableCell className="text-muted-foreground">{h.peso.toFixed(1)}</TableCell>
+                <TableCell>
+                  <Badge variant={h.status === "ativa" ? "default" : "outline"}>
+                    {h.status === "ativa" ? "Ativa" : "Inativa"}
+                  </Badge>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   )
 }
