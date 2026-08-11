@@ -1,4 +1,4 @@
-import { UserCheck, Brain, Layers, Building2, HeartHandshake, PawPrint, Leaf } from "lucide-react"
+import { UserCheck, Brain, Layers, Building2, HeartHandshake } from "lucide-react"
 
 const differentials = [
   {

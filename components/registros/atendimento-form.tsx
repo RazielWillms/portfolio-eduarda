@@ -2,29 +2,32 @@
 
 import { useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
-import { createAtendimento } from "@/lib/registros/actions"
-import type { Habilidade, NivelAvaliacao, Paciente } from "@/lib/registros/types"
+import { createAtendimento, updateAtendimento } from "@/lib/registros/actions"
+import type { Atendimento, Habilidade, NivelAvaliacao, Paciente } from "@/lib/registros/types"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { FieldHelp } from "@/components/registros/field-help"
+import { obterAvaliacao } from "@/lib/registros/clinico"
 
 interface AtendimentoFormProps {
   pacientes: Paciente[]
   habilidades: Habilidade[]
   niveis: NivelAvaliacao[]
+  atendimentoExistente?: Atendimento
+  pacienteInicialId?: string
 }
 
-export function AtendimentoForm({ pacientes, habilidades, niveis }: AtendimentoFormProps) {
+export function AtendimentoForm({ pacientes, habilidades, niveis, atendimentoExistente, pacienteInicialId }: AtendimentoFormProps) {
   const router = useRouter()
 
-  const [pacienteId, setPacienteId] = useState(pacientes[0]?.id ?? "")
-  const [habilidadeId, setHabilidadeId] = useState(habilidades[0]?.id ?? "")
-  const [data, setData] = useState(() => new Date().toISOString().slice(0, 10))
-  const [nivelAvaliacaoId, setNivelAvaliacaoId] = useState(niveis[0]?.id ?? "")
-  const [observacoes, setObservacoes] = useState("")
+  const [pacienteId, setPacienteId] = useState(atendimentoExistente?.paciente_id ?? (pacientes.some((p) => p.id === pacienteInicialId) ? pacienteInicialId : pacientes[0]?.id) ?? "")
+  const [habilidadeId, setHabilidadeId] = useState(atendimentoExistente?.habilidade_id ?? habilidades[0]?.id ?? "")
+  const [data, setData] = useState(atendimentoExistente?.data ?? new Date().toISOString().slice(0, 10))
+  const [nivelAvaliacaoId, setNivelAvaliacaoId] = useState(atendimentoExistente?.nivel_avaliacao_id ?? niveis[0]?.id ?? "")
+  const [observacoes, setObservacoes] = useState(atendimentoExistente?.observacoes ?? "")
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState("")
 
@@ -38,13 +41,14 @@ export function AtendimentoForm({ pacientes, habilidades, niveis }: AtendimentoF
     }
 
     setEnviando(true)
-    const resultado = await createAtendimento({
+    const dados = {
       paciente_id: pacienteId,
       habilidade_id: habilidadeId,
       data,
       nivel_avaliacao_id: nivelAvaliacaoId,
       observacoes: observacoes.trim() || null,
-    })
+    }
+    const resultado = atendimentoExistente ? await updateAtendimento(atendimentoExistente.id, dados) : await createAtendimento(dados)
 
     if (resultado && "error" in resultado) {
       setErro(resultado.error)
@@ -119,7 +123,7 @@ export function AtendimentoForm({ pacientes, habilidades, niveis }: AtendimentoF
           <SelectContent>
             {niveis.map((n) => (
               <SelectItem key={n.id} value={n.id}>
-                {n.label}
+                {n.codigo} — {obterAvaliacao(n.codigo)?.descricao ?? n.label}
               </SelectItem>
             ))}
           </SelectContent>
@@ -139,7 +143,7 @@ export function AtendimentoForm({ pacientes, habilidades, niveis }: AtendimentoF
 
       <div className="flex items-center gap-3 mt-2">
         <Button type="submit" disabled={enviando} className="rounded-xl font-bold">
-          {enviando ? "Salvando..." : "Registrar atendimento"}
+          {enviando ? "Salvando..." : atendimentoExistente ? "Salvar alterações" : "Registrar atendimento"}
         </Button>
         <Button type="button" variant="ghost" onClick={() => router.push("/registros/atendimentos")}>
           Cancelar

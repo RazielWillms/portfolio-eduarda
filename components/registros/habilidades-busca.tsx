@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import type { Habilidade } from "@/lib/registros/types"
 
-export function HabilidadesBusca({ habilidades }: { habilidades: Habilidade[] }) {
+export function HabilidadesBusca({ habilidades, podeGerenciar = false }: { habilidades: Habilidade[]; podeGerenciar?: boolean }) {
   const [busca, setBusca] = useState("")
 
   const habilidadesFiltradas = useMemo(() => {
@@ -51,12 +51,12 @@ export function HabilidadesBusca({ habilidades }: { habilidades: Habilidade[] })
             {habilidadesFiltradas.map((h) => (
               <TableRow key={h.id}>
                 <TableCell>
-                  <Link
+                  {podeGerenciar ? <Link
                     href={`/registros/habilidades/${h.id}`}
                     className="font-semibold text-foreground hover:text-primary"
                   >
                     {h.nome}
-                  </Link>
+                  </Link> : <span className="font-semibold text-foreground">{h.nome}</span>}
                   {h.descricao && <p className="text-xs text-muted-foreground mt-0.5 max-w-sm">{h.descricao}</p>}
                 </TableCell>
                 <TableCell className="text-muted-foreground">{h.categoria ?? "—"}</TableCell>

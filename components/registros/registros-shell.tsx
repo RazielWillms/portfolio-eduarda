@@ -9,7 +9,7 @@ export function RegistrosShell({ profile, children }: { profile: Profile; childr
   const [menuAberto, setMenuAberto] = useState(false)
 
   return (
-    <div className="min-h-screen flex bg-background">
+    <div className="registros-form-scope min-h-screen flex bg-background">
       <RegistrosSidebarDesktop papel={profile.papel} />
       <RegistrosSidebarMobile papel={profile.papel} open={menuAberto} onClose={() => setMenuAberto(false)} />
       <div className="flex-1 flex flex-col min-w-0">

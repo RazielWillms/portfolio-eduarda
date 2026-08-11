@@ -1,12 +1,13 @@
 import { notFound } from "next/navigation"
-import { getHabilidade } from "@/lib/registros/queries"
+import { getHabilidade, getProfile } from "@/lib/registros/queries"
 import { HabilidadeForm } from "@/components/registros/habilidade-form"
+import { HabilidadeExclusao } from "@/components/registros/habilidade-exclusao"
 
 export default async function EditarHabilidadePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const habilidade = await getHabilidade(id)
+  const [habilidade, profile] = await Promise.all([getHabilidade(id), getProfile()])
 
-  if (!habilidade) {
+  if (!habilidade || profile?.papel !== "admin") {
     notFound()
   }
 
@@ -17,6 +18,7 @@ export default async function EditarHabilidadePage({ params }: { params: Promise
         <p className="text-sm text-muted-foreground mt-1">{habilidade.nome}</p>
       </div>
       <HabilidadeForm habilidadeExistente={habilidade} />
+      <HabilidadeExclusao id={habilidade.id} />
     </div>
   )
 }

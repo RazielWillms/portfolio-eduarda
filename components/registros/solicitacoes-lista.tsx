@@ -13,12 +13,10 @@ function statusBadge(status: SolicitacaoAcessoComRelacoes["status"]) {
   switch (status) {
     case "pendente":
       return <Badge variant="outline">Pendente</Badge>
-    case "aprovada":
+    case "aprovado":
       return <Badge>Aprovada</Badge>
-    case "negada":
+    case "negado":
       return <Badge variant="destructive">Negada</Badge>
-    case "cancelada":
-      return <Badge variant="secondary">Cancelada</Badge>
   }
 }
 
@@ -34,10 +32,10 @@ function SolicitacaoCard({
       <div className="flex items-start justify-between gap-3">
         <div>
           <Link
-            href={`/registros/pacientes/${solicitacao.paciente.id}`}
+            href={solicitacao.paciente ? `/registros/pacientes/${solicitacao.paciente.id}` : "/registros/solicitacoes"}
             className="font-semibold text-foreground hover:text-primary"
           >
-            {solicitacao.paciente.nome_completo}
+            {solicitacao.paciente?.nome_completo ?? "Paciente protegido"}
           </Link>
           <p className="text-xs text-muted-foreground mt-0.5">
             Solicitado por {solicitacao.solicitante.nome} · {new Date(solicitacao.created_at).toLocaleDateString("pt-BR")}

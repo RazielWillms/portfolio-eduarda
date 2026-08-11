@@ -2,7 +2,7 @@
 // Espelham as tabelas reais no Supabase (schema public):
 // profiles, niveis_avaliacao, habilidades, pacientes, paciente_psicologos, atendimentos
 
-export type Papel = "admin" | "psicologo"
+export type Papel = "admin" | "profissional"
 export type StatusUsuario = "ativo" | "inativo"
 export type StatusPaciente = "ativo" | "inativo"
 export type StatusHabilidade = "ativa" | "inativa"
@@ -13,6 +13,7 @@ export interface Profile {
   email: string
   papel: Papel
   status: StatusUsuario
+  admin_principal: boolean
   created_at: string
 }
 
@@ -34,6 +35,23 @@ export interface Habilidade {
   created_at: string
 }
 
+export interface PacienteHabilidade {
+  id: string
+  paciente_id: string
+  habilidade_id: string
+  profissional_id: string
+  peso: number
+  ativo: boolean
+  iniciado_em: string
+  created_at: string
+  deleted_at?: string | null
+  updated_at: string
+  habilidade: Pick<Habilidade, "id" | "nome" | "descricao" | "categoria" | "status">
+}
+
+export interface ProfissionalResumo { id: string; nome: string }
+export type { AcessoResponsavel } from "./responsavel/types"
+
 export interface Paciente {
   id: string
   nome_completo: string
@@ -48,7 +66,7 @@ export interface Paciente {
   created_at: string
 }
 
-export type StatusSolicitacaoAcesso = "pendente" | "aprovada" | "negada" | "cancelada"
+export type StatusSolicitacaoAcesso = "pendente" | "aprovado" | "negado"
 
 // Candidato a duplicata retornado pela função SECURITY DEFINER, com dados mascarados
 // (nunca expõe diagnóstico, contatos ou nome completo do responsável).
@@ -75,7 +93,7 @@ export interface SolicitacaoAcesso {
 }
 
 export interface SolicitacaoAcessoComRelacoes extends SolicitacaoAcesso {
-  paciente: Pick<Paciente, "id" | "nome_completo">
+  paciente: Pick<Paciente, "id" | "nome_completo"> | null
   solicitante: Pick<Profile, "id" | "nome" | "email">
 }
 
@@ -88,6 +106,10 @@ export interface Atendimento {
   nivel_avaliacao_id: string
   observacoes: string | null
   created_at: string
+  updated_at: string | null
+  updated_by: string | null
+  deleted_at: string | null
+  deleted_by: string | null
 }
 
 // Registro de atendimento já com os relacionamentos resolvidos, prontos para exibição.

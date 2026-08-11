@@ -8,9 +8,13 @@ export async function updateSession(request: NextRequest) {
 
   // With Fluid compute, don't put this client in a global environment
   // variable. Always create a new one on each request.
+  const forwardedProtocol = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim()
+  const secureCookies = forwardedProtocol
+    ? forwardedProtocol === "https"
+    : request.nextUrl.protocol === "https:"
+
   const supabase = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
-    // Secure cookies in production; not in dev, so localhost still works.
-    cookieOptions: { secure: process.env.NODE_ENV === "production" },
+    cookieOptions: { secure: secureCookies },
     cookies: {
       getAll() {
         return request.cookies.getAll()

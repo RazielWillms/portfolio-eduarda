@@ -1,4 +1,4 @@
-import { GraduationCap, Puzzle, Leaf, HeartHandshake, Stethoscope, Heart } from "lucide-react"
+import { GraduationCap, Puzzle, HeartHandshake, Stethoscope } from "lucide-react"
 
 const credentials = [
   {

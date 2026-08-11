@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Users, Sparkles, ClipboardList, UserCog, UserRoundCheck, X } from "lucide-react"
+import { KeyRound, LayoutDashboard, Users, Sparkles, ClipboardList, UserCog, UserRoundCheck, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Papel } from "@/lib/registros/types"
 
@@ -12,6 +12,7 @@ const links = [
   { href: "/registros/solicitacoes", label: "Solicitações", icon: UserRoundCheck },
   { href: "/registros/habilidades", label: "Habilidades", icon: Sparkles },
   { href: "/registros/atendimentos", label: "Atendimentos", icon: ClipboardList },
+  { href: "/registros/conta", label: "Minha conta", icon: KeyRound },
 ]
 
 const linkAdmin = { href: "/registros/usuarios", label: "Usuários", icon: UserCog }

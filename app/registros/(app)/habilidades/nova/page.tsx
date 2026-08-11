@@ -1,6 +1,10 @@
 import { HabilidadeForm } from "@/components/registros/habilidade-form"
+import { notFound } from "next/navigation"
+import { getProfile } from "@/lib/registros/queries"
 
-export default function NovaHabilidadePage() {
+export default async function NovaHabilidadePage() {
+  const profile = await getProfile()
+  if (profile?.papel !== "admin") notFound()
   return (
     <div className="flex flex-col gap-6">
       <div>

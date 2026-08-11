@@ -22,7 +22,7 @@ function gerarSenhaProvisoria() {
 export function UsuarioForm() {
   const [nome, setNome] = useState("")
   const [email, setEmail] = useState("")
-  const [papel, setPapel] = useState<Papel>("psicologo")
+  const [papel, setPapel] = useState<Papel>("profissional")
   const [senhaProvisoria, setSenhaProvisoria] = useState(gerarSenhaProvisoria)
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState("")
@@ -52,7 +52,7 @@ export function UsuarioForm() {
     )
     setNome("")
     setEmail("")
-    setPapel("psicologo")
+    setPapel("profissional")
     setSenhaProvisoria(gerarSenhaProvisoria())
     setEnviando(false)
   }
@@ -93,14 +93,14 @@ export function UsuarioForm() {
         <div className="flex flex-col gap-2">
           <Label htmlFor="papel" className="flex items-center gap-1.5">
             Papel no sistema
-            <FieldHelp text="Administradores podem criar novos usuários e acessam todas as áreas. Psicólogos só visualizam os próprios pacientes e atendimentos." />
+            <FieldHelp text="Administradores gerenciam usuários e configurações. Profissionais acessam somente os pacientes vinculados e os próprios registros privados." />
           </Label>
           <Select value={papel} onValueChange={(v) => setPapel(v as Papel)}>
             <SelectTrigger id="papel" className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="psicologo">Psicólogo(a)</SelectItem>
+              <SelectItem value="profissional">Profissional</SelectItem>
               <SelectItem value="admin">Administrador</SelectItem>
             </SelectContent>
           </Select>

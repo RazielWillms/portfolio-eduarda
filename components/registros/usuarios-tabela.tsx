@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 const PAPEL_LABEL: Record<string, string> = {
   admin: "Administrador",
-  psicologo: "Psicólogo(a)",
+  profissional: "Profissional",
 }
 
 export function UsuariosTabela({ usuarios, usuarioAtualId }: { usuarios: Profile[]; usuarioAtualId: string }) {
@@ -47,6 +47,7 @@ export function UsuariosTabela({ usuarios, usuarioAtualId }: { usuarios: Profile
           <TableBody>
             {usuarios.map((u) => {
               const isAtual = u.id === usuarioAtualId
+              const protegido = u.admin_principal
               return (
                 <TableRow key={u.id}>
                   <TableCell className="font-semibold text-foreground">
@@ -55,22 +56,22 @@ export function UsuariosTabela({ usuarios, usuarioAtualId }: { usuarios: Profile
                   </TableCell>
                   <TableCell className="text-muted-foreground">{u.email}</TableCell>
                   <TableCell>
-                    {isAtual ? (
-                      <span className="text-muted-foreground">{PAPEL_LABEL[u.papel]}</span>
+                    {isAtual || protegido ? (
+                      <span className="text-muted-foreground">{protegido ? "Administrador principal" : PAPEL_LABEL[u.papel]}</span>
                     ) : (
                       <Select value={u.papel} onValueChange={(v) => handlePapelChange(u.id, v as Papel)}>
                         <SelectTrigger className="w-40">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="psicologo">Psicólogo(a)</SelectItem>
+                          <SelectItem value="profissional">Profissional</SelectItem>
                           <SelectItem value="admin">Administrador</SelectItem>
                         </SelectContent>
                       </Select>
                     )}
                   </TableCell>
                   <TableCell>
-                    {isAtual ? (
+                    {isAtual || protegido ? (
                       <Badge variant="default">Ativo</Badge>
                     ) : (
                       <Select value={u.status} onValueChange={(v) => handleStatusChange(u.id, v as StatusUsuario)}>

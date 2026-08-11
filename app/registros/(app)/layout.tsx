@@ -8,9 +8,10 @@ export default async function RegistrosLayout({ children }: { children: ReactNod
 
   // middleware.ts já protege /registros exigindo sessão; aqui garantimos
   // que exista um profile válido e ativo antes de renderizar o app.
-  if (!profile || profile.status !== "ativo") {
+  if (!profile) {
     redirect("/registros/login")
   }
+  if (profile.status !== "ativo") redirect("/registros/bloqueado")
 
   return <RegistrosShell profile={profile}>{children}</RegistrosShell>
 }

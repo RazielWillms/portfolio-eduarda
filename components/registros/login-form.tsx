@@ -30,7 +30,7 @@ export function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-12">
+    <div className="registros-form-scope min-h-screen flex items-center justify-center bg-background px-4 py-12">
       <div className="w-full max-w-sm">
         <Link
           href="/"
@@ -51,7 +51,7 @@ export function LoginForm() {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <form method="post" onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
               <Label htmlFor="email">E-mail</Label>
               <Input

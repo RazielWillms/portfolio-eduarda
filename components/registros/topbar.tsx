@@ -6,7 +6,7 @@ import type { Profile } from "@/lib/registros/types"
 
 const PAPEL_LABEL: Record<string, string> = {
   admin: "Administrador",
-  psicologo: "Psicólogo(a)",
+  profissional: "Profissional",
 }
 
 export function RegistrosTopbar({ profile, onOpenMenu }: { profile: Profile; onOpenMenu: () => void }) {
@@ -28,7 +28,7 @@ export function RegistrosTopbar({ profile, onOpenMenu }: { profile: Profile; onO
       <div className="flex items-center gap-3">
         <div className="hidden sm:block text-right">
           <p className="text-sm font-semibold text-foreground">{profile.nome}</p>
-          <p className="text-xs text-muted-foreground">{PAPEL_LABEL[profile.papel]}</p>
+          <p className="text-xs text-muted-foreground">{profile.admin_principal ? "Administrador principal" : PAPEL_LABEL[profile.papel]}</p>
         </div>
         <form action={signOut}>
           <button

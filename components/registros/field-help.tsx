@@ -9,6 +9,7 @@ export function FieldHelp({ text }: { text: string }) {
       <TooltipTrigger asChild>
         <button
           type="button"
+          data-slot="field-help"
           className="inline-flex items-center justify-center text-muted-foreground hover:text-primary transition-colors"
           aria-label="Ajuda sobre este campo"
         >

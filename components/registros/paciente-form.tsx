@@ -43,7 +43,7 @@ export function PacienteForm({ pacienteExistente }: PacienteFormProps) {
   const [modalAberto, setModalAberto] = useState(false)
   const [solicitandoId, setSolicitandoId] = useState<string | null>(null)
   const [mensagemSolicitacao, setMensagemSolicitacao] = useState<Record<string, string>>({})
-  const [statusSolicitacao, setStatusSolicitacao] = useState<Record<string, "enviada" | "erro">>({})
+  const [statusSolicitacao, setStatusSolicitacao] = useState<Record<string, string>>({})
 
   function montarDados() {
     return {
@@ -82,16 +82,6 @@ export function PacienteForm({ pacienteExistente }: PacienteFormProps) {
     }
   }
 
-  async function handleCadastrarMesmoAssim() {
-    setEnviando(true)
-    setModalAberto(false)
-    const resultado = await createPaciente(montarDados(), { ignorarDuplicidade: true })
-    if (resultado && "error" in resultado) {
-      setErro(resultado.error)
-      setEnviando(false)
-    }
-  }
-
   async function handleSolicitarAcesso(pacienteId: string) {
     setSolicitandoId(pacienteId)
     const resultado = await solicitarAcessoPaciente({
@@ -102,7 +92,7 @@ export function PacienteForm({ pacienteExistente }: PacienteFormProps) {
     setSolicitandoId(null)
     setStatusSolicitacao((prev) => ({
       ...prev,
-      [pacienteId]: resultado && "error" in resultado ? "erro" : "enviada",
+      [pacienteId]: resultado && "error" in resultado ? resultado.error : "enviada",
     }))
   }
 
@@ -282,8 +272,8 @@ export function PacienteForm({ pacienteExistente }: PacienteFormProps) {
                           ? "Enviando..."
                           : "Solicitar acesso a este paciente"}
                     </Button>
-                    {statusSolicitacao[c.paciente_id] === "erro" && (
-                      <p className="text-xs text-destructive">Não foi possível enviar a solicitação.</p>
+                    {statusSolicitacao[c.paciente_id] && statusSolicitacao[c.paciente_id] !== "enviada" && (
+                      <p className="text-xs text-destructive">{statusSolicitacao[c.paciente_id]}</p>
                     )}
                   </div>
                 )}
@@ -295,8 +285,8 @@ export function PacienteForm({ pacienteExistente }: PacienteFormProps) {
             <Button type="button" variant="ghost" onClick={() => setModalAberto(false)}>
               Voltar e revisar
             </Button>
-            <Button type="button" onClick={handleCadastrarMesmoAssim} disabled={enviando}>
-              {enviando ? "Cadastrando..." : "É um paciente diferente, cadastrar mesmo assim"}
+            <Button type="button" onClick={() => setModalAberto(false)}>
+              Fechar
             </Button>
           </DialogFooter>
         </DialogContent>

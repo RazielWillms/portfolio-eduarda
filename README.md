@@ -1,5 +1,16 @@
 # portfolio-eduarda
 
+Sistema público de apresentação e área profissional para registros de acompanhamento. A arquitetura interna usa Next.js, Supabase Auth/Postgres, RLS, vínculos multiprofissionais, regras clínicas derivadas e portal externo somente leitura.
+
+Documentação operacional:
+
+- `docs/architecture.md`
+- `docs/privacy-data-map.md`
+- `docs/security.md`
+- `docs/disaster-recovery.md`
+
+Variáveis obrigatórias: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` e, somente no servidor administrativo, `SUPABASE_SERVICE_ROLE_KEY`. O seed exige credenciais explícitas em variáveis `SEED_*` e nunca possui senha padrão.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [v0](https://v0.app).
 
 ## Built with v0
