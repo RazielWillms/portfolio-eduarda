@@ -1,28 +1,22 @@
-"use client"
-
 import Link from "next/link"
 import { Users, Sparkles, ClipboardList, ArrowRight, BarChart3 } from "lucide-react"
-import { useAuth } from "@/lib/registros/auth-context"
-import { useRegistrosData } from "@/lib/registros/data-context"
-import { nivelPorCodigo } from "@/lib/registros/types"
+import { getPacientes, getHabilidades, getAtendimentos } from "@/lib/registros/queries"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
-export default function DashboardPage() {
-  const { user } = useAuth()
-  const { pacientesDoUsuario, atendimentosDoUsuario, habilidades } = useRegistrosData()
+export default async function DashboardPage() {
+  const [pacientes, habilidades, atendimentos] = await Promise.all([
+    getPacientes(),
+    getHabilidades(),
+    getAtendimentos(),
+  ])
 
-  if (!user) return null
-
-  const pacientes = pacientesDoUsuario(user.id)
-  const atendimentos = atendimentosDoUsuario(user.id)
   const habilidadesAtivas = habilidades.filter((h) => h.status === "ativa")
-
   const ultimosAtendimentos = atendimentos.slice(0, 5)
 
   const contagemPorHabilidade = new Map<string, number>()
   for (const a of atendimentos) {
-    contagemPorHabilidade.set(a.habilidadeId, (contagemPorHabilidade.get(a.habilidadeId) ?? 0) + 1)
+    contagemPorHabilidade.set(a.habilidade_id, (contagemPorHabilidade.get(a.habilidade_id) ?? 0) + 1)
   }
   const rankingHabilidades = [...contagemPorHabilidade.entries()]
     .map(([habilidadeId, total]) => ({
@@ -83,26 +77,19 @@ export default function DashboardPage() {
             {ultimosAtendimentos.length === 0 && (
               <p className="text-sm text-muted-foreground">Nenhum atendimento registrado ainda.</p>
             )}
-            {ultimosAtendimentos.map((a) => {
-              const paciente = pacientes.find((p) => p.id === a.pacienteId)
-              const habilidade = habilidades.find((h) => h.id === a.habilidadeId)
-              const nivel = nivelPorCodigo(a.nota)
-              return (
-                <div key={a.id} className="flex items-center justify-between gap-3 rounded-xl border border-border p-3">
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">
-                      {paciente?.nomeCompleto ?? "Paciente"}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {habilidade?.nome} · {new Date(a.data).toLocaleDateString("pt-BR")}
-                    </p>
-                  </div>
-                  <Badge variant="secondary" className="shrink-0">
-                    {nivel?.codigo ?? a.nota}
-                  </Badge>
+            {ultimosAtendimentos.map((a) => (
+              <div key={a.id} className="flex items-center justify-between gap-3 rounded-xl border border-border p-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-foreground truncate">{a.paciente.nome_completo}</p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {a.habilidade.nome} · {new Date(a.data).toLocaleDateString("pt-BR")}
+                  </p>
                 </div>
-              )
-            })}
+                <Badge variant="secondary" className="shrink-0">
+                  {a.nivel_avaliacao.codigo}
+                </Badge>
+              </div>
+            ))}
             <Link
               href="/registros/atendimentos"
               className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline mt-1"

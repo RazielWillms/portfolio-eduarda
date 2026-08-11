@@ -3,27 +3,30 @@
 import { useState, type FormEvent } from "react"
 import Link from "next/link"
 import { ArrowLeft, Lock } from "lucide-react"
-import { useAuth } from "@/lib/registros/auth-context"
+import { signIn } from "@/lib/registros/actions"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 
 export function LoginForm() {
-  const { login } = useAuth()
-  const [email, setEmail] = useState("")
-  const [senha, setSenha] = useState("")
   const [erro, setErro] = useState<string | null>(null)
   const [enviando, setEnviando] = useState(false)
 
-  function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setErro(null)
     setEnviando(true)
-    const resultado = login(email, senha)
-    setEnviando(false)
-    if (!resultado.ok) {
-      setErro(resultado.erro ?? "Não foi possível entrar.")
+
+    const formData = new FormData(event.currentTarget)
+    const email = String(formData.get("email") ?? "")
+    const senha = String(formData.get("senha") ?? "")
+
+    const resultado = await signIn(email, senha)
+    // signIn faz redirect() em caso de sucesso; se retornar, houve erro.
+    if (resultado && "error" in resultado) {
+      setErro(resultado.error)
     }
+    setEnviando(false)
   }
 
   return (
@@ -53,26 +56,17 @@ export function LoginForm() {
               <Label htmlFor="email">E-mail</Label>
               <Input
                 id="email"
+                name="email"
                 type="email"
                 autoComplete="email"
                 placeholder="seu.email@clinica.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
 
             <div className="flex flex-col gap-2">
               <Label htmlFor="senha">Senha</Label>
-              <Input
-                id="senha"
-                type="password"
-                autoComplete="current-password"
-                placeholder="••••••••"
-                value={senha}
-                onChange={(e) => setSenha(e.target.value)}
-                required
-              />
+              <Input id="senha" name="senha" type="password" autoComplete="current-password" placeholder="••••••••" required />
             </div>
 
             {erro && (
@@ -87,12 +81,8 @@ export function LoginForm() {
           </form>
 
           <div className="mt-6 rounded-xl bg-muted p-3 text-xs text-muted-foreground leading-relaxed">
-            <p className="font-semibold text-foreground mb-1">Ambiente de demonstração</p>
-            <p>
-              Use <span className="font-mono">eduarda@clinica.com</span> (admin) ou{" "}
-              <span className="font-mono">camila@clinica.com</span> (psicóloga) com qualquer senha de 4+
-              caracteres.
-            </p>
+            <p className="font-semibold text-foreground mb-1">Acesso restrito</p>
+            <p>Sua conta é criada por um administrador do sistema. Caso ainda não tenha acesso, solicite o cadastro.</p>
           </div>
         </div>
       </div>

@@ -3,8 +3,8 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { LayoutDashboard, Users, Sparkles, ClipboardList, UserCog, X } from "lucide-react"
-import { useAuth } from "@/lib/registros/auth-context"
 import { cn } from "@/lib/utils"
+import type { Papel } from "@/lib/registros/types"
 
 const links = [
   { href: "/registros", label: "Painel", icon: LayoutDashboard },
@@ -15,11 +15,9 @@ const links = [
 
 const linkAdmin = { href: "/registros/usuarios", label: "Usuários", icon: UserCog }
 
-export function RegistrosSidebar({ onNavigate }: { onNavigate?: () => void }) {
+export function RegistrosSidebar({ papel, onNavigate }: { papel: Papel; onNavigate?: () => void }) {
   const pathname = usePathname()
-  const { user } = useAuth()
-
-  const itens = user?.papel === "admin" ? [...links, linkAdmin] : links
+  const itens = papel === "admin" ? [...links, linkAdmin] : links
 
   return (
     <nav className="flex flex-col gap-1 p-4">
@@ -47,7 +45,7 @@ export function RegistrosSidebar({ onNavigate }: { onNavigate?: () => void }) {
   )
 }
 
-export function RegistrosSidebarDesktop() {
+export function RegistrosSidebarDesktop({ papel }: { papel: Papel }) {
   return (
     <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:border-r lg:border-border bg-card">
       <div className="flex items-center gap-2 px-5 py-5 border-b border-border">
@@ -59,15 +57,17 @@ export function RegistrosSidebarDesktop() {
           <p className="text-xs text-muted-foreground">Área profissional</p>
         </div>
       </div>
-      <RegistrosSidebar />
+      <RegistrosSidebar papel={papel} />
     </aside>
   )
 }
 
 export function RegistrosSidebarMobile({
+  papel,
   open,
   onClose,
 }: {
+  papel: Papel
   open: boolean
   onClose: () => void
 }) {
@@ -88,7 +88,7 @@ export function RegistrosSidebarMobile({
             <X className="size-5" />
           </button>
         </div>
-        <RegistrosSidebar onNavigate={onClose} />
+        <RegistrosSidebar papel={papel} onNavigate={onClose} />
       </aside>
     </div>
   )

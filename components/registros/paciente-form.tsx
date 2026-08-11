@@ -2,8 +2,7 @@
 
 import { useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "@/lib/registros/auth-context"
-import { useRegistrosData } from "@/lib/registros/data-context"
+import { createPaciente, updatePaciente } from "@/lib/registros/actions"
 import type { Paciente, StatusPaciente } from "@/lib/registros/types"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -17,45 +16,51 @@ interface PacienteFormProps {
 }
 
 export function PacienteForm({ pacienteExistente }: PacienteFormProps) {
-  const { user } = useAuth()
-  const { addPaciente, updatePaciente } = useRegistrosData()
   const router = useRouter()
 
-  const [nomeCompleto, setNomeCompleto] = useState(pacienteExistente?.nomeCompleto ?? "")
-  const [nomeResponsavel, setNomeResponsavel] = useState(pacienteExistente?.nomeResponsavel ?? "")
-  const [dataNascimento, setDataNascimento] = useState(pacienteExistente?.dataNascimento ?? "")
+  const [nomeCompleto, setNomeCompleto] = useState(pacienteExistente?.nome_completo ?? "")
+  const [nomeResponsavel, setNomeResponsavel] = useState(pacienteExistente?.nome_responsavel ?? "")
+  const [dataNascimento, setDataNascimento] = useState(pacienteExistente?.data_nascimento ?? "")
   const [diagnostico, setDiagnostico] = useState(pacienteExistente?.diagnostico ?? "")
   const [contatos, setContatos] = useState(pacienteExistente?.contatos ?? "")
   const [observacoes, setObservacoes] = useState(pacienteExistente?.observacoes ?? "")
   const [status, setStatus] = useState<StatusPaciente>(pacienteExistente?.status ?? "ativo")
   const [enviando, setEnviando] = useState(false)
+  const [erro, setErro] = useState("")
 
-  function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault()
-    if (!user) return
+    setErro("")
     setEnviando(true)
 
     const dados = {
-      nomeCompleto: nomeCompleto.trim(),
-      nomeResponsavel: nomeResponsavel.trim(),
-      dataNascimento,
-      diagnostico: diagnostico.trim() || undefined,
-      contatos: contatos.trim(),
-      observacoes: observacoes.trim(),
-      status,
+      nome_completo: nomeCompleto.trim(),
+      nome_responsavel: nomeResponsavel.trim() || null,
+      data_nascimento: dataNascimento || null,
+      diagnostico: diagnostico.trim() || null,
+      contatos: contatos.trim() || null,
+      observacoes: observacoes.trim() || null,
     }
 
-    if (pacienteExistente) {
-      updatePaciente(pacienteExistente.id, dados)
-    } else {
-      addPaciente(dados, user.id)
-    }
+    const resultado = pacienteExistente
+      ? await updatePaciente(pacienteExistente.id, { ...dados, status })
+      : await createPaciente(dados)
 
-    router.push("/registros/pacientes")
+    // As actions fazem redirect() em caso de sucesso; se retornar, houve erro.
+    if (resultado && "error" in resultado) {
+      setErro(resultado.error)
+      setEnviando(false)
+    }
   }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5 max-w-2xl">
+      {erro && (
+        <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-2.5 text-sm text-destructive">
+          {erro}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div className="flex flex-col gap-2">
           <Label htmlFor="nomeCompleto">Nome completo</Label>
@@ -84,7 +89,7 @@ export function PacienteForm({ pacienteExistente }: PacienteFormProps) {
           <Input
             id="dataNascimento"
             type="date"
-            value={dataNascimento}
+            value={dataNascimento ?? ""}
             onChange={(e) => setDataNascimento(e.target.value)}
             required
           />
@@ -97,7 +102,7 @@ export function PacienteForm({ pacienteExistente }: PacienteFormProps) {
           </Label>
           <Input
             id="diagnostico"
-            value={diagnostico}
+            value={diagnostico ?? ""}
             onChange={(e) => setDiagnostico(e.target.value)}
             placeholder="Ex.: TEA nível 1"
           />
@@ -107,28 +112,30 @@ export function PacienteForm({ pacienteExistente }: PacienteFormProps) {
           <Label htmlFor="contatos">Contatos relevantes</Label>
           <Input
             id="contatos"
-            value={contatos}
+            value={contatos ?? ""}
             onChange={(e) => setContatos(e.target.value)}
             placeholder="Telefone, e-mail..."
             required
           />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="status" className="flex items-center gap-1.5">
-            Status
-            <FieldHelp text="Pacientes inativos deixam de aparecer nas listagens padrão, mas o histórico é mantido." />
-          </Label>
-          <Select value={status} onValueChange={(v) => setStatus(v as StatusPaciente)}>
-            <SelectTrigger id="status" className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ativo">Ativo</SelectItem>
-              <SelectItem value="inativo">Inativo</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        {pacienteExistente && (
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="status" className="flex items-center gap-1.5">
+              Status
+              <FieldHelp text="Pacientes inativos deixam de aparecer nas listagens padrão, mas o histórico é mantido." />
+            </Label>
+            <Select value={status} onValueChange={(v) => setStatus(v as StatusPaciente)}>
+              <SelectTrigger id="status" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ativo">Ativo</SelectItem>
+                <SelectItem value="inativo">Inativo</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col gap-2">
@@ -138,7 +145,7 @@ export function PacienteForm({ pacienteExistente }: PacienteFormProps) {
         </Label>
         <Textarea
           id="observacoes"
-          value={observacoes}
+          value={observacoes ?? ""}
           onChange={(e) => setObservacoes(e.target.value)}
           placeholder="Observações sobre o paciente..."
           rows={4}

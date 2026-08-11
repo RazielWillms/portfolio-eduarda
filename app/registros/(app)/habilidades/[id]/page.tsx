@@ -1,16 +1,13 @@
-"use client"
-
-import { useParams } from "next/navigation"
-import { useRegistrosData } from "@/lib/registros/data-context"
+import { notFound } from "next/navigation"
+import { getHabilidade } from "@/lib/registros/queries"
 import { HabilidadeForm } from "@/components/registros/habilidade-form"
 
-export default function EditarHabilidadePage() {
-  const { id } = useParams<{ id: string }>()
-  const { habilidades } = useRegistrosData()
-  const habilidade = habilidades.find((h) => h.id === id)
+export default async function EditarHabilidadePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const habilidade = await getHabilidade(id)
 
   if (!habilidade) {
-    return <p className="text-sm text-muted-foreground">Habilidade não encontrada.</p>
+    notFound()
   }
 
   return (

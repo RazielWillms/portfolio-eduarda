@@ -2,9 +2,8 @@
 
 import { useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "@/lib/registros/auth-context"
-import { useRegistrosData } from "@/lib/registros/data-context"
-import { ESCALA_AVALIACAO_PADRAO } from "@/lib/registros/types"
+import { createAtendimento } from "@/lib/registros/actions"
+import type { Habilidade, NivelAvaliacao, Paciente } from "@/lib/registros/types"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -12,42 +11,45 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { FieldHelp } from "@/components/registros/field-help"
 
-export function AtendimentoForm() {
-  const { user } = useAuth()
-  const { pacientesDoUsuario, habilidades, addAtendimento } = useRegistrosData()
+interface AtendimentoFormProps {
+  pacientes: Paciente[]
+  habilidades: Habilidade[]
+  niveis: NivelAvaliacao[]
+}
+
+export function AtendimentoForm({ pacientes, habilidades, niveis }: AtendimentoFormProps) {
   const router = useRouter()
 
-  const pacientes = user ? pacientesDoUsuario(user.id) : []
-  const habilidadesAtivas = habilidades.filter((h) => h.status === "ativa")
-
   const [pacienteId, setPacienteId] = useState(pacientes[0]?.id ?? "")
-  const [habilidadeId, setHabilidadeId] = useState(habilidadesAtivas[0]?.id ?? "")
+  const [habilidadeId, setHabilidadeId] = useState(habilidades[0]?.id ?? "")
   const [data, setData] = useState(() => new Date().toISOString().slice(0, 10))
-  const [nota, setNota] = useState(ESCALA_AVALIACAO_PADRAO[0]?.codigo ?? "")
+  const [nivelAvaliacaoId, setNivelAvaliacaoId] = useState(niveis[0]?.id ?? "")
   const [observacoes, setObservacoes] = useState("")
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState("")
 
-  function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault()
     setErro("")
 
-    if (!user) return
-    if (!pacienteId || !habilidadeId || !nota) {
+    if (!pacienteId || !habilidadeId || !nivelAvaliacaoId) {
       setErro("Preencha paciente, habilidade e avaliação para continuar.")
       return
     }
 
     setEnviando(true)
-    addAtendimento({
-      pacienteId,
-      psicologoId: user.id,
+    const resultado = await createAtendimento({
+      paciente_id: pacienteId,
+      habilidade_id: habilidadeId,
       data,
-      habilidadeId,
-      nota,
-      observacoes: observacoes.trim(),
+      nivel_avaliacao_id: nivelAvaliacaoId,
+      observacoes: observacoes.trim() || null,
     })
-    router.push("/registros/atendimentos")
+
+    if (resultado && "error" in resultado) {
+      setErro(resultado.error)
+      setEnviando(false)
+    }
   }
 
   if (pacientes.length === 0) {
@@ -76,7 +78,7 @@ export function AtendimentoForm() {
             <SelectContent>
               {pacientes.map((p) => (
                 <SelectItem key={p.id} value={p.id}>
-                  {p.nomeCompleto}
+                  {p.nome_completo}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -96,7 +98,7 @@ export function AtendimentoForm() {
             <SelectValue placeholder="Selecione a habilidade" />
           </SelectTrigger>
           <SelectContent>
-            {habilidadesAtivas.map((h) => (
+            {habilidades.map((h) => (
               <SelectItem key={h.id} value={h.id}>
                 {h.nome}
               </SelectItem>
@@ -106,17 +108,17 @@ export function AtendimentoForm() {
       </div>
 
       <div className="flex flex-col gap-2 max-w-xs">
-        <Label htmlFor="nota" className="flex items-center gap-1.5">
+        <Label htmlFor="nivel" className="flex items-center gap-1.5">
           Avaliação da sessão
-          <FieldHelp text="Escala qualitativa usada para medir o desempenho do paciente na habilidade trabalhada. Nesta etapa a escala é fixa (A, B+, B-, C); em versões futuras poderá ser configurada." />
+          <FieldHelp text="Escala qualitativa usada para medir o desempenho do paciente na habilidade trabalhada." />
         </Label>
-        <Select value={nota} onValueChange={setNota}>
-          <SelectTrigger id="nota" className="w-full">
+        <Select value={nivelAvaliacaoId} onValueChange={setNivelAvaliacaoId}>
+          <SelectTrigger id="nivel" className="w-full">
             <SelectValue placeholder="Selecione o nível" />
           </SelectTrigger>
           <SelectContent>
-            {ESCALA_AVALIACAO_PADRAO.map((n) => (
-              <SelectItem key={n.codigo} value={n.codigo}>
+            {niveis.map((n) => (
+              <SelectItem key={n.id} value={n.id}>
                 {n.label}
               </SelectItem>
             ))}

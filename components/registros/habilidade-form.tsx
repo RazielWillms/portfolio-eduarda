@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
-import { useRegistrosData } from "@/lib/registros/data-context"
+import { createHabilidade, updateHabilidade } from "@/lib/registros/actions"
 import type { Habilidade, StatusHabilidade } from "@/lib/registros/types"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -16,7 +16,6 @@ interface HabilidadeFormProps {
 }
 
 export function HabilidadeForm({ habilidadeExistente }: HabilidadeFormProps) {
-  const { addHabilidade, updateHabilidade } = useRegistrosData()
   const router = useRouter()
 
   const [nome, setNome] = useState(habilidadeExistente?.nome ?? "")
@@ -25,30 +24,38 @@ export function HabilidadeForm({ habilidadeExistente }: HabilidadeFormProps) {
   const [peso, setPeso] = useState(String(habilidadeExistente?.peso ?? 1))
   const [status, setStatus] = useState<StatusHabilidade>(habilidadeExistente?.status ?? "ativa")
   const [enviando, setEnviando] = useState(false)
+  const [erro, setErro] = useState("")
 
-  function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault()
+    setErro("")
     setEnviando(true)
 
     const dados = {
       nome: nome.trim(),
-      descricao: descricao.trim(),
-      categoria: categoria.trim(),
+      descricao: descricao.trim() || null,
+      categoria: categoria.trim() || null,
       peso: Math.min(1, Math.max(0, Number(peso) || 0)),
-      status,
     }
 
-    if (habilidadeExistente) {
-      updateHabilidade(habilidadeExistente.id, dados)
-    } else {
-      addHabilidade(dados)
-    }
+    const resultado = habilidadeExistente
+      ? await updateHabilidade(habilidadeExistente.id, { ...dados, status })
+      : await createHabilidade(dados)
 
-    router.push("/registros/habilidades")
+    if (resultado && "error" in resultado) {
+      setErro(resultado.error)
+      setEnviando(false)
+    }
   }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5 max-w-xl">
+      {erro && (
+        <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-2.5 text-sm text-destructive">
+          {erro}
+        </div>
+      )}
+
       <div className="flex flex-col gap-2">
         <Label htmlFor="nome">Nome da habilidade</Label>
         <Input
@@ -64,7 +71,7 @@ export function HabilidadeForm({ habilidadeExistente }: HabilidadeFormProps) {
         <Label htmlFor="descricao">Descrição</Label>
         <Textarea
           id="descricao"
-          value={descricao}
+          value={descricao ?? ""}
           onChange={(e) => setDescricao(e.target.value)}
           placeholder="O que esta habilidade avalia..."
           rows={3}
@@ -76,7 +83,7 @@ export function HabilidadeForm({ habilidadeExistente }: HabilidadeFormProps) {
           <Label htmlFor="categoria">Categoria</Label>
           <Input
             id="categoria"
-            value={categoria}
+            value={categoria ?? ""}
             onChange={(e) => setCategoria(e.target.value)}
             placeholder="Ex.: Comunicação"
             required
@@ -101,21 +108,23 @@ export function HabilidadeForm({ habilidadeExistente }: HabilidadeFormProps) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 max-w-xs">
-        <Label htmlFor="status" className="flex items-center gap-1.5">
-          Status
-          <FieldHelp text="Habilidades inativas deixam de aparecer nos formulários de novo atendimento." />
-        </Label>
-        <Select value={status} onValueChange={(v) => setStatus(v as StatusHabilidade)}>
-          <SelectTrigger id="status" className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ativa">Ativa</SelectItem>
-            <SelectItem value="inativa">Inativa</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      {habilidadeExistente && (
+        <div className="flex flex-col gap-2 max-w-xs">
+          <Label htmlFor="status" className="flex items-center gap-1.5">
+            Status
+            <FieldHelp text="Habilidades inativas deixam de aparecer nos formulários de novo atendimento." />
+          </Label>
+          <Select value={status} onValueChange={(v) => setStatus(v as StatusHabilidade)}>
+            <SelectTrigger id="status" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ativa">Ativa</SelectItem>
+              <SelectItem value="inativa">Inativa</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       <div className="flex items-center gap-3 mt-2">
         <Button type="submit" disabled={enviando} className="rounded-xl font-bold">
