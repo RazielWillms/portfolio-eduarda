@@ -43,16 +43,16 @@ export function Navbar() {
         {/* CTA + acesso profissional */}
         <div className="hidden md:flex items-center gap-4">
           <a
-            href="/registros/login"
-            className="text-xs font-semibold text-muted-foreground/70 hover:text-muted-foreground transition-colors"
-          >
-            Acesso Profissional
-          </a>
-          <a
             href="#contato"
             className="inline-flex items-center gap-2 bg-primary text-primary-foreground text-sm font-bold px-5 py-2.5 rounded-2xl hover:opacity-90 transition-opacity shadow-sm"
           >
             Agendar Atendimento
+          </a>
+          <a
+            href="/registros/login"
+            className="text-xs font-semibold text-muted-foreground/70 hover:text-muted-foreground transition-colors"
+          >
+            Acesso Profissional
           </a>
         </div>
 
