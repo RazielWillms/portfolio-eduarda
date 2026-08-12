@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { CalendarDays, CircleHelp, KeyRound, LayoutDashboard, Users, Sparkles, ClipboardList, UserCog, UserRoundCheck, X } from "lucide-react"
+import { CircleHelp, KeyRound, LayoutDashboard, Users, Sparkles, ClipboardList, UserCog, UserRoundCheck, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Papel } from "@/lib/registros/types"
 
