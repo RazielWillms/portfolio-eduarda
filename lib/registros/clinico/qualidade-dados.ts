@@ -1,0 +1,15 @@
+import type{AlvoClinicoCompleto,CapacitacaoAplicador,SolicitacaoConcordancia}from"./modelo";import type{PontoSerieClinica}from"./serie-clinica"
+export type IndicadorQualidade={id:"atualidade"|"cobertura_integridade"|"integridade"|"concordancia"|"competencia";rotulo:string;estado:"adequado"|"atencao"|"sem_dados";detalhe:string}
+const dias=(data:string,agora:Date)=>Math.max(0,Math.floor((agora.getTime()-new Date(`${data.slice(0,10)}T12:00:00`).getTime())/86400000))
+export function avaliarQualidadeDados(alvo:AlvoClinicoCompleto,pontos:PontoSerieClinica[],concordancias:SolicitacaoConcordancia[],capacitacoes:CapacitacaoAplicador[],profissionalId:string,agora=new Date()):IndicadorQualidade[]{
+ const recentes=pontos.slice(-6),ultima=recentes.at(-1),comIntegridade=recentes.filter(p=>p.integridade!==null),media=comIntegridade.length?Math.round(comIntegridade.reduce((s,p)=>s+p.integridade!,0)/comIntegridade.length):null,cobertura=recentes.length?Math.round(comIntegridade.length*100/recentes.length):null
+ const ioa=concordancias.filter(c=>c.alvo_id===alvo.id&&c.solicitante_id===profissionalId&&c.status==="concluida"&&c.concordancia_percentual!==null),ioaRecentes=ioa.slice(0,6),mediaIoa=ioaRecentes.length?Math.round(ioaRecentes.reduce((s,c)=>s+c.concordancia_percentual!,0)/ioaRecentes.length):null
+ const capacitacao=[...capacitacoes].filter(c=>c.profissional_id===profissionalId&&(c.alvo_id===alvo.id||c.alvo_id===null)).sort((a,b)=>{const escopo=Number(b.alvo_id===alvo.id)-Number(a.alvo_id===alvo.id);return escopo||b.realizado_em.localeCompare(a.realizado_em)})[0],idadeCapacitacao=capacitacao?dias(capacitacao.realizado_em,agora):null
+ return[
+  {id:"atualidade",rotulo:"Atualidade da coleta",estado:!ultima?"sem_dados":dias(ultima.data,agora)<=30?"adequado":"atencao",detalhe:!ultima?"Nenhuma medição disponível para o alvo.":`Última medição há ${dias(ultima.data,agora)} dia(s).`},
+  {id:"cobertura_integridade",rotulo:"Cobertura de integridade",estado:cobertura===null?"sem_dados":cobertura>=80?"adequado":"atencao",detalhe:cobertura===null?"Sem sessões recentes para avaliar cobertura.":`${comIntegridade.length}/${recentes.length} medições recentes possuem verificação (${cobertura}%).`},
+  {id:"integridade",rotulo:"Integridade média",estado:media===null?"sem_dados":media>=80?"adequado":"atencao",detalhe:media===null?"Nenhuma verificação de integridade disponível.":`Média de ${media}% nas ${comIntegridade.length} medições verificadas.`},
+  {id:"concordancia",rotulo:"Concordância independente",estado:mediaIoa===null?"sem_dados":mediaIoa>=80?"adequado":"atencao",detalhe:mediaIoa===null?"Nenhuma concordância concluída solicitada por este profissional.":`Média de ${mediaIoa}% em ${ioaRecentes.length} verificação(ões) concluída(s).`},
+  {id:"competencia",rotulo:"Competência do aplicador",estado:!capacitacao?"sem_dados":idadeCapacitacao!>180||capacitacao.competencia_percentual<80?"atencao":"adequado",detalhe:!capacitacao?"Nenhuma capacitação vinculada ao alvo ou ao plano geral.":`${capacitacao.competencia_percentual}% observados há ${idadeCapacitacao} dia(s); critério: ${capacitacao.criterio_competencia}.`},
+ ]
+}

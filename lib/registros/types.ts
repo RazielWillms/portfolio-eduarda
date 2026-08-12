@@ -1,8 +1,8 @@
 // Tipos do sistema de registro e acompanhamento ABA
 // Espelham as tabelas reais no Supabase (schema public):
-// profiles, niveis_avaliacao, habilidades, pacientes, paciente_psicologos, atendimentos
+// profiles, niveis_avaliacao, habilidades, pacientes e paciente_psicologos
 
-export type Papel = "admin" | "profissional"
+export type Papel = "admin" | "profissional" | "coordenacao"
 export type StatusUsuario = "ativo" | "inativo"
 export type StatusPaciente = "ativo" | "inativo"
 export type StatusHabilidade = "ativa" | "inativa"
@@ -14,6 +14,15 @@ export interface Profile {
   papel: Papel
   status: StatusUsuario
   admin_principal: boolean
+  foto_path: string | null
+  foto_url?: string | null
+  foto_zoom: number
+  foto_pos_x: number
+  foto_pos_y: number
+  profissao: string | null
+  conselho_tipo: string | null
+  conselho_numero: string | null
+  conselho_uf: string | null
   created_at: string
 }
 
@@ -49,7 +58,7 @@ export interface PacienteHabilidade {
   habilidade: Pick<Habilidade, "id" | "nome" | "descricao" | "categoria" | "status">
 }
 
-export interface ProfissionalResumo { id: string; nome: string }
+export interface ProfissionalResumo { id:string;nome:string;foto_path:string|null;foto_url?:string|null;foto_zoom:number;foto_pos_x:number;foto_pos_y:number;profissao:string|null;conselho_tipo:string|null;conselho_numero:string|null;conselho_uf:string|null }
 export type { AcessoResponsavel } from "./responsavel/types"
 
 export interface Paciente {
@@ -57,14 +66,24 @@ export interface Paciente {
   nome_completo: string
   nome_responsavel: string | null
   cpf_responsavel: string | null
+  cpf_paciente: string | null
   data_nascimento: string | null // ISO (yyyy-mm-dd)
   diagnostico: string | null
   contatos: string | null
   observacoes: string | null
   status: StatusPaciente
   criado_por: string
+  foto_path: string | null
+  foto_url?: string | null
+  foto_zoom: number
+  foto_pos_x: number
+  foto_pos_y: number
   created_at: string
 }
+
+export type StatusAgendamento="agendado"|"confirmado"|"realizado"|"cancelado"|"falta"|"reagendado"
+export interface Agendamento{id:string;paciente_id:string;profissional_id:string;inicio:string;fim:string;finalidade:string;modalidade:string;local:string|null;status:StatusAgendamento;observacao_administrativa:string|null;sessao_id:string|null;paciente_nome:string;profissional_nome:string;pode_iniciar:boolean}
+export interface OpcoesAgenda{pacientes:{id:string;nome:string;status:string}[];profissionais:{id:string;nome:string;profissao:string|null}[]}
 
 export type StatusSolicitacaoAcesso = "pendente" | "aprovado" | "negado"
 
@@ -95,28 +114,6 @@ export interface SolicitacaoAcesso {
 export interface SolicitacaoAcessoComRelacoes extends SolicitacaoAcesso {
   paciente: Pick<Paciente, "id" | "nome_completo"> | null
   solicitante: Pick<Profile, "id" | "nome" | "email">
-}
-
-export interface Atendimento {
-  id: string
-  paciente_id: string
-  psicologo_id: string
-  habilidade_id: string
-  data: string // ISO (yyyy-mm-dd)
-  nivel_avaliacao_id: string
-  observacoes: string | null
-  created_at: string
-  updated_at: string | null
-  updated_by: string | null
-  deleted_at: string | null
-  deleted_by: string | null
-}
-
-// Registro de atendimento já com os relacionamentos resolvidos, prontos para exibição.
-export interface AtendimentoComRelacoes extends Atendimento {
-  paciente: Pick<Paciente, "id" | "nome_completo">
-  habilidade: Pick<Habilidade, "id" | "nome">
-  nivel_avaliacao: Pick<NivelAvaliacao, "id" | "codigo" | "label" | "valor">
 }
 
 export function calcularIdade(dataNascimentoISO: string | null): number | null {

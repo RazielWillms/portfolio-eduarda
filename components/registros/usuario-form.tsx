@@ -101,6 +101,7 @@ export function UsuarioForm() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="profissional">Profissional</SelectItem>
+              <SelectItem value="coordenacao">Coordenação</SelectItem>
               <SelectItem value="admin">Administrador</SelectItem>
             </SelectContent>
           </Select>

@@ -9,7 +9,7 @@ export default async function NovaHabilidadePage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Nova habilidade</h1>
-        <p className="text-sm text-muted-foreground mt-1">Cadastre uma habilidade ou recurso a ser trabalhado nos atendimentos.</p>
+        <p className="text-sm text-muted-foreground mt-1">Cadastre uma habilidade ou recurso clínico.</p>
       </div>
       <HabilidadeForm />
     </div>

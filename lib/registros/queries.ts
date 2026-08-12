@@ -1,22 +1,22 @@
 // Camada de leitura de dados do sistema de registros — usada em Server Components.
 // Todas as consultas passam pelo cliente Supabase autenticado do usuário atual,
 // então o RLS aplica automaticamente as regras de visibilidade (admin vê tudo,
-// psicólogo só vê seus próprios pacientes/atendimentos).
+// profissional só vê os dados autorizados pelas políticas e vínculos explícitos.
 import { createClient } from "@/lib/supabase/server"
 import type {
-  AtendimentoComRelacoes,
   CandidatoDuplicataPaciente,
   Habilidade,
   NivelAvaliacao,
   Paciente,
-  PacienteHabilidade,
   Profile,
   ProfissionalResumo,
+  Agendamento,OpcoesAgenda,
   SolicitacaoAcessoComRelacoes,
 } from "./types"
-import type { AvaliacaoClinica } from "./clinico"
+import type { CapacitacaoAplicador, PlanoClinicoCompleto, RegistroValidadeSocial, SessaoClinicaComRegistros, SinteseAvaliacaoInicial, SolicitacaoConcordancia } from "./clinico/modelo"
 import type { AcessoResponsavel } from "./responsavel/types"
 import { reportServerError } from "@/lib/server-log"
+import { assinarFoto } from "./fotos"
 
 export async function getProfile(): Promise<Profile | null> {
   const supabase = await createClient()
@@ -29,12 +29,13 @@ export async function getProfile(): Promise<Profile | null> {
     reportServerError("getProfile", error)
     return null
   }
-  return data as Profile | null
+  if(!data)return null
+  return {...data,foto_url:await assinarFoto(supabase,data.foto_path)} as Profile
 }
 
 export async function getProfiles(): Promise<Profile[]> {
   const supabase = await createClient()
-  const { data, error } = await supabase.from("profiles").select("*").order("nome")
+  const { data, error } = await supabase.from("profiles").select("*").neq("email", "demo@registrosaba.local").order("nome")
   if (error) {
     reportServerError("getProfiles", error)
     return []
@@ -89,62 +90,18 @@ export async function getPaciente(id: string): Promise<Paciente | null> {
     reportServerError("getPaciente", error)
     return null
   }
-  return data as Paciente | null
+  if(!data)return null
+  return {...data,foto_url:await assinarFoto(supabase,data.foto_path)} as Paciente
 }
 
-export async function getPacienteHabilidades(pacienteId: string): Promise<PacienteHabilidade[]> {
-  const supabase = await createClient()
-  const { data, error } = await supabase
-    .from("paciente_habilidades")
-    .select("*, habilidade:habilidades(id, nome, descricao, categoria, status)")
-    .eq("paciente_id", pacienteId)
-    .order("created_at")
-  if (error) {
-    reportServerError("getPacienteHabilidades", error)
-    return []
-  }
-  return data as unknown as PacienteHabilidade[]
-}
-
-export async function getAvaliacoesClinicasPaciente(pacienteId: string): Promise<AvaliacaoClinica[]> {
-  const supabase = await createClient()
-  const { data, error } = await supabase.rpc("avaliacoes_clinicas_paciente", { p_paciente_id: pacienteId })
-  if (error) {
-    reportServerError("getAvaliacoesClinicasPaciente", error)
-    return []
-  }
-  return (data ?? []).map((item: Omit<AvaliacaoClinica, "valor"> & { valor: number | string }) => ({
-    ...item,
-    valor: Number(item.valor),
-  })) as AvaliacaoClinica[]
-}
+export async function getAgendamentos(inicio:string,fim:string):Promise<Agendamento[]>{const supabase=await createClient(),{data,error}=await supabase.rpc("listar_agendamentos",{p_inicio:inicio,p_fim:fim});if(error){reportServerError("getAgendamentos",error);return[]}return(data??[])as Agendamento[]}
+export async function getOpcoesAgenda():Promise<OpcoesAgenda|null>{const supabase=await createClient(),{data,error}=await supabase.rpc("listar_opcoes_agendamento");if(error){reportServerError("getOpcoesAgenda",error);return null}return data as OpcoesAgenda}
 
 export async function getProfissionaisVinculadosPaciente(pacienteId: string): Promise<ProfissionalResumo[]> {
   const supabase = await createClient()
   const { data, error } = await supabase.rpc("profissionais_vinculados_paciente", { p_paciente_id: pacienteId })
   if (error) { reportServerError("getProfissionaisVinculadosPaciente", error); return [] }
-  return (data ?? []) as ProfissionalResumo[]
-}
-
-export async function getPacienteHabilidadesTodos(): Promise<PacienteHabilidade[]> {
-  const supabase = await createClient()
-  const { data: usuario } = await supabase.auth.getUser()
-  if (!usuario.user) return []
-  const { data, error } = await supabase
-    .from("paciente_habilidades")
-    .select("*, habilidade:habilidades(id, nome, descricao, categoria, status)")
-    .eq("profissional_id", usuario.user.id)
-  if (error) { reportServerError("getPacienteHabilidadesTodos", error); return [] }
-  return data as unknown as PacienteHabilidade[]
-}
-
-export async function getAvaliacoesClinicasProfissional(): Promise<(AvaliacaoClinica & { paciente_id: string })[]> {
-  const supabase = await createClient()
-  const { data, error } = await supabase.rpc("avaliacoes_clinicas_profissional")
-  if (error) { reportServerError("getAvaliacoesClinicasProfissional", error); return [] }
-  return (data ?? []).map((item: AvaliacaoClinica & { paciente_id: string; valor: number | string }) => ({
-    ...item, valor: Number(item.valor),
-  }))
+  return Promise.all(((data??[])as ProfissionalResumo[]).map(async p=>({...p,foto_url:await assinarFoto(supabase,p.foto_path)})))
 }
 
 export async function getAcessosResponsavel(pacienteId: string): Promise<AcessoResponsavel[]> {
@@ -154,58 +111,99 @@ export async function getAcessosResponsavel(pacienteId: string): Promise<AcessoR
   return (data ?? []) as AcessoResponsavel[]
 }
 
-export async function getAtendimentos(): Promise<AtendimentoComRelacoes[]> {
+export async function getPlanosClinicosPaciente(pacienteId: string): Promise<PlanoClinicoCompleto[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
-    .from("atendimentos")
-    .select(
-      "*, paciente:pacientes(id, nome_completo), habilidade:habilidades(id, nome), nivel_avaliacao:niveis_avaliacao(id, codigo, label, valor)",
-    )
-    .is("deleted_at", null)
-    .order("data", { ascending: false })
-
-  if (error) {
-    reportServerError("getAtendimentos", error)
-    return []
-  }
-  return data as unknown as AtendimentoComRelacoes[]
+    .from("planos_clinicos")
+    .select("*, objetivos:objetivos_clinicos(*, alvos:alvos_clinicos(*, definicoes:definicoes_operacionais_alvo(*), medicoes:configuracoes_medicao_alvo(*), criterios:criterios_dominio_alvo(*), historico_fases:historico_fases_alvo(*), protocolos:protocolos_intervencao_alvo(*), planos_apoio:planos_apoio_comportamental_alvo(*), revisoes:revisoes_clinicas_alvo(*)))")
+    .eq("paciente_id", pacienteId)
+    .order("created_at", { ascending: false })
+  if (error) { reportServerError("getPlanosClinicosPaciente", error); return [] }
+  return (data ?? []) as unknown as PlanoClinicoCompleto[]
 }
 
-export async function getAtendimentosPorPaciente(pacienteId: string): Promise<AtendimentoComRelacoes[]> {
+export async function getSessoesClinicasPaciente(pacienteId: string): Promise<SessaoClinicaComRegistros[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
-    .from("atendimentos")
-    .select(
-      "*, paciente:pacientes(id, nome_completo), habilidade:habilidades(id, nome), nivel_avaliacao:niveis_avaliacao(id, codigo, label, valor)",
-    )
+    .from("sessoes_clinicas")
+    .select("*, registros:registros_medicao(*, alvo:alvos_clinicos(id,nome), integridade:integridade_procedimental(*), tentativas:tentativas_individuais(*)), observacoes_abc(*)")
     .eq("paciente_id", pacienteId)
     .is("deleted_at", null)
     .order("data", { ascending: false })
-
-  if (error) {
-    reportServerError("getAtendimentosPorPaciente", error)
-    return []
-  }
-  return data as unknown as AtendimentoComRelacoes[]
+  if (error) { reportServerError("getSessoesClinicasPaciente", error); return [] }
+  return (data ?? []) as unknown as SessaoClinicaComRegistros[]
 }
 
-export async function getAtendimento(id: string): Promise<AtendimentoComRelacoes | null> {
+export async function getSessoesCanceladasPaciente(pacienteId:string):Promise<SessaoClinicaComRegistros[]>{
+  const supabase=await createClient();const{data,error}=await supabase.from("sessoes_clinicas").select("*, registros:registros_medicao(*, alvo:alvos_clinicos(id,nome), integridade:integridade_procedimental(*), tentativas:tentativas_individuais(*)), observacoes_abc(*)").eq("paciente_id",pacienteId).eq("status","cancelada").not("deleted_at","is",null).order("cancelada_em",{ascending:false})
+  if(error){reportServerError("getSessoesCanceladasPaciente",error);return[]}
+  return(data??[])as unknown as SessaoClinicaComRegistros[]
+}
+
+export async function getSintesesAvaliacaoPaciente(pacienteId:string):Promise<SinteseAvaliacaoInicial[]>{
+  const supabase=await createClient();const{data:userData}=await supabase.auth.getUser();if(!userData.user)return[]
+  const{data,error}=await supabase.from("sinteses_avaliacao_inicial").select("*").eq("paciente_id",pacienteId).eq("profissional_id",userData.user.id).order("versao",{ascending:false})
+  if(error){reportServerError("getSintesesAvaliacaoPaciente",error);return[]}
+  return(data??[])as SinteseAvaliacaoInicial[]
+}
+
+export type SessaoClinicaComPaciente = SessaoClinicaComRegistros & {
+  paciente: { id: string; nome_completo: string }
+}
+
+export async function getSessoesClinicasProfissional(): Promise<SessaoClinicaComPaciente[]> {
   const supabase = await createClient()
-  const { data, error } = await supabase.from("atendimentos")
-    .select("*, paciente:pacientes(id, nome_completo), habilidade:habilidades(id, nome), nivel_avaliacao:niveis_avaliacao(id, codigo, label, valor)")
-    .eq("id", id).is("deleted_at", null).maybeSingle()
-  if (error) return null
-  return data as unknown as AtendimentoComRelacoes | null
+  const { data, error } = await supabase
+    .from("sessoes_clinicas")
+    .select("*, paciente:pacientes(id,nome_completo), registros:registros_medicao(*, alvo:alvos_clinicos(id,nome), integridade:integridade_procedimental(*), tentativas:tentativas_individuais(*)), observacoes_abc(*)")
+    .is("deleted_at", null)
+    .order("data", { ascending: false })
+  if (error) { reportServerError("getSessoesClinicasProfissional", error); return [] }
+  return (data ?? []) as unknown as SessaoClinicaComPaciente[]
 }
 
-export async function getAtendimentosExcluidos(): Promise<AtendimentoComRelacoes[]> {
-  const supabase = await createClient()
-  const { data, error } = await supabase.from("atendimentos")
-    .select("*, paciente:pacientes(id, nome_completo), habilidade:habilidades(id, nome), nivel_avaliacao:niveis_avaliacao(id, codigo, label, valor)")
-    .not("deleted_at", "is", null).order("deleted_at", { ascending: false })
-  if (error) return []
-  return data as unknown as AtendimentoComRelacoes[]
+export interface CenarioDemonstracao {
+  profissional: { nome: string; email: string }
+  paciente: { id: string; nome: string; data_nascimento: string; diagnostico: string | null }
+  planos: Array<{
+    id: string; titulo: string; justificativa: string | null; status: string; iniciado_em: string; revisar_em: string | null
+    objetivos: Array<{
+      id: string; descricao: string; horizonte: string
+      alvos: Array<{
+        id: string; nome: string; categoria: string | null; natureza: string; fase: string; definicao: string
+        medicao: { tipo: string; unidade: string } | null
+        criterio: { direcao: string; valor_alvo: number; sessoes_consecutivas: number; ambientes_minimos: number; aplicadores_minimos: number } | null
+        protocolo: { estrategia: string; hierarquia_ajuda: string; esvanecimento: string | null; reforcadores: string; correcao_erro: string } | null
+      }>
+    }>
+  }>
+  sessoes: Array<{
+    id: string; data: string; contexto: string | null; ambiente_tipo: string | null; aplicador_tipo: string | null
+    registros: Array<{ id: string; alvo_id: string; alvo_nome: string; tipo_medicao: string; dados: Record<string, unknown>; integridade_percentual: number | null;tentativas:Array<{id:string;ordem:number;resultado:"correta"|"incorreta"|"sem_resposta";nivel_ajuda:"independente"|"gestual"|"verbal"|"modelo"|"fisica_parcial"|"fisica_total";latencia_segundos:number|null}> }>
+  }>
+  validade_social: Array<{ respondente_tipo: string; objetivo_relevante: boolean; aceitabilidade: number; viabilidade: number; beneficio_percebido: number; assentimento_observado: string; relato: string; registrado_em: string }>
 }
+
+export async function getCenarioDemonstracao(): Promise<CenarioDemonstracao | null> {
+  const supabase = await createClient()
+  const versao2 = await supabase.rpc("obter_cenario_demonstracao_v2")
+  if (!versao2.error) return versao2.data as CenarioDemonstracao | null
+  reportServerError("getCenarioDemonstracao.v2", versao2.error)
+  if (!["PGRST202","42883"].includes(versao2.error.code??"")) return null
+  const base = await supabase.rpc("obter_cenario_demonstracao")
+  if (base.error) { reportServerError("getCenarioDemonstracao.base", base.error); return null }
+  return base.data as CenarioDemonstracao | null
+}
+
+export async function getValidadeSocialPaciente(pacienteId: string): Promise<RegistroValidadeSocial[]> {
+  const supabase=await createClient(); const {data,error}=await supabase.from("registros_validade_social").select("*").eq("paciente_id",pacienteId).order("registrado_em",{ascending:false})
+  if(error){reportServerError("getValidadeSocialPaciente",error);return []}
+  return (data??[]) as RegistroValidadeSocial[]
+}
+
+export async function getCapacitacoesPaciente(pacienteId:string):Promise<CapacitacaoAplicador[]>{const supabase=await createClient();const{data,error}=await supabase.from("capacitacoes_aplicadores").select("*").eq("paciente_id",pacienteId).order("realizado_em",{ascending:false});if(error){reportServerError("getCapacitacoesPaciente",error);return[]}return(data??[])as CapacitacaoAplicador[]}
+
+export async function getConcordanciasPaciente(pacienteId:string):Promise<SolicitacaoConcordancia[]>{const supabase=await createClient();const{data,error}=await supabase.from("solicitacoes_concordancia").select("*, alvo:alvos_clinicos(id,nome), solicitante:profiles!solicitante_id(id,nome), observador:profiles!observador_id(id,nome)").eq("paciente_id",pacienteId).order("solicitado_em",{ascending:false});if(error){reportServerError("getConcordanciasPaciente",error);return[]}return(data??[])as unknown as SolicitacaoConcordancia[]}
 
 // ---------- Duplicidade de pacientes ----------
 // Roda via RPC de uma função SECURITY DEFINER: compara contra TODOS os pacientes
@@ -215,6 +213,7 @@ export async function buscarPossiveisDuplicatasPaciente(input: {
   dataNascimento: string | null
   nomeResponsavel: string | null
   cpfResponsavel: string | null
+  cpfPaciente: string | null
 }): Promise<CandidatoDuplicataPaciente[]> {
   if (!input.dataNascimento) return []
 
@@ -224,6 +223,7 @@ export async function buscarPossiveisDuplicatasPaciente(input: {
     p_data_nascimento: input.dataNascimento,
     p_nome_responsavel: input.nomeResponsavel,
     p_cpf_responsavel: input.cpfResponsavel,
+    p_cpf_paciente: input.cpfPaciente,
   })
 
   if (error) {

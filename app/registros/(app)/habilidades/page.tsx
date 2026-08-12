@@ -13,7 +13,7 @@ export default async function HabilidadesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Habilidades</h1>
-          <p className="text-sm text-muted-foreground mt-1">Habilidades e recursos trabalhados nos atendimentos.</p>
+          <p className="text-sm text-muted-foreground mt-1">Catálogo de habilidades e recursos clínicos.</p>
         </div>
         {podeGerenciar && <Link href="/registros/habilidades/nova">
           <Button className="rounded-xl font-bold gap-2">

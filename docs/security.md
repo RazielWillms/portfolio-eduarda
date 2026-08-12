@@ -28,3 +28,11 @@
 - Token inválido, expirado e revogado retornam a mesma resposta externa.
 
 Os testes de RLS precisam de um projeto Supabase isolado no CI; testes unitários não substituem essa verificação integrada.
+
+## Verificação de implantação
+
+1. Execute `npm run security:check` em todo build para validar contratos e endurecimento estático.
+2. Aplique todas as migrations, em ordem, antes de publicar a aplicação correspondente.
+3. Em um projeto Supabase descartável, configure as variáveis de `.env.rls.example` e execute `npm run test:rls`.
+4. Confirme que somente as versões atuais das RPCs de sessão (`v6`), revisão (`v4`), portal (`v2`) e demonstração (`v2`) permanecem executáveis pelos papéis da API.
+5. Nunca execute o teste integrado em produção: ele cria e remove usuários e pacientes sintéticos.

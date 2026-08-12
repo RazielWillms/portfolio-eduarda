@@ -1,0 +1,48 @@
+﻿"use client"
+
+import { useState, type FormEvent } from "react"
+import { useRouter } from "next/navigation"
+import { ArrowRight, CheckCircle2, History } from "lucide-react"
+import { alterarFaseAlvo, criarCriterioDominioAlvo } from "@/lib/registros/actions"
+import type { AlvoClinicoCompleto, FaseAlvo, PlanoClinicoCompleto } from "@/lib/registros/clinico/modelo"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
+
+const FASES: { valor: FaseAlvo; label: string }[] = [
+  { valor: "rascunho", label: "Rascunho" }, { valor: "linha_de_base", label: "Linha de base" },
+  { valor: "ensino", label: "Ensino" }, { valor: "generalizacao", label: "Generalização" },
+  { valor: "manutencao", label: "Manutenção" }, { valor: "pausado", label: "Pausado" },
+  { valor: "encerrado", label: "Encerrado" },
+]
+const faseLabel = (fase: string) => FASES.find((f) => f.valor === fase)?.label ?? fase
+
+function FormCriterio({ pacienteId, alvo }: { pacienteId: string; alvo: AlvoClinicoCompleto }) {
+  const router = useRouter(); const [aberto, setAberto] = useState(false); const [direcao, setDirecao] = useState<"aumentar" | "reduzir">(alvo.natureza === "reducao" ? "reduzir" : "aumentar")
+  const [valor, setValor] = useState("80"); const [sessoes, setSessoes] = useState("3"); const [oportunidades, setOportunidades] = useState("10")
+  const [ambientes, setAmbientes] = useState("1"); const [aplicadores, setAplicadores] = useState("1"); const [manutencao, setManutencao] = useState("30")
+  const [erro, setErro] = useState(""); const [salvando, setSalvando] = useState(false)
+  async function salvar(e: FormEvent) { e.preventDefault(); setSalvando(true); setErro(""); const r = await criarCriterioDominioAlvo({ pacienteId, alvoId: alvo.id, direcao, valorAlvo: Number(valor), sessoesConsecutivas: Number(sessoes), oportunidadesMinimas: oportunidades ? Number(oportunidades) : null, ambientesMinimos: Number(ambientes), aplicadoresMinimos: Number(aplicadores), diasManutencao: manutencao ? Number(manutencao) : null }); if (r && "error" in r) setErro(r.error); else { setAberto(false); router.refresh() } setSalvando(false) }
+  if (!aberto) return <Button size="sm" onClick={() => setAberto(true)}>{alvo.criterios.length ? "Nova versão do critério" : "Configurar critério"}</Button>
+  return <form onSubmit={salvar} className="mt-3 space-y-4 rounded-xl border p-4"><div className="grid gap-3 sm:grid-cols-3"><div className="space-y-2"><Label>Direção</Label><Select value={direcao} onValueChange={(v) => setDirecao(v as "aumentar" | "reduzir")}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="aumentar">Aumentar</SelectItem><SelectItem value="reduzir">Reduzir</SelectItem></SelectContent></Select></div><div className="space-y-2"><Label>Valor-alvo</Label><Input type="number" step="0.01" value={valor} onChange={(e) => setValor(e.target.value)} required /></div><div className="space-y-2"><Label>Sessões consecutivas</Label><Input type="number" min={1} value={sessoes} onChange={(e) => setSessoes(e.target.value)} required /></div><div className="space-y-2"><Label>Oportunidades mínimas</Label><Input type="number" min={1} value={oportunidades} onChange={(e) => setOportunidades(e.target.value)} /></div><div className="space-y-2"><Label>Ambientes mínimos</Label><Input type="number" min={1} value={ambientes} onChange={(e) => setAmbientes(e.target.value)} required /></div><div className="space-y-2"><Label>Aplicadores mínimos</Label><Input type="number" min={1} value={aplicadores} onChange={(e) => setAplicadores(e.target.value)} required /></div><div className="space-y-2"><Label>Dias para manutenção</Label><Input type="number" min={0} value={manutencao} onChange={(e) => setManutencao(e.target.value)} /></div></div>{erro && <p className="text-sm text-destructive">{erro}</p>}<div className="flex gap-2"><Button size="sm" disabled={salvando}>{salvando ? "Salvando..." : "Salvar nova versão"}</Button><Button size="sm" type="button" variant="ghost" onClick={() => setAberto(false)}>Cancelar</Button></div></form>
+}
+
+function FormFase({ pacienteId, alvo }: { pacienteId: string; alvo: AlvoClinicoCompleto }) {
+  const router = useRouter(); const [aberto, setAberto] = useState(false); const [fase, setFase] = useState<FaseAlvo>(alvo.fase); const [motivo, setMotivo] = useState(""); const [confirmou,setConfirmou]=useState(false); const [erro, setErro] = useState(""); const [salvando, setSalvando] = useState(false)
+  async function salvar(e: FormEvent) { e.preventDefault(); setSalvando(true); setErro(""); const r = await alterarFaseAlvo({ pacienteId, alvoId: alvo.id, novaFase: fase, motivo, confirmarCorrecao: confirmou }); if (r && "error" in r) setErro(r.error); else { setAberto(false); setMotivo(""); setConfirmou(false); router.refresh() } setSalvando(false) }
+  if (!aberto) return <Button size="sm" onClick={() => setAberto(true)} className="bg-slate-200 text-slate-700 hover:bg-slate-300"><ArrowRight className="size-3.5" />Corrigir fase</Button>
+  return <form onSubmit={salvar} className="mt-3 space-y-3 rounded-xl border p-4"><div className="space-y-2"><Label>Nova fase</Label><Select value={fase} onValueChange={(v) => setFase(v as FaseAlvo)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{FASES.map((f) => <SelectItem key={f.valor} value={f.valor}>{f.label}</SelectItem>)}</SelectContent></Select></div><div className="space-y-2"><Label>Motivo da alteração</Label><Textarea value={motivo} onChange={(e) => setMotivo(e.target.value)} minLength={20} required /></div>{erro && <p className="text-sm text-destructive">{erro}</p>}<label className="flex items-start gap-2 text-sm"><Checkbox checked={confirmou} onCheckedChange={v=>setConfirmou(v===true)}/><span>Confirmo que esta é uma correção administrativa, não uma decisão clínica.</span></label><div className="flex gap-2"><Button size="sm" disabled={salvando||!confirmou||motivo.trim().length<20}>Registrar correção</Button><Button size="sm" type="button" variant="ghost" onClick={() => setAberto(false)}>Cancelar</Button></div></form>
+}
+
+export function GestaoAlvosClinicos({ pacienteId, profissionalAtualId, planos }: { pacienteId: string; profissionalAtualId: string; planos: PlanoClinicoCompleto[] }) {
+  const alvos = planos.flatMap((plano) => plano.objetivos.flatMap((objetivo) => objetivo.alvos.map((alvo) => ({ plano, objetivo, alvo }))))
+  if (!alvos.length) return null
+  return <section className="space-y-4"><div><h2 className="flex items-center gap-2 text-lg font-bold"><CheckCircle2 className="size-5 text-primary" />Critérios e ciclo de vida</h2><p className="text-sm text-muted-foreground">Critérios são versionados; mudanças de fase exigem justificativa.</p></div>{alvos.map(({ plano, objetivo, alvo }) => { const editavel = plano.profissional_responsavel_id === profissionalAtualId && alvo.profissional_id === profissionalAtualId; const criterio = [...alvo.criterios].sort((a,b) => b.versao-a.versao)[0]; const historico = [...alvo.historico_fases].sort((a,b) => b.created_at.localeCompare(a.created_at)); return <Card key={alvo.id}><CardHeader className="pb-3"><div className="flex flex-wrap items-center justify-between gap-2"><div><CardTitle className="text-base">{alvo.nome}</CardTitle><p className="text-xs text-muted-foreground">{plano.titulo} · {objetivo.descricao}</p></div><Badge>{faseLabel(alvo.fase)}</Badge></div></CardHeader><CardContent className="space-y-4"><div className="rounded-xl bg-muted p-3">{criterio ? <><p className="font-semibold text-sm">Critério vigente · versão {criterio.versao}</p><p className="mt-1 text-sm">{criterio.direcao === "aumentar" ? "Pelo menos" : "No máximo"} {criterio.valor_alvo} por {criterio.sessoes_consecutivas} sessão(ões) consecutiva(s){criterio.oportunidades_minimas ? `, com ${criterio.oportunidades_minimas} oportunidades mínimas` : ""}.</p><p className="mt-1 text-xs text-muted-foreground">{criterio.ambientes_minimos} ambiente(s) · {criterio.aplicadores_minimos} aplicador(es){criterio.dias_manutencao !== null ? ` · manutenção após ${criterio.dias_manutencao} dias` : ""}</p></> : <p className="text-sm text-muted-foreground">Critério de domínio ainda não configurado.</p>}</div>{editavel && <div className="flex flex-wrap gap-2"><FormCriterio pacienteId={pacienteId} alvo={alvo} /><FormFase pacienteId={pacienteId} alvo={alvo} /></div>}{historico.length > 0 && <details className="rounded-xl border p-3"><summary className="flex cursor-pointer items-center gap-2 text-sm font-semibold"><History className="size-4" />Histórico de fases ({historico.length})</summary><div className="mt-3 space-y-2">{historico.map((h) => <div key={h.id} className="text-sm"><div className="flex flex-wrap items-center gap-2"><span className="font-medium">{h.fase_anterior ? faseLabel(h.fase_anterior) : "Início"} → {faseLabel(h.nova_fase)}</span><Badge variant={h.tipo_alteracao==="decisao_clinica"?"default":"secondary"}>{h.tipo_alteracao==="decisao_clinica"?"Decisão clínica":h.tipo_alteracao==="correcao_administrativa"?"Correção administrativa":"Registro legado"}</Badge></div><p className="text-xs text-muted-foreground">{h.motivo} · {new Date(h.created_at).toLocaleString("pt-BR")}{h.revisao_clinica_id?` · revisão ${h.revisao_clinica_id.slice(0,8)}`:""}</p></div>)}</div></details>}</CardContent></Card> })}</section>
+}
+
+

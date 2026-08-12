@@ -1,0 +1,22 @@
+import{createClient}from"@supabase/supabase-js"
+import{randomBytes}from"node:crypto"
+const required=["RLS_TEST_SUPABASE_URL","RLS_TEST_SUPABASE_ANON_KEY","RLS_TEST_SUPABASE_SERVICE_ROLE_KEY"]
+if(process.env.RLS_TEST_CONFIRM!=="isolated")throw new Error("Execução bloqueada: defina RLS_TEST_CONFIRM=isolated somente para um projeto descartável.")
+for(const key of required)if(!process.env[key])throw new Error(`Variável ausente: ${key}`)
+const url=process.env.RLS_TEST_SUPABASE_URL,anon=process.env.RLS_TEST_SUPABASE_ANON_KEY,service=process.env.RLS_TEST_SUPABASE_SERVICE_ROLE_KEY
+const host=new URL(url).hostname;if(!host.endsWith(".supabase.co")&&!host.includes("localhost")&&!host.includes("127.0.0.1"))throw new Error("URL de teste inválida.")
+const admin=createClient(url,service,{auth:{persistSession:false,autoRefreshToken:false}});const stamp=`rls-${Date.now()}-${randomBytes(3).toString("hex")}`;const password=`Rls!${randomBytes(12).toString("base64url")}`;const ids={users:[],patients:[],tokens:[]}
+function ok(condition,message){if(!condition)throw new Error(`FALHOU: ${message}`);console.log(`OK: ${message}`)}
+async function user(label){const email=`${stamp}-${label}@example.test`;const{data,error}=await admin.auth.admin.createUser({email,password,email_confirm:true,user_metadata:{nome:`Teste RLS ${label}`}});if(error)throw error;ids.users.push(data.user.id);await admin.from("profiles").upsert({id:data.user.id,nome:`Teste RLS ${label}`,email,papel:"profissional",status:"ativo"});const client=createClient(url,anon,{auth:{persistSession:false,autoRefreshToken:false}});const signed=await client.auth.signInWithPassword({email,password});if(signed.error)throw signed.error;return{id:data.user.id,email,client}}
+async function main(){const a=await user("a"),b=await user("b");const created=await a.client.rpc("criar_paciente_com_vinculo",{p_nome_completo:`Paciente ${stamp}`,p_nome_responsavel:`Responsável ${stamp}`,p_cpf_responsavel:null,p_data_nascimento:"2018-01-15",p_diagnostico:null,p_contatos:null,p_observacoes:null});if(created.error)throw created.error;const paciente=created.data;ids.patients.push(paciente)
+ let q=await a.client.from("pacientes").select("id").eq("id",paciente);ok(q.data?.length===1,"profissional vinculado lê o paciente")
+ q=await b.client.from("pacientes").select("id").eq("id",paciente);ok(q.data?.length===0,"profissional não vinculado não lê o paciente alterando o ID")
+ const direct=await b.client.from("paciente_psicologos").insert({paciente_id:paciente,psicologo_id:b.id});ok(Boolean(direct.error),"profissional não cria vínculo manualmente")
+ const synth=await b.client.from("sinteses_avaliacao_inicial").select("id").eq("paciente_id",paciente);ok(synth.data?.length===0,"síntese clínica não vaza para profissional não vinculado")
+ const token=await a.client.rpc("criar_acesso_responsavel_v2",{p_paciente_id:paciente,p_validade_dias:7,p_descricao:"Teste RLS",p_escopo:"profissional",p_periodo_meses:3,p_alvos:[],p_exibir_criterios:true,p_exibir_fases:true,p_exibir_integridade:false,p_exibir_contextos:false,p_exibir_analise_tentativas:false});if(token.error)throw token.error;ids.tokens.push(token.data[0].id)
+ const publicClient=createClient(url,anon,{auth:{persistSession:false,autoRefreshToken:false}});const portal=await publicClient.rpc("obter_acompanhamento_responsavel_v2",{p_token:token.data[0].token});ok(!portal.error&&portal.data?.primeiro_nome,"token válido retorna somente o contrato externo")
+ const invalid=await publicClient.rpc("obter_acompanhamento_responsavel_v2",{p_token:randomBytes(32).toString("hex")});ok(!invalid.error&&invalid.data===null,"token desconhecido não revela existência do paciente")
+ const legado=await a.client.rpc("registrar_sessao_clinica_v5",{p_paciente_id:paciente,p_data:"2026-01-01",p_contexto:null,p_observacoes_privadas:null,p_registros:[],p_ambiente_tipo:"clinica",p_aplicador_tipo:"profissional",p_integridade:[],p_observacoes_abc:[],p_finalidade:"avaliacao"});ok(Boolean(legado.error),"RPC legada de sessão não pode ser executada")
+ console.log("\nTodos os testes integrados de RLS passaram.")}
+async function cleanup(){for(const id of ids.tokens)await admin.from("acessos_responsavel").delete().eq("id",id);for(const id of ids.patients){await admin.from("paciente_psicologos").delete().eq("paciente_id",id);await admin.from("pacientes").delete().eq("id",id)}for(const id of ids.users.reverse()){await admin.from("profiles").delete().eq("id",id);await admin.auth.admin.deleteUser(id)}}
+try{await main()}finally{await cleanup()}

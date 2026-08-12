@@ -1,0 +1,2 @@
+import{getProfile,getSessoesCanceladasPaciente,getSessoesClinicasPaciente}from"@/lib/registros/queries";import{HistoricoSessoesPaciente}from"@/components/registros/historico-sessoes-paciente"
+export default async function SessoesPacientePage({params}:{params:Promise<{id:string}>}){const{id}=await params;const[sessoes,canceladas,profile]=await Promise.all([getSessoesClinicasPaciente(id),getSessoesCanceladasPaciente(id),getProfile()]);return <HistoricoSessoesPaciente sessoes={sessoes} canceladas={canceladas} usuarioId={profile?.id??""}/>}

@@ -1,0 +1,3 @@
+import{readFileSync}from"node:fs";import{join}from"node:path";import{describe,expect,it}from"vitest"
+const sql=readFileSync(join(process.cwd(),"supabase/migrations/20260812450000_validade_social_snapshot_revisao.sql"),"utf8")
+describe("snapshot de validade social",()=>{it("seleciona somente registro do autor autenticado",()=>{expect(sql).toContain("v.profissional_id=auth.uid()")});it("não copia relato nem adaptações para a revisão",()=>{expect(sql).not.toContain("v_validade.relato");expect(sql).not.toContain("v_validade.adaptacoes_necessarias")});it("prioriza registro específico do alvo e preserva fallback geral",()=>{expect(sql).toContain("v.alvo_id=p_alvo_id or v.alvo_id is null");expect(sql).toContain("order by(v.alvo_id=p_alvo_id)desc")})})

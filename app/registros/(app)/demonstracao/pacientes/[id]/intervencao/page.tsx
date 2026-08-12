@@ -1,0 +1,7 @@
+import { getCenarioDemonstracao } from "@/lib/registros/queries"
+import { rotulo } from "@/lib/registros/demonstracao"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+export default async function Page(){const d=await getCenarioDemonstracao();if(!d)return null;const alvos=d.planos.flatMap((p)=>p.objetivos.flatMap((o)=>o.alvos));return <div className="space-y-5"><div><h2 className="text-xl font-bold">Intervenção</h2><p className="text-sm text-muted-foreground">Protocolos versionados vigentes para os alvos demonstrativos.</p></div>{alvos.map((a)=><Card key={a.id}><CardHeader><div className="flex justify-between gap-2"><CardTitle className="text-lg">{a.nome}</CardTitle><Badge variant="secondary">{rotulo(a.protocolo?.estrategia)}</Badge></div></CardHeader><CardContent>{a.protocolo?<dl className="grid gap-4 text-sm md:grid-cols-2"><Item titulo="Hierarquia de ajuda" texto={a.protocolo.hierarquia_ajuda}/><Item titulo="Esvanecimento" texto={a.protocolo.esvanecimento||"Não informado"}/><Item titulo="Reforçadores" texto={a.protocolo.reforcadores}/><Item titulo="Correção de erro" texto={a.protocolo.correcao_erro}/></dl>:<p className="text-sm text-muted-foreground">Sem protocolo.</p>}</CardContent></Card>)}</div>}
+function Item({titulo,texto}:{titulo:string;texto:string}){return <div className="rounded-xl bg-muted p-4"><dt className="font-bold">{titulo}</dt><dd className="mt-1 text-muted-foreground">{texto}</dd></div>}
+

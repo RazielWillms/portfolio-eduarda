@@ -1,0 +1,275 @@
+﻿README.md:12:Variáveis obrigatórias: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` e, somente no servidor administrativo, `SUPABASE_SERVICE_ROLE_KEY`. O seed exige credenciais explícitas em variáveis `SEED_*` e nunca possui senha padrão.
+.env.rls.example:5:RLS_TEST_SUPABASE_SERVICE_ROLE_KEY=CHAVE_SERVICE_ROLE_DO_PROJETO_DE_TESTE
+lib\supabase\server.ts:18:  return createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+supabase/migrations\20260811230000_etapa_5_portal_responsaveis.sql:19:alter table public.acessos_responsavel enable row level security;
+supabase/migrations\20260811230000_etapa_5_portal_responsaveis.sql:20:alter table public.acessos_responsavel force row level security;
+supabase/migrations\20260811230000_etapa_5_portal_responsaveis.sql:27:language plpgsql security definer
+supabase/migrations\20260811230000_etapa_5_portal_responsaveis.sql:61:language sql stable security definer
+supabase/migrations\20260811230000_etapa_5_portal_responsaveis.sql:71:returns void language plpgsql security definer
+supabase/migrations\20260811230000_etapa_5_portal_responsaveis.sql:90:language plpgsql security definer
+supabase/migrations\20260811230000_etapa_5_portal_responsaveis.sql:136:grant execute on function public.criar_acesso_responsavel(uuid, integer, text) to authenticated;
+supabase/migrations\20260811230000_etapa_5_portal_responsaveis.sql:137:grant execute on function public.listar_acessos_responsavel(uuid) to authenticated;
+supabase/migrations\20260811230000_etapa_5_portal_responsaveis.sql:138:grant execute on function public.revogar_acesso_responsavel(uuid) to authenticated;
+supabase/migrations\20260811230000_etapa_5_portal_responsaveis.sql:139:grant execute on function public.obter_acompanhamento_responsavel(text) to anon, authenticated;
+supabase/migrations\20260811190000_etapa_3_regras_clinicas.sql:45:alter table public.paciente_habilidades enable row level security;
+supabase/migrations\20260811190000_etapa_3_regras_clinicas.sql:46:alter table public.paciente_habilidades force row level security;
+supabase/migrations\20260811190000_etapa_3_regras_clinicas.sql:48:create policy paciente_habilidades_select on public.paciente_habilidades for select to authenticated
+supabase/migrations\20260811190000_etapa_3_regras_clinicas.sql:50:create policy paciente_habilidades_insert on public.paciente_habilidades for insert to authenticated
+supabase/migrations\20260811190000_etapa_3_regras_clinicas.sql:52:create policy paciente_habilidades_update on public.paciente_habilidades for update to authenticated
+supabase/migrations\20260811190000_etapa_3_regras_clinicas.sql:70:security definer
+supabase/migrations\20260811190000_etapa_3_regras_clinicas.sql:84:grant execute on function public.avaliacoes_clinicas_paciente(uuid) to authenticated;
+supabase/migrations\20260811190000_etapa_3_regras_clinicas.sql:91:security definer
+lib\supabase\middleware.ts:16:  const supabase = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+supabase/migrations\20260811210000_etapa_4_dashboard.sql:5:language sql stable security definer set search_path = '' as $$
+supabase/migrations\20260811210000_etapa_4_dashboard.sql:19:language sql stable security definer set search_path = '' as $$
+supabase/migrations\20260811210000_etapa_4_dashboard.sql:30:grant execute on function public.profissionais_vinculados_paciente(uuid) to authenticated;
+supabase/migrations\20260811210000_etapa_4_dashboard.sql:31:grant execute on function public.avaliacoes_clinicas_profissional(date) to authenticated;
+supabase/migrations\20260812030000_admin_profiles_rpc.sql:10:security definer
+supabase/migrations\20260812030000_admin_profiles_rpc.sql:43:grant execute on function public.atualizar_profile_admin(uuid, text, text) to authenticated;
+supabase/migrations\20260812010000_etapa_6_seguranca_auditoria.sql:14:alter table public.audit_logs enable row level security;
+supabase/migrations\20260812010000_etapa_6_seguranca_auditoria.sql:15:alter table public.audit_logs force row level security;
+supabase/migrations\20260812010000_etapa_6_seguranca_auditoria.sql:17:create policy audit_logs_admin_select on public.audit_logs for select to authenticated using (public.usuario_admin());
+supabase/migrations\20260812010000_etapa_6_seguranca_auditoria.sql:53:returns trigger language plpgsql security definer set search_path = '' as $$
+supabase/migrations\20260812010000_etapa_6_seguranca_auditoria.sql:124:create policy atendimentos_select on public.atendimentos for select to authenticated
+supabase/migrations\20260812010000_etapa_6_seguranca_auditoria.sql:126:create policy atendimentos_insert on public.atendimentos for insert to authenticated
+supabase/migrations\20260812010000_etapa_6_seguranca_auditoria.sql:129:create policy atendimentos_update on public.atendimentos for update to authenticated
+supabase/migrations\20260812010000_etapa_6_seguranca_auditoria.sql:136:create policy pacientes_update on public.pacientes for update to authenticated
+supabase/migrations\20260812010000_etapa_6_seguranca_auditoria.sql:141:alter table public.habilidades enable row level security;
+supabase/migrations\20260812010000_etapa_6_seguranca_auditoria.sql:142:alter table public.habilidades force row level security;
+supabase/migrations\20260812010000_etapa_6_seguranca_auditoria.sql:146:create policy habilidades_select on public.habilidades for select to authenticated using (public.usuario_ativo());
+supabase/migrations\20260812010000_etapa_6_seguranca_auditoria.sql:147:create policy habilidades_insert on public.habilidades for insert to authenticated with check (public.usuario_admin());
+supabase/migrations\20260812010000_etapa_6_seguranca_auditoria.sql:148:create policy habilidades_update on public.habilidades for update to authenticated
+supabase/migrations\20260812010000_etapa_6_seguranca_auditoria.sql:151:alter table public.niveis_avaliacao enable row level security;
+supabase/migrations\20260812010000_etapa_6_seguranca_auditoria.sql:153:create policy niveis_avaliacao_select on public.niveis_avaliacao for select to authenticated using (public.usuario_ativo());
+supabase/migrations\20260812010000_etapa_6_seguranca_auditoria.sql:158:language sql stable security definer set search_path = '' as $$
+supabase/migrations\20260812010000_etapa_6_seguranca_auditoria.sql:170:language sql stable security definer set search_path = '' as $$
+supabase/migrations\20260812010000_etapa_6_seguranca_auditoria.sql:180:returns text language plpgsql security definer set search_path = '' as $$
+supabase/migrations\20260812010000_etapa_6_seguranca_auditoria.sql:193:grant execute on function public.excluir_ou_desativar_habilidade(uuid) to authenticated;
+supabase/migrations\20260812010000_etapa_6_seguranca_auditoria.sql:197:returns jsonb language plpgsql security definer
+lib\supabase\client.ts:6:  return createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:100:security definer
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:113:security definer
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:126:security definer
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:140:security definer
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:154:grant execute on function public.usuario_ativo() to authenticated;
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:155:grant execute on function public.usuario_admin() to authenticated;
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:156:grant execute on function public.usuario_vinculado(uuid, uuid) to authenticated;
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:157:grant execute on function public.usuario_pode_ver_profile(uuid) to authenticated;
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:176:security definer
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:211:grant execute on function public.buscar_possiveis_duplicatas_paciente(text, date, text, text) to authenticated;
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:225:security definer
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:272:grant execute on function public.criar_paciente_com_vinculo(text, text, text, date, text, text, text) to authenticated;
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:279:security definer
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:298:security definer
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:320:language sql security definer set search_path = '' as $$ select public.decidir_solicitacao_acesso(p_solicitacao_id, true) $$;
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:322:language sql security definer set search_path = '' as $$ select public.decidir_solicitacao_acesso(p_solicitacao_id, false) $$;
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:328:grant execute on function public.solicitar_acesso_paciente(uuid, text, text) to authenticated;
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:329:grant execute on function public.aprovar_solicitacao_acesso(uuid) to authenticated;
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:330:grant execute on function public.negar_solicitacao_acesso(uuid) to authenticated;
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:332:alter table public.pacientes enable row level security;
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:333:alter table public.paciente_psicologos enable row level security;
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:334:alter table public.atendimentos enable row level security;
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:335:alter table public.solicitacoes_acesso enable row level security;
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:336:alter table public.profiles enable row level security;
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:337:alter table public.pacientes force row level security;
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:338:alter table public.paciente_psicologos force row level security;
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:339:alter table public.atendimentos force row level security;
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:340:alter table public.solicitacoes_acesso force row level security;
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:356:create policy profiles_select on public.profiles for select to authenticated
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:359:create policy pacientes_select on public.pacientes for select to authenticated
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:361:create policy pacientes_update on public.pacientes for update to authenticated
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:366:create policy vinculos_select on public.paciente_psicologos for select to authenticated
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:370:create policy atendimentos_select on public.atendimentos for select to authenticated
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:372:create policy atendimentos_insert on public.atendimentos for insert to authenticated
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:374:create policy atendimentos_update on public.atendimentos for update to authenticated
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:377:create policy atendimentos_delete on public.atendimentos for delete to authenticated
+supabase/migrations\20260811160000_etapa_2_1_pacientes_compartilhados.sql:380:create policy solicitacoes_select on public.solicitacoes_acesso for select to authenticated
+supabase/migrations\20260812020000_escopo_profissional_compartilhamento.sql:31:language plpgsql security definer
+supabase/migrations\20260812020000_escopo_profissional_compartilhamento.sql:64:returns jsonb language plpgsql security definer
+supabase/migrations\20260812020000_escopo_profissional_compartilhamento.sql:94:grant execute on function public.criar_acesso_responsavel(uuid, integer, text, text) to authenticated;
+supabase/migrations\20260812020000_escopo_profissional_compartilhamento.sql:96:grant execute on function public.obter_acompanhamento_responsavel(text) to anon, authenticated;
+supabase/migrations\20260812050000_corrigir_trigger_auditoria.sql:4:returns trigger language plpgsql security definer set search_path = '' as $$
+lib\supabase\admin.ts:13:  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+lib\supabase\admin.ts:14:  const adminKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
+supabase/migrations\20260812040000_reconciliar_audit_logs.sql:35:alter table public.audit_logs enable row level security;
+supabase/migrations\20260812040000_reconciliar_audit_logs.sql:36:alter table public.audit_logs force row level security;
+supabase/migrations\20260812040000_reconciliar_audit_logs.sql:38:create policy audit_logs_admin_select on public.audit_logs for select to authenticated
+supabase/migrations\20260812070000_dashboard_profissional.sql:10:language sql stable security definer set search_path = '' as $$
+supabase/migrations\20260812070000_dashboard_profissional.sql:22:grant execute on function public.avaliacoes_clinicas_profissional(date) to authenticated;
+supabase/migrations\20260812060000_dados_por_profissional.sql:31:create policy paciente_habilidades_insert on public.paciente_habilidades for insert to authenticated
+supabase/migrations\20260812060000_dados_por_profissional.sql:34:create policy paciente_habilidades_update on public.paciente_habilidades for update to authenticated
+supabase/migrations\20260812060000_dados_por_profissional.sql:51:returns trigger language plpgsql security definer set search_path = '' as $$
+supabase/migrations\20260812060000_dados_por_profissional.sql:83:language plpgsql security definer
+supabase/migrations\20260812060000_dados_por_profissional.sql:114:language sql stable security definer set search_path='pg_catalog','public' as $$
+supabase/migrations\20260812060000_dados_por_profissional.sql:123:returns void language plpgsql security definer set search_path='pg_catalog','public' as $$
+supabase/migrations\20260812060000_dados_por_profissional.sql:131:returns jsonb language plpgsql security definer
+supabase/migrations\20260812060000_dados_por_profissional.sql:162:grant execute on function public.listar_acessos_responsavel(uuid) to authenticated;
+supabase/migrations\20260812080000_duplicidade_secundaria_paciente.sql:14:language plpgsql stable security definer set search_path = '' as $$
+supabase/migrations\20260812080000_duplicidade_secundaria_paciente.sql:52:returns uuid language plpgsql security definer set search_path = '' as $$
+supabase/migrations\20260812080000_duplicidade_secundaria_paciente.sql:100:grant execute on function public.buscar_possiveis_duplicatas_paciente(text,date,text,text) to authenticated;
+supabase/migrations\20260812080000_duplicidade_secundaria_paciente.sql:101:grant execute on function public.criar_paciente_com_vinculo(text,text,text,date,text,text,text) to authenticated;
+supabase/migrations\20260812090000_papel_profissional.sql:37:returns void language plpgsql security definer
+supabase/migrations\20260812090000_papel_profissional.sql:60:grant execute on function public.atualizar_profile_admin(uuid,text,text) to authenticated;
+supabase/migrations\20260812100000_admin_principal.sql:52:returns void language plpgsql security definer
+supabase/migrations\20260812100000_admin_principal.sql:81:grant execute on function public.atualizar_profile_admin(uuid,text,text) to authenticated;
+supabase/migrations\20260812110000_profile_novo_usuario_profissional.sql:6:security definer
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:117:returns boolean language sql stable security definer set search_path='' as $$
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:124:returns boolean language sql stable security definer set search_path='' as $$
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:133:grant execute on function public.usuario_dono_plano(uuid) to authenticated;
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:134:grant execute on function public.usuario_pode_editar_alvo(uuid) to authenticated;
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:141:    execute format('alter table public.%I enable row level security',t);
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:142:    execute format('alter table public.%I force row level security',t);
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:148:create policy planos_select on public.planos_clinicos for select to authenticated
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:150:create policy planos_insert on public.planos_clinicos for insert to authenticated
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:152:create policy planos_update on public.planos_clinicos for update to authenticated
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:156:create policy objetivos_select on public.objetivos_clinicos for select to authenticated
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:158:create policy objetivos_insert on public.objetivos_clinicos for insert to authenticated
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:160:create policy objetivos_update on public.objetivos_clinicos for update to authenticated
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:163:create policy alvos_select on public.alvos_clinicos for select to authenticated
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:165:create policy alvos_insert on public.alvos_clinicos for insert to authenticated
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:168:create policy alvos_update on public.alvos_clinicos for update to authenticated
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:171:create policy definicoes_select on public.definicoes_operacionais_alvo for select to authenticated
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:173:create policy definicoes_insert on public.definicoes_operacionais_alvo for insert to authenticated
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:175:create policy medicoes_select on public.configuracoes_medicao_alvo for select to authenticated
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:177:create policy medicoes_insert on public.configuracoes_medicao_alvo for insert to authenticated
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:179:create policy criterios_select on public.criterios_dominio_alvo for select to authenticated
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:181:create policy criterios_insert on public.criterios_dominio_alvo for insert to authenticated
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:183:create policy fases_select on public.historico_fases_alvo for select to authenticated
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:185:create policy fases_insert on public.historico_fases_alvo for insert to authenticated
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:220:returns void language plpgsql security definer
+supabase/migrations\20260812120000_fundacao_clinica_aba.sql:239:grant execute on function public.alterar_fase_alvo(uuid,text,text) to authenticated;
+lib\registros\security-policies.test.ts:14:    expect(sessoesSql).toContain("create policy sessoes_clinicas_select")
+lib\registros\security-policies.test.ts:15:    expect(sessoesSql).not.toMatch(/create policy sessoes_clinicas_(insert|update|delete)/)
+lib\registros\security-policies.test.ts:20:    expect(auditoriaSql).toContain("alter table public.audit_logs force row level security")
+lib\registros\security-policies.test.ts:21:    expect(auditoriaSql).toContain("create policy audit_logs_admin_select")
+lib\registros\security-policies.test.ts:22:    expect(auditoriaSql).not.toMatch(/create policy audit_logs_(insert|update|delete)/)
+lib\registros\security-policies.test.ts:31:    expect(auditoriaSql).toContain("create policy habilidades_update")
+lib\registros\security-policies.test.ts:38:    expect(demonstracaoSql).toContain("grant execute on function public.obter_cenario_demonstracao() to authenticated")
+supabase/migrations\20260812130000_criacao_atomica_alvo.sql:14:returns uuid language plpgsql security definer
+supabase/migrations\20260812130000_criacao_atomica_alvo.sql:44:grant execute on function public.criar_alvo_clinico_com_configuracao(uuid,text,text,text,text,text,text,text,jsonb) to authenticated;
+lib\registros\responsavel\portal-service.ts:7: const supabase=createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,{auth:{persistSession:false,autoRefreshToken:false}});const{data,error}=await supabase.rpc("obter_acompanhamento_responsavel_v2",{p_token:token});if(error){reportServerError("obterPortalResponsavel",error);return null}if(!data)return null;const r=data as Raw
+supabase/migrations\20260812140000_criterio_dominio_versionado.sql:14:returns integer language plpgsql security definer
+supabase/migrations\20260812140000_criterio_dominio_versionado.sql:42:grant execute on function public.criar_criterio_dominio_alvo(uuid,text,numeric,integer,integer,integer,integer,integer,jsonb) to authenticated;
+supabase/migrations\20260812150000_sessoes_clinicas_estruturadas.sql:71:returns uuid language plpgsql security definer
+supabase/migrations\20260812150000_sessoes_clinicas_estruturadas.sql:108:alter table public.sessoes_clinicas enable row level security;
+supabase/migrations\20260812150000_sessoes_clinicas_estruturadas.sql:109:alter table public.sessoes_clinicas force row level security;
+supabase/migrations\20260812150000_sessoes_clinicas_estruturadas.sql:110:alter table public.registros_medicao enable row level security;
+supabase/migrations\20260812150000_sessoes_clinicas_estruturadas.sql:111:alter table public.registros_medicao force row level security;
+supabase/migrations\20260812150000_sessoes_clinicas_estruturadas.sql:114:create policy sessoes_clinicas_select on public.sessoes_clinicas for select to authenticated
+supabase/migrations\20260812150000_sessoes_clinicas_estruturadas.sql:116:create policy registros_medicao_select on public.registros_medicao for select to authenticated
+supabase/migrations\20260812150000_sessoes_clinicas_estruturadas.sql:122:returns trigger language plpgsql security definer set search_path='' as $$
+supabase/migrations\20260812150000_sessoes_clinicas_estruturadas.sql:141:grant execute on function public.registrar_sessao_clinica(uuid,date,text,text,jsonb) to authenticated;
+supabase/migrations\20260812160000_criterio_vigente_na_medicao.sql:9:returns trigger language plpgsql security definer set search_path='pg_catalog','public' as $$
+supabase/migrations\20260812170000_contexto_generalizacao_sessao.sql:10:returns uuid language plpgsql security definer set search_path='pg_catalog','public' set row_security=off as $$
+supabase/migrations\20260812170000_contexto_generalizacao_sessao.sql:20:grant execute on function public.registrar_sessao_clinica_v2(uuid,date,text,text,jsonb,text,text) to authenticated;
+supabase/migrations\20260812180000_protocolos_intervencao_versionados.sql:20:returns integer language plpgsql security definer set search_path='pg_catalog','public' set row_security=off as $$
+supabase/migrations\20260812180000_protocolos_intervencao_versionados.sql:32:alter table public.protocolos_intervencao_alvo enable row level security;
+supabase/migrations\20260812180000_protocolos_intervencao_versionados.sql:33:alter table public.protocolos_intervencao_alvo force row level security;
+supabase/migrations\20260812180000_protocolos_intervencao_versionados.sql:35:create policy protocolos_intervencao_select on public.protocolos_intervencao_alvo for select to authenticated using (public.usuario_admin() or exists(select 1 from public.alvos_clinicos a where a.id=alvo_id and a.profissional_id=auth.uid()));
+supabase/migrations\20260812180000_protocolos_intervencao_versionados.sql:39:returns trigger language plpgsql security definer set search_path='pg_catalog','public' as $$
+supabase/migrations\20260812180000_protocolos_intervencao_versionados.sql:47:returns trigger language plpgsql security definer set search_path='' as $$
+supabase/migrations\20260812180000_protocolos_intervencao_versionados.sql:56:grant execute on function public.criar_protocolo_intervencao_alvo(uuid,text,text,text,text,text,text,text) to authenticated;
+supabase/migrations\20260812190000_integridade_procedimental.sql:15:alter table public.integridade_procedimental enable row level security;
+supabase/migrations\20260812190000_integridade_procedimental.sql:16:alter table public.integridade_procedimental force row level security;
+supabase/migrations\20260812190000_integridade_procedimental.sql:18:create policy integridade_procedimental_select on public.integridade_procedimental for select to authenticated using (public.usuario_admin() or exists(select 1 from public.sessoes_clinicas s where s.id=sessao_id and s.profissional_id=auth.uid()));
+supabase/migrations\20260812190000_integridade_procedimental.sql:21:returns uuid language plpgsql security definer set search_path='pg_catalog','public' set row_security=off as $$
+supabase/migrations\20260812190000_integridade_procedimental.sql:40:grant execute on function public.registrar_sessao_clinica_v3(uuid,date,text,text,jsonb,text,text,jsonb) to authenticated;
+supabase/migrations\20260812190000_integridade_procedimental.sql:42:create or replace function public.auditar_integridade_procedimental() returns trigger language plpgsql security definer set search_path='' as $$
+supabase/migrations\20260812200000_observacoes_abc_funcionais.sql:16:alter table public.observacoes_abc enable row level security;
+supabase/migrations\20260812200000_observacoes_abc_funcionais.sql:17:alter table public.observacoes_abc force row level security;
+supabase/migrations\20260812200000_observacoes_abc_funcionais.sql:19:create policy observacoes_abc_select on public.observacoes_abc for select to authenticated using (public.usuario_admin() or profissional_id=auth.uid());
+supabase/migrations\20260812200000_observacoes_abc_funcionais.sql:22:returns uuid language plpgsql security definer set search_path='pg_catalog','public' set row_security=off as $$
+supabase/migrations\20260812200000_observacoes_abc_funcionais.sql:37:grant execute on function public.registrar_sessao_clinica_v4(uuid,date,text,text,jsonb,text,text,jsonb,jsonb) to authenticated;
+supabase/migrations\20260812200000_observacoes_abc_funcionais.sql:39:create or replace function public.auditar_observacao_abc() returns trigger language plpgsql security definer set search_path='' as $$
+supabase/migrations\20260812210000_planos_apoio_comportamental.sql:21:returns integer language plpgsql security definer set search_path='pg_catalog','public' set row_security=off as $$
+supabase/migrations\20260812210000_planos_apoio_comportamental.sql:32:alter table public.planos_apoio_comportamental_alvo enable row level security;
+supabase/migrations\20260812210000_planos_apoio_comportamental.sql:33:alter table public.planos_apoio_comportamental_alvo force row level security;
+supabase/migrations\20260812210000_planos_apoio_comportamental.sql:35:create policy planos_apoio_comportamental_select on public.planos_apoio_comportamental_alvo for select to authenticated using (public.usuario_admin() or exists(select 1 from public.alvos_clinicos a where a.id=alvo_id and a.profissional_id=auth.uid()));
+supabase/migrations\20260812210000_planos_apoio_comportamental.sql:37:create or replace function public.auditar_plano_apoio_comportamental() returns trigger language plpgsql security definer set search_path='' as $$
+supabase/migrations\20260812210000_planos_apoio_comportamental.sql:42:grant execute on function public.criar_plano_apoio_comportamental(uuid,text,text,text,text,text,text,text,text) to authenticated;
+lib\registros\clinico\capacitacao-aplicadores.test.ts:2:describe("capacitação de aplicadores",()=>{it("separa componentes do treino da competência observada",()=>{expect(sql).toContain("instrucao_realizada boolean");expect(sql).toContain("ensaio_realizado boolean");expect(sql).toContain("competencia_percentual numeric")});it("restringe alvo e acesso ao profissional",()=>{expect(sql).toContain("a.profissional_id=auth.uid()");expect(sql).toContain("profissional_id=auth.uid()")});it("não permite escrita direta nem audita observações",()=>{expect(sql).not.toMatch(/create policy .* for insert/);const a=sql.slice(sql.indexOf("create or replace function public.auditar_capacitacao_aplicador"));expect(a).not.toContain("new.observacoes");expect(a).not.toContain("new.habilidades_treinadas")})})
+supabase/migrations\20260812220000_revisoes_clinicas_alvo.sql:15:alter table public.revisoes_clinicas_alvo enable row level security;
+supabase/migrations\20260812220000_revisoes_clinicas_alvo.sql:16:alter table public.revisoes_clinicas_alvo force row level security;
+supabase/migrations\20260812220000_revisoes_clinicas_alvo.sql:18:create policy revisoes_clinicas_select on public.revisoes_clinicas_alvo for select to authenticated using (public.usuario_admin() or profissional_id=auth.uid());
+supabase/migrations\20260812220000_revisoes_clinicas_alvo.sql:21:returns uuid language plpgsql security definer set search_path='pg_catalog','public' set row_security=off as $$
+supabase/migrations\20260812220000_revisoes_clinicas_alvo.sql:35:create or replace function public.auditar_revisao_clinica() returns trigger language plpgsql security definer set search_path='' as $$
+supabase/migrations\20260812220000_revisoes_clinicas_alvo.sql:40:grant execute on function public.criar_revisao_clinica_alvo(uuid,date,date,text,text,date) to authenticated;
+supabase/migrations\20260812230000_validade_social_assentimento.sql:19:alter table public.registros_validade_social enable row level security;
+supabase/migrations\20260812230000_validade_social_assentimento.sql:20:alter table public.registros_validade_social force row level security;
+supabase/migrations\20260812230000_validade_social_assentimento.sql:22:create policy validade_social_select on public.registros_validade_social for select to authenticated using (public.usuario_admin() or profissional_id=auth.uid());
+supabase/migrations\20260812230000_validade_social_assentimento.sql:25:returns uuid language plpgsql security definer set search_path='pg_catalog','public' set row_security=off as $$
+supabase/migrations\20260812230000_validade_social_assentimento.sql:34:create or replace function public.auditar_validade_social() returns trigger language plpgsql security definer set search_path='' as $$
+supabase/migrations\20260812230000_validade_social_assentimento.sql:39:grant execute on function public.registrar_validade_social(uuid,uuid,text,boolean,integer,integer,integer,text,text,text,date) to authenticated;
+lib\registros\clinico\concordancia-observadores.test.ts:2:describe("concordância entre observadores",()=>{it("mantém a referência original em tabela sem policy de leitura",()=>{expect(sql).toContain("create table if not exists public.concordancia_referencias");expect(sql).not.toMatch(/create policy .* on public\.concordancia_referencias/)});it("exige observador distinto, ativo e vinculado",()=>{expect(sql).toContain("check(solicitante_id<>observador_id)");expect(sql).toContain("public.paciente_psicologos");expect(sql).toContain("p.status='ativo'")});it("resposta só ocorre uma vez e o cálculo é feito no servidor",()=>{expect(sql).toContain("s.status<>'pendente'");expect(sql).toContain("least(abs(v_ref),abs(p_valor_observador))*100");expect(sql).toContain("for update")});it("não audita valores cegos ou independentes",()=>{const a=sql.slice(sql.indexOf("create or replace function public.auditar_concordancia"));expect(a).not.toContain("new.valor_observador");expect(a).not.toContain("valor_referencia")})})
+supabase/migrations\20260812260000_remover_atendimentos_legados.sql:23:returns text language plpgsql security definer set search_path = '' as $$
+supabase/migrations\20260812260000_remover_atendimentos_legados.sql:41:returns jsonb language plpgsql security definer
+supabase/migrations\20260812240000_capacitacao_aplicadores.sql:21:alter table public.capacitacoes_aplicadores enable row level security;
+supabase/migrations\20260812240000_capacitacao_aplicadores.sql:22:alter table public.capacitacoes_aplicadores force row level security;
+supabase/migrations\20260812240000_capacitacao_aplicadores.sql:24:create policy capacitacoes_aplicadores_select on public.capacitacoes_aplicadores for select to authenticated using (public.usuario_admin() or profissional_id=auth.uid());
+supabase/migrations\20260812240000_capacitacao_aplicadores.sql:27:returns uuid language plpgsql security definer set search_path='pg_catalog','public' set row_security=off as $$
+supabase/migrations\20260812240000_capacitacao_aplicadores.sql:36:create or replace function public.auditar_capacitacao_aplicador() returns trigger language plpgsql security definer set search_path='' as $$
+supabase/migrations\20260812240000_capacitacao_aplicadores.sql:41:grant execute on function public.registrar_capacitacao_aplicador(uuid,uuid,text,text,boolean,boolean,boolean,boolean,numeric,text,text,date,date) to authenticated;
+supabase/migrations\20260812280000_modo_demonstracao_leitura.sql:8:security definer
+supabase/migrations\20260812280000_modo_demonstracao_leitura.sql:113:grant execute on function public.obter_cenario_demonstracao() to authenticated;
+supabase/migrations\20260812250000_concordancia_interobservadores.sql:14:alter table public.solicitacoes_concordancia enable row level security; alter table public.solicitacoes_concordancia force row level security;
+supabase/migrations\20260812250000_concordancia_interobservadores.sql:15:alter table public.concordancia_referencias enable row level security; alter table public.concordancia_referencias force row level security;
+supabase/migrations\20260812250000_concordancia_interobservadores.sql:17:create policy concordancia_participantes_select on public.solicitacoes_concordancia for select to authenticated using(public.usuario_admin() or auth.uid() in(solicitante_id,observador_id));
+supabase/migrations\20260812250000_concordancia_interobservadores.sql:32:create or replace function public.solicitar_concordancia(p_registro_medicao_id uuid,p_observador_id uuid) returns uuid language plpgsql security definer set search_path='pg_catalog','public' set row_security=off as $$
+supabase/migrations\20260812250000_concordancia_interobservadores.sql:42:create or replace function public.responder_concordancia(p_solicitacao_id uuid,p_valor_observador numeric) returns numeric language plpgsql security definer set search_path='pg_catalog','public' set row_security=off as $$
+supabase/migrations\20260812250000_concordancia_interobservadores.sql:45:create or replace function public.auditar_concordancia() returns trigger language plpgsql security definer set search_path='' as $$
+supabase/migrations\20260812250000_concordancia_interobservadores.sql:49:revoke all on function public.valor_medicao_comparavel(text,jsonb) from public;revoke all on function public.solicitar_concordancia(uuid,uuid) from public;grant execute on function public.solicitar_concordancia(uuid,uuid) to authenticated;revoke all on function public.responder_concordancia(uuid,numeric) from public;grant execute on function public.responder_concordancia(uuid,numeric) to authenticated;
+supabase/migrations\20260812420000_aplicar_decisao_fase.sql:5:returns void language plpgsql security definer set search_path='pg_catalog','public' set row_security=off as $$
+supabase/migrations\20260812420000_aplicar_decisao_fase.sql:27:grant execute on function public.aplicar_decisao_fase(uuid,text)to authenticated;
+lib\registros\clinico\fundacao-clinica.test.ts:11:    expect(sql).not.toMatch(/create policy (definicoes|medicoes|criterios|fases)_(update|delete)/)
+supabase/migrations\20260812310000_corrigir_trigger_criacao_profiles.sql:8:security definer
+lib\registros\clinico\integridade-procedimental.test.ts:14:    expect(sql).not.toMatch(/create policy .* for insert/)
+supabase/migrations\20260812360000_sintese_avaliacao_inicial.sql:23:alter table public.sinteses_avaliacao_inicial enable row level security;
+supabase/migrations\20260812360000_sintese_avaliacao_inicial.sql:24:alter table public.sinteses_avaliacao_inicial force row level security;
+supabase/migrations\20260812360000_sintese_avaliacao_inicial.sql:26:create policy sinteses_avaliacao_select on public.sinteses_avaliacao_inicial for select to authenticated
+supabase/migrations\20260812360000_sintese_avaliacao_inicial.sql:34:) returns uuid language plpgsql security definer set search_path='pg_catalog','public' set row_security=off as $$
+supabase/migrations\20260812360000_sintese_avaliacao_inicial.sql:56:create or replace function public.auditar_sintese_avaliacao_inicial() returns trigger language plpgsql security definer set search_path='' as $$
+supabase/migrations\20260812360000_sintese_avaliacao_inicial.sql:61:grant execute on function public.registrar_sintese_avaliacao_inicial(uuid,text,date,date,text,text,text,text,text,text,uuid[]) to authenticated;
+supabase/migrations\20260812350000_sessoes_pre_planejamento.sql:14:returns uuid language plpgsql security definer set search_path='pg_catalog','public' set row_security=off as $$
+supabase/migrations\20260812350000_sessoes_pre_planejamento.sql:37:returns uuid language plpgsql security definer set search_path='pg_catalog','public' set row_security=off as $$
+supabase/migrations\20260812350000_sessoes_pre_planejamento.sql:63:grant execute on function public.registrar_sessao_clinica_v5(uuid,date,text,text,jsonb,text,text,jsonb,jsonb,text) to authenticated;
+lib\registros\clinico\observacoes-abc.test.ts:14:    expect(sql).not.toMatch(/create policy .* for insert/)
+supabase/migrations\20260812410000_revisao_clinica_evidencias.sql:3:returns uuid language plpgsql security definer set search_path='pg_catalog','public' set row_security=off as $$
+supabase/migrations\20260812410000_revisao_clinica_evidencias.sql:15:grant execute on function public.criar_revisao_clinica_alvo_v2(uuid,date,date,text,text,date,boolean)to authenticated;
+supabase/migrations\20260812270000_corrigir_auditoria_sessoes.sql:6:security definer
+supabase/migrations\20260812460000_qualidade_dados_snapshot_revisao.sql:3:returns uuid language plpgsql security definer set search_path='pg_catalog','public' set row_security=off as $$
+supabase/migrations\20260812460000_qualidade_dados_snapshot_revisao.sql:16:grant execute on function public.criar_revisao_clinica_alvo_v4(uuid,date,date,text,text,date,boolean)to authenticated;
+supabase/migrations\20260812390000_tentativas_individuais.sql:3:create index if not exists tentativas_registro_ordem_idx on public.tentativas_individuais(registro_medicao_id,ordem);alter table public.tentativas_individuais enable row level security;alter table public.tentativas_individuais force row level security;
+supabase/migrations\20260812390000_tentativas_individuais.sql:4:drop policy if exists tentativas_select on public.tentativas_individuais;create policy tentativas_select on public.tentativas_individuais for select to authenticated using(profissional_id=auth.uid()and exists(select 1 from public.registros_medicao r join public.sessoes_clinicas s on s.id=r.sessao_id where r.id=registro_medicao_id and s.profissional_id=auth.uid()));
+supabase/migrations\20260812390000_tentativas_individuais.sql:5:create or replace function public.registrar_sessao_clinica_v6(p_paciente_id uuid,p_data date,p_contexto text,p_observacoes_privadas text,p_registros jsonb,p_ambiente_tipo text,p_aplicador_tipo text,p_integridade jsonb,p_observacoes_abc jsonb,p_finalidade text,p_tentativas jsonb default'[]')returns uuid language plpgsql security definer set search_path='pg_catalog','public' set row_security=off as $$
+supabase/migrations\20260812390000_tentativas_individuais.sql:10:revoke execute on function public.registrar_sessao_clinica_v5(uuid,date,text,text,jsonb,text,text,jsonb,jsonb,text)from authenticated;revoke all on function public.registrar_sessao_clinica_v6(uuid,date,text,text,jsonb,text,text,jsonb,jsonb,text,jsonb)from public;grant execute on function public.registrar_sessao_clinica_v6(uuid,date,text,text,jsonb,text,text,jsonb,jsonb,text,jsonb)to authenticated;notify pgrst,'reload schema';
+supabase/migrations\20260812300000_corrigir_descoberta_demonstracao.sql:8:security definer
+supabase/migrations\20260812300000_corrigir_descoberta_demonstracao.sql:113:grant execute on function public.obter_cenario_demonstracao() to authenticated;
+lib\registros\clinico\protocolos-intervencao.test.ts:9:    expect(sql).not.toMatch(/create policy .* for insert/)
+lib\registros\clinico\plano-apoio-comportamental.test.ts:13:    expect(sql).not.toMatch(/create policy .* for insert/)
+supabase/migrations\20260812370000_portal_series_clinicas.sql:12:language plpgsql security definer set search_path='pg_catalog','public','extensions' as $$
+supabase/migrations\20260812370000_portal_series_clinicas.sql:33:language sql stable security definer set search_path='pg_catalog','public' as $$
+supabase/migrations\20260812370000_portal_series_clinicas.sql:39:returns jsonb language plpgsql security definer set search_path='pg_catalog','public','extensions' set row_security=off as $$
+supabase/migrations\20260812370000_portal_series_clinicas.sql:62:grant execute on function public.criar_acesso_responsavel(uuid,integer,text,text,integer,uuid[],boolean,boolean,boolean,boolean)to authenticated;
+supabase/migrations\20260812370000_portal_series_clinicas.sql:63:revoke all on function public.listar_acessos_responsavel(uuid)from public;grant execute on function public.listar_acessos_responsavel(uuid)to authenticated;
+supabase/migrations\20260812380000_cancelamento_sessoes.sql:22:returns void language plpgsql security definer set search_path='pg_catalog','public' set row_security=off as $$
+supabase/migrations\20260812380000_cancelamento_sessoes.sql:34:returns void language plpgsql security definer set search_path='pg_catalog','public' set row_security=off as $$
+supabase/migrations\20260812380000_cancelamento_sessoes.sql:45:revoke all on function public.cancelar_sessao_clinica(uuid,text)from public;grant execute on function public.cancelar_sessao_clinica(uuid,text)to authenticated;
+supabase/migrations\20260812380000_cancelamento_sessoes.sql:46:revoke all on function public.restaurar_sessao_clinica(uuid,text)from public;grant execute on function public.restaurar_sessao_clinica(uuid,text)to authenticated;
+supabase/migrations\20260812400000_compartilhar_analise_tentativas.sql:8:language plpgsql security definer set search_path='pg_catalog','public' set row_security=off as $$
+supabase/migrations\20260812400000_compartilhar_analise_tentativas.sql:17:returns jsonb language plpgsql security definer set search_path='pg_catalog','public','extensions' set row_security=off as $$
+supabase/migrations\20260812400000_compartilhar_analise_tentativas.sql:40:grant execute on function public.criar_acesso_responsavel_v2(uuid,integer,text,text,integer,uuid[],boolean,boolean,boolean,boolean,boolean)to authenticated;
+supabase/migrations\20260812400000_compartilhar_analise_tentativas.sql:42:grant execute on function public.obter_acompanhamento_responsavel_v2(text)to anon,authenticated;
+supabase/migrations\20260812440000_correcao_administrativa_fase.sql:7:returns void language plpgsql security definer set search_path='pg_catalog','public' set row_security=off as $$
+supabase/migrations\20260812440000_correcao_administrativa_fase.sql:21:grant execute on function public.corrigir_fase_alvo(uuid,text,text,boolean)to authenticated;
+supabase/migrations\20260812450000_validade_social_snapshot_revisao.sql:3:returns uuid language plpgsql security definer set search_path='pg_catalog','public' set row_security=off as $$
+supabase/migrations\20260812450000_validade_social_snapshot_revisao.sql:14:grant execute on function public.criar_revisao_clinica_alvo_v3(uuid,date,date,text,text,date,boolean)to authenticated;
+supabase/migrations\20260812430000_demonstracao_tentativas.sql:3:returns jsonb language plpgsql stable security definer set search_path='pg_catalog','public' set row_security=off as $$
+supabase/migrations\20260812430000_demonstracao_tentativas.sql:11:grant execute on function public.obter_cenario_demonstracao_v2()to authenticated;
+lib\registros\clinico\revisoes-clinicas.test.ts:14:    expect(sql).not.toMatch(/create policy .* for insert/)
+supabase/migrations\20260812290000_navegacao_modo_demonstracao.sql:8:security definer
+supabase/migrations\20260812290000_navegacao_modo_demonstracao.sql:113:grant execute on function public.obter_cenario_demonstracao() to authenticated;
+lib\registros\clinico\sessoes-clinicas.test.ts:27:    expect(sql).not.toMatch(/create policy .* for insert/)
+lib\registros\clinico\sessoes-clinicas.test.ts:28:    expect(sql).not.toMatch(/create policy .* for update/)
+lib\registros\clinico\validade-social.test.ts:6:  it("não permite escrita direta nem copia relatos para auditoria",()=>{expect(sql).not.toMatch(/create policy .* for insert/);const a=sql.slice(sql.indexOf("create or replace function public.auditar_validade_social"));expect(a).not.toContain("new.relato");expect(a).not.toContain("new.adaptacoes_necessarias")})
+lib\registros\clinico\sintese-avaliacao-inicial.test.ts:11:    expect(sql).toContain("force row level security")
+lib\registros\clinico\tentativas-individuais.test.ts:2:describe("tentativas individuais",()=>{it("isola tentativas pelo autor da sessão",()=>{expect(sql).toContain("profissional_id=auth.uid()");expect(sql).toContain("s.profissional_id=auth.uid()");expect(sql).toContain("force row level security")});it("reconcilia total e independência com o agregado",()=>{expect(sql).toContain("v_total<>(v_registro.dados->>'oportunidades')::integer");expect(sql).toContain("v_independentes<>(v_registro.dados->>'respostas_independentes')::integer");expect(sql).toContain("trials_summary_mismatch")});it("limita resultados e níveis de ajuda",()=>{for(const v of["correta","incorreta","sem_resposta","independente","gestual","verbal","modelo","fisica_parcial","fisica_total"])expect(sql).toContain(v)});it("mantém detalhamento opcional",()=>{expect(sql).toContain("p_tentativas jsonb default'[]'")})})

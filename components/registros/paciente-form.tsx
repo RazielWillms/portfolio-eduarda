@@ -31,6 +31,7 @@ export function PacienteForm({ pacienteExistente }: PacienteFormProps) {
   const [nomeCompleto, setNomeCompleto] = useState(pacienteExistente?.nome_completo ?? "")
   const [nomeResponsavel, setNomeResponsavel] = useState(pacienteExistente?.nome_responsavel ?? "")
   const [cpfResponsavel, setCpfResponsavel] = useState(pacienteExistente?.cpf_responsavel ?? "")
+  const [cpfPaciente, setCpfPaciente] = useState(pacienteExistente?.cpf_paciente ?? "")
   const [dataNascimento, setDataNascimento] = useState(pacienteExistente?.data_nascimento ?? "")
   const [diagnostico, setDiagnostico] = useState(pacienteExistente?.diagnostico ?? "")
   const [contatos, setContatos] = useState(pacienteExistente?.contatos ?? "")
@@ -50,6 +51,7 @@ export function PacienteForm({ pacienteExistente }: PacienteFormProps) {
       nome_completo: nomeCompleto.trim(),
       nome_responsavel: nomeResponsavel.trim() || null,
       cpf_responsavel: cpfResponsavel.trim() || null,
+      cpf_paciente: cpfPaciente.trim() || null,
       data_nascimento: dataNascimento || null,
       diagnostico: diagnostico.trim() || null,
       contatos: contatos.trim() || null,
@@ -154,6 +156,14 @@ export function PacienteForm({ pacienteExistente }: PacienteFormProps) {
           </div>
 
           <div className="flex flex-col gap-2">
+            <Label htmlFor="cpfPaciente" className="flex items-center gap-1.5">
+              CPF do paciente (opcional)
+              <FieldHelp text="Quando informado, é o identificador mais forte para prevenir cadastros duplicados. Este dado não é revelado na busca de possíveis correspondências." />
+            </Label>
+            <Input id="cpfPaciente" value={cpfPaciente} onChange={(e)=>setCpfPaciente(e.target.value)} placeholder="000.000.000-00" inputMode="numeric" />
+          </div>
+
+          <div className="flex flex-col gap-2">
             <Label htmlFor="diagnostico" className="flex items-center gap-1.5">
               Diagnóstico (opcional)
               <FieldHelp text="Diagnóstico clínico do paciente, se já houver. Pode ser deixado em branco e preenchido depois." />
@@ -199,7 +209,7 @@ export function PacienteForm({ pacienteExistente }: PacienteFormProps) {
         <div className="flex flex-col gap-2">
           <Label htmlFor="observacoes" className="flex items-center gap-1.5">
             Observações gerais
-            <FieldHelp text="Informações úteis para a condução dos atendimentos: preferências, sensibilidades, rotina, etc." />
+            <FieldHelp text="Informações úteis para a condução das sessões: preferências, sensibilidades, rotina, etc." />
           </Label>
           <Textarea
             id="observacoes"
@@ -214,7 +224,7 @@ export function PacienteForm({ pacienteExistente }: PacienteFormProps) {
           <Button type="submit" disabled={enviando} className="rounded-xl font-bold">
             {enviando ? "Salvando..." : pacienteExistente ? "Salvar alterações" : "Cadastrar paciente"}
           </Button>
-          <Button type="button" variant="ghost" onClick={() => router.push("/registros/pacientes")}>
+          <Button type="button" variant="secondary" className="bg-slate-200 text-slate-700 hover:bg-slate-300 hover:text-slate-900" onClick={() => router.push("/registros/pacientes")}>
             Cancelar
           </Button>
         </div>
@@ -262,7 +272,6 @@ export function PacienteForm({ pacienteExistente }: PacienteFormProps) {
                     <Button
                       type="button"
                       size="sm"
-                      variant="outline"
                       disabled={solicitandoId === c.paciente_id || statusSolicitacao[c.paciente_id] === "enviada"}
                       onClick={() => handleSolicitarAcesso(c.paciente_id)}
                     >
@@ -282,7 +291,7 @@ export function PacienteForm({ pacienteExistente }: PacienteFormProps) {
           </div>
 
           <DialogFooter className="flex-col sm:flex-row gap-2">
-            <Button type="button" variant="ghost" onClick={() => setModalAberto(false)}>
+            <Button type="button" variant="secondary" className="bg-slate-200 text-slate-700 hover:bg-slate-300 hover:text-slate-900" onClick={() => setModalAberto(false)}>
               Voltar e revisar
             </Button>
             <Button type="button" onClick={() => setModalAberto(false)}>

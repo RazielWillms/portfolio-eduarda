@@ -112,7 +112,7 @@ export function HabilidadeForm({ habilidadeExistente }: HabilidadeFormProps) {
         <div className="flex flex-col gap-2 max-w-xs">
           <Label htmlFor="status" className="flex items-center gap-1.5">
             Status
-            <FieldHelp text="Habilidades inativas deixam de aparecer nos formulários de novo atendimento." />
+            <FieldHelp text="Habilidades inativas deixam de aparecer nas configurações clínicas disponíveis." />
           </Label>
           <Select value={status} onValueChange={(v) => setStatus(v as StatusHabilidade)}>
             <SelectTrigger id="status" className="w-full">

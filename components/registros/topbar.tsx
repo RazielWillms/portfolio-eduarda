@@ -3,10 +3,12 @@
 import { Menu, LogOut } from "lucide-react"
 import { signOut } from "@/lib/registros/actions"
 import type { Profile } from "@/lib/registros/types"
+import { FotoAvatar } from "@/components/registros/foto-avatar"
 
 const PAPEL_LABEL: Record<string, string> = {
   admin: "Administrador",
   profissional: "Profissional",
+  coordenacao: "Coordenação",
 }
 
 export function RegistrosTopbar({ profile, onOpenMenu }: { profile: Profile; onOpenMenu: () => void }) {
@@ -26,6 +28,7 @@ export function RegistrosTopbar({ profile, onOpenMenu }: { profile: Profile; onO
       </div>
 
       <div className="flex items-center gap-3">
+        <FotoAvatar nome={profile.nome} src={profile.foto_url} zoom={profile.foto_zoom} posX={profile.foto_pos_x} posY={profile.foto_pos_y} className="size-9" fallbackClassName="text-xs" />
         <div className="hidden sm:block text-right">
           <p className="text-sm font-semibold text-foreground">{profile.nome}</p>
           <p className="text-xs text-muted-foreground">{profile.admin_principal ? "Administrador principal" : PAPEL_LABEL[profile.papel]}</p>

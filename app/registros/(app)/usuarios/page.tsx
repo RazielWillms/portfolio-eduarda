@@ -29,7 +29,7 @@ export default async function UsuariosPage() {
         </p>
       </div>
 
-      <UsuariosTabela usuarios={usuarios} usuarioAtualId={profile.id} />
+      <UsuariosTabela usuarios={usuarios} usuarioAtualId={profile.id} podeRedefinirSenha={profile.admin_principal} />
 
       <div className="flex flex-col gap-4 max-w-xl">
         <h2 className="text-lg font-bold text-foreground">Novo usuário</h2>

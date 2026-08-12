@@ -14,7 +14,7 @@ export function RegistrosShell({ profile, children }: { profile: Profile; childr
       <RegistrosSidebarMobile papel={profile.papel} open={menuAberto} onClose={() => setMenuAberto(false)} />
       <div className="flex-1 flex flex-col min-w-0">
         <RegistrosTopbar profile={profile} onOpenMenu={() => setMenuAberto(true)} />
-        <main className="flex-1 p-4 lg:p-8">{children}</main>
+        <main className="flex-1 p-4 lg:px-6 lg:py-8">{children}</main>
       </div>
     </div>
   )

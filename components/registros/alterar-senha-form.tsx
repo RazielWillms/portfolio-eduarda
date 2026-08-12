@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 export function AlterarSenhaForm() {
+  const [senhaAtual, setSenhaAtual] = useState("")
   const [novaSenha, setNovaSenha] = useState("")
   const [confirmacao, setConfirmacao] = useState("")
   const [processando, setProcessando] = useState(false)
@@ -19,12 +20,13 @@ export function AlterarSenhaForm() {
     setErro("")
     setSucesso(false)
     setProcessando(true)
-    const resultado = await alterarMinhaSenha(novaSenha, confirmacao)
+    const resultado = await alterarMinhaSenha(senhaAtual, novaSenha, confirmacao)
     setProcessando(false)
     if (resultado && "error" in resultado) {
       setErro(resultado.error)
       return
     }
+    setSenhaAtual("")
     setNovaSenha("")
     setConfirmacao("")
     setSucesso(true)
@@ -33,6 +35,11 @@ export function AlterarSenhaForm() {
   return <form method="post" onSubmit={handleSubmit} className="flex max-w-md flex-col gap-5">
     {erro && <p role="alert" className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">{erro}</p>}
     {sucesso && <p role="status" className="flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm font-semibold"><CheckCircle2 className="size-4 text-primary" />Senha alterada com sucesso.</p>}
+    <div className="flex flex-col gap-2">
+      <Label htmlFor="senhaAtual">Senha atual</Label>
+      <Input id="senhaAtual" type="password" autoComplete="current-password" value={senhaAtual} onChange={(event) => setSenhaAtual(event.target.value)} required />
+      <p className="text-xs text-muted-foreground">Confirme sua identidade antes de definir uma nova senha.</p>
+    </div>
     <div className="flex flex-col gap-2">
       <Label htmlFor="novaSenha">Nova senha</Label>
       <Input id="novaSenha" type="password" autoComplete="new-password" minLength={8} value={novaSenha} onChange={(event) => setNovaSenha(event.target.value)} required />
