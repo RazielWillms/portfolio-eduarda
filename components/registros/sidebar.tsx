@@ -8,7 +8,7 @@ import type { Papel } from "@/lib/registros/types"
 
 const links = [
   { href: "/registros", label: "Painel", icon: LayoutDashboard },
-  { href: "/registros/agenda", label: "Agenda", icon: CalendarDays },
+  //{ href: "/registros/agenda", label: "Agenda", icon: CalendarDays },
   { href: "/registros/pacientes", label: "Pacientes", icon: Users },
   { href: "/registros/solicitacoes", label: "Solicitações", icon: UserRoundCheck },
   { href: "/registros/habilidades", label: "Habilidades", icon: Sparkles },
