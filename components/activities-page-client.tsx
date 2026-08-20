@@ -20,7 +20,7 @@ export function ActivitiesPageClient({ activities }: { activities: Activity[] })
 
   return (
     <main className="py-20">
-      <div className="container mx-auto px-4 space-y-10">
+      <div className="mx-auto max-w-6xl space-y-10 px-6">
         {/* Topo alinhado */}
         <div className="flex items-center justify-between flex-wrap gap-4">
           <Link

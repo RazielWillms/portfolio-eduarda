@@ -7,7 +7,7 @@ export function ActivitiesPreview() {
 
   return (
     <section id="atividades-preview" className="py-20">
-      <div className="container mx-auto px-4 space-y-8">
+      <div className="mx-auto max-w-6xl space-y-8 px-6">
         <div className="text-center space-y-3">
           <span className="text-sm font-bold uppercase tracking-widest text-primary">Interatividade</span>
           <h2 className="mt-2 text-4xl md:text-5xl font-extrabold text-foreground text-balance">

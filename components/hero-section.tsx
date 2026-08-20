@@ -29,7 +29,7 @@ export function HeroSection() {
           {/* Main heading */}
           <div>
             <h1 className="text-5xl md:text-6xl font-extrabold leading-tight text-foreground text-balance">
-              Psicóloga{" "}
+              <span className="block">Eduarda</span>
               <span
                 className="relative inline-block"
                 style={{
@@ -39,7 +39,7 @@ export function HeroSection() {
                   backgroundClip: "text",
                 }}
               >
-                Infantil
+                Psicóloga Infantil
               </span>
             </h1>
             <p className="mt-4 text-lg md:text-xl text-muted-foreground leading-relaxed max-w-lg text-pretty">
@@ -116,11 +116,6 @@ export function HeroSection() {
                 alt="Eduarda, psicóloga infantil especialista em TEA"
                 className="w-full h-full object-cover object-top"
               />
-              {/* Name overlay */}
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-6 pb-10">
-                <p className="text-white font-extrabold text-xl">Eduarda</p>
-                <p className="text-white/80 text-sm">Psicóloga Infantil · CRP 07/39525</p>
-              </div>
             </div>
           </div>
         </div>
