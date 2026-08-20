@@ -4,7 +4,8 @@ import { useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
 import { CheckCircle2, ClipboardCheck, Plus } from "lucide-react"
 import { registrarSinteseAvaliacao } from "@/lib/registros/actions"
-import type { SessaoClinicaComRegistros, SinteseAvaliacaoInicial } from "@/lib/registros/clinico/modelo"
+import type { SinteseAvaliacaoInicial } from "@/lib/registros/clinico/modelo"
+import type { SessaoAvaliacaoResumo } from "@/lib/registros/types"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -16,7 +17,7 @@ import { Textarea } from "@/components/ui/textarea"
 const finalidade:Record<string,string>={vinculo_acolhimento:"Vínculo e acolhimento",entrevista_responsaveis:"Entrevista com responsáveis",avaliacao_inicial:"Avaliação inicial",observacao_clinica:"Observação clínica",orientacao_equipe:"Orientação de equipe"}
 const hoje=()=>new Date().toISOString().slice(0,10)
 
-export function SinteseAvaliacaoInicial({pacienteId,sessoes,sinteses}:{pacienteId:string;sessoes:SessaoClinicaComRegistros[];sinteses:SinteseAvaliacaoInicial[]}){
+export function SinteseAvaliacaoInicial({pacienteId,sessoes,sinteses}:{pacienteId:string;sessoes:SessaoAvaliacaoResumo[];sinteses:SinteseAvaliacaoInicial[]}){
   const router=useRouter();const atual=sinteses[0]
   const [aberto,setAberto]=useState(sinteses.length===0);const [inicio,setInicio]=useState(atual?.periodo_inicio??hoje());const [fim,setFim]=useState(atual?.periodo_fim??hoje())
   const [fontes,setFontes]=useState(atual?.fontes_informacao??"");const [potencialidades,setPotencialidades]=useState(atual?.potencialidades??"")

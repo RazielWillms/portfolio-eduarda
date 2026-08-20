@@ -1,8 +1,9 @@
 "use client"
 
 import Link from "next/link"
+import { useEffect,useState } from "react"
 import { usePathname } from "next/navigation"
-import { CalendarCheck2, CalendarDays, CircleHelp, KeyRound, LayoutDashboard, Users, Sparkles, ClipboardList, PanelLeftClose, PanelLeftOpen, UserCog, UserRoundCheck, X } from "lucide-react"
+import { CalendarCheck2, CalendarDays, CircleHelp, KeyRound, LayoutDashboard, LoaderCircle, Users, Sparkles, ClipboardList, PanelLeftClose, PanelLeftOpen, UserCog, UserRoundCheck, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Papel } from "@/lib/registros/types"
 import type { Permissao } from "@/lib/registros/permissoes"
@@ -30,6 +31,8 @@ const linkAdmin = { href: "/registros/usuarios", label: "Usuários", icon: UserC
 
 export function RegistrosSidebar({ papel, permissoes, onNavigate, recolhida=false }: { papel: Papel; permissoes?:Permissao[]; onNavigate?: () => void; recolhida?: boolean }) {
   const pathname = usePathname()
+  const [navegando,setNavegando]=useState<string|null>(null)
+  useEffect(()=>setNavegando(null),[pathname])
   const itens = [...linksComuns, ...linksClinicos, ...linksAjuda, ...(permissoes?.includes("usuarios.visualizar") || (!permissoes&&papel === "admin") ? [linkAdmin] : [])]
 
   return (
@@ -41,7 +44,7 @@ export function RegistrosSidebar({ papel, permissoes, onNavigate, recolhida=fals
           <Link
             key={item.href}
             href={item.href}
-            onClick={onNavigate}
+            onClick={()=>{if(item.href!==pathname)setNavegando(item.href);onNavigate?.()}}
             className={cn(
               "flex items-center rounded-xl py-2.5 text-sm font-semibold transition-colors",
               recolhida?"justify-center px-2":"gap-3 px-3",
@@ -52,7 +55,7 @@ export function RegistrosSidebar({ papel, permissoes, onNavigate, recolhida=fals
             title={recolhida?item.label:undefined}
             aria-label={recolhida?item.label:undefined}
           >
-            <Icon className="size-4.5 shrink-0" />
+            {navegando===item.href?<LoaderCircle className="size-4.5 shrink-0 animate-spin"/>:<Icon className="size-4.5 shrink-0" />}
             {!recolhida&&item.label}
           </Link>
         )

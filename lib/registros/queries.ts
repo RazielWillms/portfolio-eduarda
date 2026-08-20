@@ -3,6 +3,7 @@
 // então o RLS aplica automaticamente as regras de visibilidade (admin vê tudo,
 // profissional só vê os dados autorizados pelas políticas e vínculos explícitos.
 import { createClient } from "@/lib/supabase/server"
+import { cache } from "react"
 import type {
   CandidatoDuplicataPaciente,
   Habilidade,
@@ -19,8 +20,9 @@ import { reportServerError } from "@/lib/server-log"
 import { assinarFoto } from "./fotos"
 import { permissoesLegadas, type Permissao } from "./permissoes"
 import type { ConfigPapeis } from "@/components/registros/papeis-acesso-form"
+import { measureServerOperation } from "@/lib/server-performance"
 
-export async function getProfile(): Promise<Profile | null> {
+export const getProfile=cache(async ():Promise<Profile|null>=>measureServerOperation("profile.current",async()=>{
   const supabase = await createClient()
   const { data: userData } = await supabase.auth.getUser()
   if (!userData?.user) return null
@@ -37,7 +39,7 @@ export async function getProfile(): Promise<Profile | null> {
     ? permissoesLegadas(data.papel,data.admin_principal)
     : ((permissoes??[]).map((item:{chave:string})=>item.chave) as Permissao[])
   return {...data,permissoes:efetivas,foto_url:await assinarFoto(supabase,data.foto_path)} as Profile
-}
+}))
 
 export async function getProfiles(): Promise<Profile[]> {
   const supabase = await createClient()
@@ -106,17 +108,24 @@ export async function getUsuariosAdminPaginados(input:{busca:string;profissaoId?
   return data as import("./types").UsuarioResumo[]
 }
 
-export async function getPainelProfissionalAgregado(){const supabase=await createClient(),{data,error}=await supabase.rpc("obter_painel_profissional_agregado");if(error){reportServerError("getPainelProfissionalAgregado",error);return null}return data as import("./types").PainelProfissionalAgregado}
-export async function getPainelCoordenacaoAgregado(){const supabase=await createClient(),{data,error}=await supabase.rpc("obter_painel_coordenacao_agregado");if(error){reportServerError("getPainelCoordenacaoAgregado",error);return null}return data as import("./types").PainelCoordenacaoAgregado}
+export async function getPainelProfissionalAgregado(){return measureServerOperation("dashboard.profissional",async()=>{const supabase=await createClient(),{data,error}=await supabase.rpc("obter_painel_profissional_agregado");if(error){reportServerError("getPainelProfissionalAgregado",error);return null}return data as import("./types").PainelProfissionalAgregado})}
+export async function getPainelCoordenacaoAgregado(){return measureServerOperation("dashboard.coordenacao",async()=>{const supabase=await createClient(),{data,error}=await supabase.rpc("obter_painel_coordenacao_agregado");if(error){reportServerError("getPainelCoordenacaoAgregado",error);return null}return data as import("./types").PainelCoordenacaoAgregado})}
+export async function getSessoesProfissionalPaginadas(input:{busca:string;inicio?:string;fim?:string;limite:number;offset:number}){return measureServerOperation("sessoes.listar_resumos",async()=>{const supabase=await createClient(),{data,error}=await supabase.rpc("listar_sessoes_profissional_paginadas",{p_busca:input.busca,p_inicio:input.inicio||null,p_fim:input.fim||null,p_limite:input.limite,p_offset:input.offset});if(error){reportServerError("getSessoesProfissionalPaginadas",error);return null}return(data??[])as import("./types").SessaoProfissionalResumo[]})}
+export async function getSessoesPacientePaginadas(input:{pacienteId:string;canceladas:boolean;limite:number;offset:number}){return measureServerOperation(input.canceladas?"sessoes.paciente_canceladas":"sessoes.paciente_ativas",async()=>{const supabase=await createClient(),{data,error}=await supabase.rpc("listar_sessoes_paciente_paginadas",{p_paciente_id:input.pacienteId,p_canceladas:input.canceladas,p_limite:input.limite,p_offset:input.offset});if(error){reportServerError("getSessoesPacientePaginadas",error);return null}return(data??[])as import("./types").SessaoPacienteResumo[]})}
+export async function getSessaoClinicaDetalhe(pacienteId:string,sessaoId:string){return measureServerOperation("sessoes.carregar_detalhe",async()=>{const supabase=await createClient(),{data,error}=await supabase.from("sessoes_clinicas").select("*, registros:registros_medicao(*, alvo:alvos_clinicos(id,nome), integridade:integridade_procedimental(*), tentativas:tentativas_individuais(*)), observacoes_abc(*)").eq("id",sessaoId).eq("paciente_id",pacienteId).maybeSingle();if(error){reportServerError("getSessaoClinicaDetalhe",error);return null}return data as unknown as SessaoClinicaComRegistros|null})}
+export async function getResumoClinicoPaciente(pacienteId:string){return measureServerOperation("paciente.resumo_clinico",async()=>{const supabase=await createClient(),{data,error}=await supabase.rpc("obter_resumo_clinico_paciente",{p_paciente_id:pacienteId});if(error){reportServerError("getResumoClinicoPaciente",error);return null}return data as import("./types").ResumoClinicoPaciente})}
+export async function getSessoesClinicasPacienteDesde(pacienteId:string,inicio?:string):Promise<SessaoClinicaComRegistros[]>{return measureServerOperation("analise.sessoes_periodo",async()=>{const supabase=await createClient();let consulta=supabase.from("sessoes_clinicas").select("*, registros:registros_medicao(*, alvo:alvos_clinicos(id,nome), integridade:integridade_procedimental(*), tentativas:tentativas_individuais(*)), observacoes_abc(*)").eq("paciente_id",pacienteId).is("deleted_at",null).order("data",{ascending:false});if(inicio)consulta=consulta.gte("data",inicio);const{data,error}=await consulta;if(error){reportServerError("getSessoesClinicasPacienteDesde",error);return[]}return(data??[])as unknown as SessaoClinicaComRegistros[]})}
+export async function getObservacoesAbcPaciente(pacienteId:string){return measureServerOperation("intervencao.observacoes_abc",async()=>{const supabase=await createClient(),{data,error}=await supabase.from("sessoes_clinicas").select("observacoes_abc(*)").eq("paciente_id",pacienteId).is("deleted_at",null);if(error){reportServerError("getObservacoesAbcPaciente",error);return[]}return(data??[]).flatMap(item=>item.observacoes_abc)as import("./clinico/modelo").ObservacaoAbc[]})}
 
 export async function getConfiguracaoPapeis():Promise<ConfigPapeis|null>{const supabase=await createClient(),{data,error}=await supabase.rpc("configuracao_papeis_acesso");if(error){reportServerError("getConfiguracaoPapeis",error);return null}return data as ConfigPapeis}
 
-export async function getAgendamentos(inicio:string,fim:string):Promise<Agendamento[]>{const supabase=await createClient(),{data,error}=await supabase.rpc("listar_agendamentos",{p_inicio:inicio,p_fim:fim});if(error){reportServerError("getAgendamentos",error);return[]}const agenda=(data??[])as Agendamento[],ids=agenda.filter(a=>a.status==="falta").map(a=>a.id);if(!ids.length)return agenda;const{data:ocorrencias,error:erroOcorrencias}=await supabase.from("ocorrencias_frequencia").select("id,agendamento_id,tipo,motivo").in("agendamento_id",ids).is("cancelado_em",null);if(erroOcorrencias){reportServerError("getAgendamentos.ocorrencias",erroOcorrencias);return agenda}const porAgenda=new Map((ocorrencias??[]).map(o=>[o.agendamento_id,o]));return agenda.map(a=>{const o=porAgenda.get(a.id);return o?{...a,ocorrencia_frequencia_id:o.id,ocorrencia_frequencia_tipo:o.tipo as TipoOcorrenciaFrequencia,ocorrencia_frequencia_motivo:o.motivo}:a})}
+export async function getAgendamentos(inicio:string,fim:string):Promise<Agendamento[]>{return measureServerOperation("agenda.listar",async()=>{const supabase=await createClient(),{data,error}=await supabase.rpc("listar_agendamentos",{p_inicio:inicio,p_fim:fim});if(error){reportServerError("getAgendamentos",error);return[]}const agenda=(data??[])as Agendamento[],ids=agenda.filter(a=>a.status==="falta").map(a=>a.id);if(!ids.length)return agenda;const{data:ocorrencias,error:erroOcorrencias}=await supabase.from("ocorrencias_frequencia").select("id,agendamento_id,tipo,motivo").in("agendamento_id",ids).is("cancelado_em",null);if(erroOcorrencias){reportServerError("getAgendamentos.ocorrencias",erroOcorrencias);return agenda}const porAgenda=new Map((ocorrencias??[]).map(o=>[o.agendamento_id,o]));return agenda.map(a=>{const o=porAgenda.get(a.id);return o?{...a,ocorrencia_frequencia_id:o.id,ocorrencia_frequencia_tipo:o.tipo as TipoOcorrenciaFrequencia,ocorrencia_frequencia_motivo:o.motivo}:a})})}
 export async function getOpcoesAgenda():Promise<OpcoesAgenda|null>{const supabase=await createClient(),{data,error}=await supabase.rpc("listar_opcoes_agendamento");if(error){reportServerError("getOpcoesAgenda",error);return null}return data as OpcoesAgenda}
 export async function getDisponibilidadesAgenda():Promise<DisponibilidadeProfissional[]>{const supabase=await createClient(),{data,error}=await supabase.from("disponibilidades_profissional").select("*").eq("ativo",true).order("dia_semana").order("hora_inicio");if(error){reportServerError("getDisponibilidadesAgenda",error);return[]}return(data??[])as DisponibilidadeProfissional[]}
 export async function getOpcoesFrequencia():Promise<OpcoesFrequencia|null>{const supabase=await createClient(),{data,error}=await supabase.rpc("opcoes_frequencia");if(error){reportServerError("getOpcoesFrequencia",error);return null}return data as OpcoesFrequencia}
 export async function getProfissoes(incluirInativas=false){const supabase=await createClient(),{data,error}=await supabase.rpc("listar_profissoes",{p_incluir_inativas:incluirInativas});if(error){reportServerError("getProfissoes",error);return[]}return(data??[])as import("./types").Profissao[]}
-export async function getRelatorioFrequencia(inicio:string,fim:string,profissionalId?:string,pacienteId?:string):Promise<RelatorioFrequencia>{const supabase=await createClient(),{data,error}=await supabase.rpc("relatorio_frequencia",{p_inicio:inicio,p_fim:fim,p_profissional_id:profissionalId||null,p_paciente_id:pacienteId||null});if(error){reportServerError("getRelatorioFrequencia",error);return{registros:[],profissionais:[],pacientes:[]}}const relatorio=data as RelatorioFrequencia,ids=relatorio.registros.map(r=>r.agendamento_id).filter((id):id is string=>!!id);if(!ids.length)return relatorio;const{data:agenda}=await supabase.from("agendamentos").select("id,inicio,fim").in("id",ids);const porId=new Map((agenda??[]).map(a=>[a.id,a]));return{...relatorio,registros:relatorio.registros.map(r=>{const a=r.agendamento_id?porId.get(r.agendamento_id):null;return a?{...r,agendamento_inicio:a.inicio,agendamento_fim:a.fim}:r})}}
+export async function getRelatorioFrequencia(inicio:string,fim:string,profissionalId?:string,pacienteId?:string):Promise<RelatorioFrequencia>{return measureServerOperation("frequencia.relatorio",async()=>{const supabase=await createClient(),{data,error}=await supabase.rpc("relatorio_frequencia",{p_inicio:inicio,p_fim:fim,p_profissional_id:profissionalId||null,p_paciente_id:pacienteId||null});if(error){reportServerError("getRelatorioFrequencia",error);return{registros:[],profissionais:[],pacientes:[]}}const relatorio=data as RelatorioFrequencia,ids=relatorio.registros.map(r=>r.agendamento_id).filter((id):id is string=>!!id);if(!ids.length)return relatorio;const{data:agenda}=await supabase.from("agendamentos").select("id,inicio,fim").in("id",ids);const porId=new Map((agenda??[]).map(a=>[a.id,a]));return{...relatorio,registros:relatorio.registros.map(r=>{const a=r.agendamento_id?porId.get(r.agendamento_id):null;return a?{...r,agendamento_inicio:a.inicio,agendamento_fim:a.fim}:r})}})}
+export async function getRelatorioFrequenciaPaginado(input:{inicio:string;fim:string;profissionalId?:string;pacienteId?:string;limite:number;offset:number}){return measureServerOperation("frequencia.relatorio_paginado",async()=>{const supabase=await createClient(),{data,error}=await supabase.rpc("relatorio_frequencia_paginado",{p_inicio:input.inicio,p_fim:input.fim,p_profissional_id:input.profissionalId||null,p_paciente_id:input.pacienteId||null,p_limite:input.limite,p_offset:input.offset});if(error){reportServerError("getRelatorioFrequenciaPaginado",error);return null}return data as import("./types").RelatorioFrequenciaPaginado})}
 export async function getSugestoesAgendamentoFrequencia(pacienteId:string,profissionalId:string,data:string):Promise<SugestaoAgendamentoFrequencia[]>{const supabase=await createClient(),{data:registros,error}=await supabase.rpc("sugerir_agendamentos_frequencia",{p_paciente_id:pacienteId,p_profissional_id:profissionalId,p_data:data});if(error){reportServerError("getSugestoesAgendamentoFrequencia",error);return[]}return(registros??[])as SugestaoAgendamentoFrequencia[]}
 
 export async function getProfissionaisVinculadosPaciente(pacienteId: string): Promise<ProfissionalResumo[]> {
@@ -134,15 +143,17 @@ export async function getAcessosResponsavel(pacienteId: string): Promise<AcessoR
 }
 
 export async function getPlanosClinicosPaciente(pacienteId: string): Promise<PlanoClinicoCompleto[]> {
-  const supabase = await createClient()
+ return measureServerOperation("clinico.planos_completos",async()=>{ const supabase = await createClient()
   const { data, error } = await supabase
     .from("planos_clinicos")
     .select("*, objetivos:objetivos_clinicos(*, alvos:alvos_clinicos(*, definicoes:definicoes_operacionais_alvo(*), medicoes:configuracoes_medicao_alvo(*), criterios:criterios_dominio_alvo(*), historico_fases:historico_fases_alvo(*), protocolos:protocolos_intervencao_alvo(*), planos_apoio:planos_apoio_comportamental_alvo(*), revisoes:revisoes_clinicas_alvo(*)))")
     .eq("paciente_id", pacienteId)
     .order("created_at", { ascending: false })
   if (error) { reportServerError("getPlanosClinicosPaciente", error); return [] }
-  return (data ?? []) as unknown as PlanoClinicoCompleto[]
+  return (data ?? []) as unknown as PlanoClinicoCompleto[] })
 }
+
+export async function getSessoesAvaliacaoPaciente(pacienteId:string):Promise<import("./types").SessaoAvaliacaoResumo[]>{return measureServerOperation("avaliacao.sessoes_resumo",async()=>{const supabase=await createClient(),{data:userData}=await supabase.auth.getUser();if(!userData.user)return[];const{data,error}=await supabase.from("sessoes_clinicas").select("id,paciente_id,profissional_id,data,contexto,finalidade").eq("paciente_id",pacienteId).eq("profissional_id",userData.user.id).is("deleted_at",null).in("finalidade",["vinculo_acolhimento","entrevista_responsaveis","avaliacao_inicial","observacao_clinica","orientacao_equipe"]).order("data",{ascending:false});if(error){reportServerError("getSessoesAvaliacaoPaciente",error);return[]}return(data??[])as import("./types").SessaoAvaliacaoResumo[]})}
 
 export async function getSessoesClinicasPaciente(pacienteId: string): Promise<SessaoClinicaComRegistros[]> {
   const supabase = await createClient()

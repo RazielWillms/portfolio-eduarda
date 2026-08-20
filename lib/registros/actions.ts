@@ -8,7 +8,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
-import { buscarPossiveisDuplicatasPaciente } from "./queries"
+import { buscarPossiveisDuplicatasPaciente,getSessaoClinicaDetalhe } from "./queries"
 import type { CandidatoDuplicataPaciente, Papel, TipoOcorrenciaFrequencia } from "./types"
 import { reportServerError } from "@/lib/server-log"
 import { extensaoFoto, FOTO_BUCKET, validarFoto } from "./fotos"
@@ -21,6 +21,9 @@ function missingDatabaseObjectMessage(message: string) {
   const match = message.match(/(?:column|relation) ["']?([a-zA-Z0-9_.]+)["']? does not exist/i)
   return match ? `O banco não possui o objeto esperado: ${match[1]}.` : `Falha estrutural do banco: ${message}`
 }
+
+export async function carregarDetalheSessao(input:{pacienteId:string;sessaoId:string}){if(!/^[0-9a-f-]{36}$/i.test(input.pacienteId)||!/^[0-9a-f-]{36}$/i.test(input.sessaoId))return genericError("Sessão inválida.");const data=await getSessaoClinicaDetalhe(input.pacienteId,input.sessaoId);if(!data)return genericError("A sessão não está disponível para seu perfil.");return{success:true,data}}
+export async function carregarFrequenciaParaCsv(input:{inicio:string;fim:string;profissionalId?:string;pacienteId?:string}){if(!/^\d{4}-\d{2}-\d{2}$/.test(input.inicio)||!/^\d{4}-\d{2}-\d{2}$/.test(input.fim))return genericError("Período inválido.");const{getRelatorioFrequencia}=await import("./queries");const data=await getRelatorioFrequencia(input.inicio,input.fim,input.profissionalId,input.pacienteId);return{success:true,data:data.registros}}
 
 // ---------- Auth ----------
 
