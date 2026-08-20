@@ -45,14 +45,23 @@ export function Navbar() {
           </a>
         </div>
 
-        {/* Mobile toggle */}
-        <button
-          className="md:hidden p-2 rounded-xl hover:bg-muted/50 transition-colors"
-          onClick={() => setOpen(!open)}
-          aria-label={open ? "Fechar menu" : "Abrir menu"}
-        >
-          {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+        {/* Navegação mobile: acesso profissional permanece sempre visível. */}
+        <div className="flex w-full items-center justify-between md:hidden">
+          <button
+            className="rounded-xl p-2 transition-colors hover:bg-muted/50"
+            onClick={() => setOpen(!open)}
+            aria-label={open ? "Fechar menu" : "Abrir menu"}
+            aria-expanded={open}
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+          <a
+            href="/registros/login"
+            className="inline-flex min-h-10 items-center rounded-xl border border-border bg-card px-3 text-xs font-bold text-foreground shadow-sm transition-colors hover:bg-muted"
+          >
+            Acesso profissional
+          </a>
+        </div>
       </div>
 
       {/* Mobile menu */}
@@ -74,13 +83,6 @@ export function Navbar() {
             className="inline-flex items-center justify-center bg-primary text-primary-foreground text-sm font-bold px-5 py-3 rounded-2xl hover:opacity-90 transition-opacity"
           >
             Agendar Atendimento
-          </a>
-          <a
-            href="/registros/login"
-            onClick={() => setOpen(false)}
-            className="text-center text-xs font-semibold text-muted-foreground/70 hover:text-muted-foreground transition-colors"
-          >
-            Acesso Profissional
           </a>
         </nav>
       )}

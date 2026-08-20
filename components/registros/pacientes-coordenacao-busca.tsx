@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { ChevronLeft, ChevronRight, Search, Users } from "lucide-react"
+import { ChevronLeft, ChevronRight, Search, SlidersHorizontal, Users } from "lucide-react"
 import { buscarPacientesCoordenacao } from "@/lib/registros/actions"
 import type { PacienteCoordenacaoResumo } from "@/lib/registros/types"
 import { SolicitarAcessoLista } from "@/components/registros/solicitar-acesso-lista"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 
 export function PacientesCoordenacaoBusca() {
   const [busca, setBusca] = useState("")
@@ -36,9 +37,10 @@ export function PacientesCoordenacaoBusca() {
   }, [busca, status, pagina])
 
   return <div className="space-y-4">
-    <div className="flex flex-col gap-3 rounded-2xl border bg-card p-4 sm:flex-row">
+    <div className="flex gap-2 rounded-2xl border bg-card p-3 sm:p-4">
       <div className="relative flex-1"><Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input value={busca} onChange={(event) => { setBusca(event.target.value); setPagina(0) }} placeholder="Buscar por paciente ou responsável..." className="pl-9" /></div>
-      <Select value={status} onValueChange={(valor) => { setStatus(valor); setPagina(0) }}><SelectTrigger className="w-full sm:w-40"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="ativo">Ativos</SelectItem><SelectItem value="inativo">Inativos</SelectItem><SelectItem value="todos">Todos</SelectItem></SelectContent></Select>
+      <div className="hidden sm:block"><Select value={status} onValueChange={(valor) => { setStatus(valor); setPagina(0) }}><SelectTrigger className="w-40"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="ativo">Ativos</SelectItem><SelectItem value="inativo">Inativos</SelectItem><SelectItem value="todos">Todos</SelectItem></SelectContent></Select></div>
+      <div className="sm:hidden"><Sheet><SheetTrigger asChild><Button type="button" size="icon" variant="secondary" className="relative"><SlidersHorizontal className="size-4" />{status !== "ativo" && <span className="absolute -right-1 -top-1 size-2.5 rounded-full bg-primary" />}</Button></SheetTrigger><SheetContent side="bottom" className="rounded-t-2xl bg-card"><SheetHeader><SheetTitle>Filtrar pacientes</SheetTitle><SheetDescription>Escolha quais cadastros deseja visualizar.</SheetDescription></SheetHeader><div className="space-y-2 px-4 pb-5"><label className="text-sm font-medium">Status</label><Select value={status} onValueChange={(valor) => { setStatus(valor); setPagina(0) }}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="ativo">Ativos</SelectItem><SelectItem value="inativo">Inativos</SelectItem><SelectItem value="todos">Todos</SelectItem></SelectContent></Select></div></SheetContent></Sheet></div>
     </div>
     <div className="overflow-hidden rounded-2xl border bg-card">
       {carregando ? <p className="p-10 text-center text-sm text-muted-foreground">Carregando pacientes...</p> : itens.map((item) => <div key={item.id} className="flex flex-col gap-3 border-b px-5 py-4 last:border-0 sm:flex-row sm:items-center sm:justify-between"><div className="min-w-0">{item.vinculado_usuario ? <Link href={`/registros/pacientes/${item.id}`} className="font-semibold text-primary hover:underline">{item.nome}</Link> : <p className="font-semibold">{item.nome}</p>}<p className="truncate text-xs text-muted-foreground">{item.responsavel ? `Responsável: ${item.responsavel} · ` : ""}{item.vinculado_usuario ? "Prontuário disponível" : "Prontuário não disponível"}</p></div><div className="flex flex-wrap items-center gap-2"><span className={item.profissionais_vinculados === 0 ? "rounded-full bg-amber-100 px-2 py-1 text-xs text-amber-800" : "inline-flex items-center gap-1 rounded-full bg-muted px-2 py-1 text-xs text-muted-foreground"}><Users className="size-3" />{item.profissionais_vinculados === 0 ? "Sem profissional" : `${item.profissionais_vinculados} profissional(is)`}</span>{!item.vinculado_usuario && <SolicitarAcessoLista pacienteId={item.id} />}</div></div>)}

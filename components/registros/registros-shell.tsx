@@ -14,8 +14,8 @@ export function RegistrosShell({ profile, children }: { profile: Profile; childr
 
   return (
     <div className="registros-form-scope flex min-h-screen items-stretch bg-background">
-      <RegistrosSidebarDesktop papel={profile.papel} permissoes={profile.permissoes} recolhida={sidebarRecolhida} onAlternar={alternarSidebar}/>
-      <RegistrosSidebarMobile papel={profile.papel} permissoes={profile.permissoes} open={menuAberto} onClose={() => setMenuAberto(false)} />
+      <RegistrosSidebarDesktop papel={profile.papel} permissoes={profile.permissoes} adminPrincipal={profile.admin_principal} recolhida={sidebarRecolhida} onAlternar={alternarSidebar}/>
+      <RegistrosSidebarMobile papel={profile.papel} permissoes={profile.permissoes} adminPrincipal={profile.admin_principal} open={menuAberto} onClose={() => setMenuAberto(false)} />
       <div className="flex min-w-0 flex-1 flex-col overflow-x-hidden">
         <div className="print:hidden"><RegistrosTopbar profile={profile} onOpenMenu={() => setMenuAberto(true)} /></div>
         <main className="min-w-0 flex-1 px-3 py-4 print:p-0 sm:px-4 lg:px-6 lg:py-8 lg:print:p-0">{children}</main>

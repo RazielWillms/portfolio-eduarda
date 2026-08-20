@@ -1,10 +1,9 @@
-import { BriefcaseMedical, ShieldAlert, Settings2 } from "lucide-react"
+import { ShieldAlert, UserPlus } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { getProfile, getProfissoes, getUsuariosAdminPaginados } from "@/lib/registros/queries"
-import { Input } from "@/components/ui/input"
-import { UsuarioForm } from "@/components/registros/usuario-form"
 import { UsuariosTabela } from "@/components/registros/usuarios-tabela"
+import { UsuariosFiltros } from "@/components/registros/usuarios-filtros"
 import { temPermissao } from "@/lib/registros/permissoes"
 
 export default async function UsuariosPage({searchParams}:{searchParams:Promise<{busca?:string;profissao?:string;papel?:string;status?:string;pagina?:string}>}) {
@@ -30,24 +29,19 @@ export default async function UsuariosPage({searchParams}:{searchParams:Promise<
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-start justify-between gap-3">
        <div>
         <h1 className="text-2xl font-bold text-foreground">Usuários</h1>
         <p className="text-sm text-muted-foreground mt-1">
           Gerencie os profissionais com acesso ao sistema. Somente administradores podem criar novos usuários.
         </p>
-       </div>{profile.admin_principal&&<div className="flex flex-wrap gap-2"><Button asChild variant="secondary"><Link href="/registros/usuarios/profissoes"><BriefcaseMedical className="size-4"/>Profissões</Link></Button><Button asChild><Link href="/registros/usuarios/papeis"><Settings2 className="size-4"/>Papéis e permissões</Link></Button></div>}
+       </div>{temPermissao(profile,"usuarios.criar")&&<Button asChild size="icon" className="shrink-0 sm:!h-9 sm:!w-auto sm:px-4"><Link href="/registros/usuarios/novo" aria-label="Novo usuário" title="Novo usuário"><UserPlus className="size-4"/><span className="hidden sm:inline">Novo usuário</span></Link></Button>}
       </div>
 
-      <form className="grid items-end gap-3 rounded-2xl border bg-card p-4 md:grid-cols-2 xl:grid-cols-[minmax(220px,1fr)_220px_180px_160px_auto]"><div className="space-y-2"><label className="text-sm font-medium" htmlFor="busca-usuario">Nome ou e-mail</label><Input id="busca-usuario" name="busca" defaultValue={filtros.busca??""} placeholder="Buscar usuário..."/></div><div className="space-y-2"><label className="text-sm font-medium" htmlFor="profissao-usuario">Profissão</label><select id="profissao-usuario" name="profissao" defaultValue={filtros.profissao??""} className="h-9 w-full rounded-md border border-input bg-card px-3 text-sm"><option value="">Todas</option>{profissoes.map(item=><option key={item.id} value={item.id}>{item.nome}{!item.ativo?" (inativa)":""}</option>)}</select></div><div className="space-y-2"><label className="text-sm font-medium" htmlFor="papel-usuario">Papel</label><select id="papel-usuario" name="papel" defaultValue={papel} className="h-9 w-full rounded-md border border-input bg-card px-3 text-sm"><option value="todos">Todos</option><option value="profissional">Profissional</option><option value="coordenacao">Coordenação</option><option value="admin">Administrador</option></select></div><div className="space-y-2"><label className="text-sm font-medium" htmlFor="status-usuario">Status</label><select id="status-usuario" name="status" defaultValue={status} className="h-9 w-full rounded-md border border-input bg-card px-3 text-sm"><option value="todos">Todos</option><option value="ativo">Ativo</option><option value="inativo">Inativo</option></select></div><Button>Aplicar filtros</Button></form>
+      <UsuariosFiltros busca={filtros.busca??""} profissao={filtros.profissao??""} papel={papel} status={status} profissoes={profissoes} />
 
       <UsuariosTabela usuarios={usuarios} profissoes={profissoes} usuarioAtualId={profile.id} podeRedefinirSenha={profile.admin_principal} />
       <div className="flex items-center justify-between"><p className="text-xs text-muted-foreground">{total} usuário(s)</p><div className="flex items-center gap-2"><Button asChild variant="secondary" size="sm" className={pagina===0?"pointer-events-none opacity-50":""}><Link href={hrefPagina(Math.max(0,pagina-1))}>Anterior</Link></Button><span className="text-sm">{pagina+1} de {paginas}</span><Button asChild variant="secondary" size="sm" className={pagina+1>=paginas?"pointer-events-none opacity-50":""}><Link href={hrefPagina(Math.min(paginas-1,pagina+1))}>Próxima</Link></Button></div></div>
-
-      <div className="flex flex-col gap-4 max-w-xl">
-        <h2 className="text-lg font-bold text-foreground">Novo usuário</h2>
-        <UsuarioForm profissoes={profissoes} />
-      </div>
     </div>
   )
 }

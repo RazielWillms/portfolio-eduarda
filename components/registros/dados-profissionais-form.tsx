@@ -22,7 +22,7 @@ export function DadosProfissionaisForm({ profissaoId, profissoes, conselhoNumero
   }
   return <form action={enviar} className="space-y-4">
     <div className="grid gap-4 sm:grid-cols-2">
-      <div className="space-y-2"><Label>Profissão</Label><Select value={profissao} onValueChange={setProfissao}><SelectTrigger><SelectValue placeholder="Selecione sua profissão" /></SelectTrigger><SelectContent><SelectItem value="nenhuma">Não informar</SelectItem>{profissoes.map(item => <SelectItem key={item.id} value={item.id}>{item.nome}</SelectItem>)}</SelectContent></Select>{selecionada?.conselho_sigla && <p className="text-xs text-muted-foreground">Conselho relacionado: {selecionada.conselho_sigla}</p>}</div>
+      <div className="space-y-2"><Label>Profissão</Label><Select value={profissao} onValueChange={setProfissao}><SelectTrigger className="w-full"><SelectValue placeholder="Selecione sua profissão" /></SelectTrigger><SelectContent><SelectItem value="nenhuma">Não informar</SelectItem>{profissoes.map(item => <SelectItem key={item.id} value={item.id}>{item.nome}</SelectItem>)}</SelectContent></Select>{selecionada?.conselho_sigla && <p className="text-xs text-muted-foreground">Conselho relacionado: {selecionada.conselho_sigla}</p>}</div>
       <Campo id="conselhoNumero" label="Número do registro" defaultValue={conselhoNumero} placeholder="Ex.: 00/123456" maxLength={40} />
       <Campo id="conselhoUf" label="UF do registro" defaultValue={conselhoUf} placeholder="Ex.: SC" maxLength={2} />
     </div>

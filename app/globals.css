@@ -107,6 +107,30 @@
   }
 }
 
+@media (max-width: 767px) {
+  .registros-form-scope nav[aria-label="Áreas do controle de frequência"] > div,
+  .registros-form-scope nav[aria-label="Áreas da agenda"] > div,
+  .registros-form-scope nav[aria-label="Formato da agenda"] > div {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-width: 100%;
+    width: 100%;
+  }
+  .registros-form-scope nav[aria-label="Áreas do controle de frequência"] button,
+  .registros-form-scope nav[aria-label="Áreas da agenda"] a,
+  .registros-form-scope nav[aria-label="Formato da agenda"] a {
+    justify-content: center;
+  }
+}
+
+@media (min-width: 768px) {
+  .registros-form-scope nav[aria-label="Áreas do controle de frequência"] button,
+  .registros-form-scope nav[aria-label="Áreas da agenda"] a,
+  .registros-form-scope nav[aria-label="Formato da agenda"] a {
+    padding-inline: 1.25rem;
+  }
+}
+
 /* Contraste dos formulários da área profissional, sem afetar o site público. */
 .registros-form-scope {
   --registros-field-background: oklch(0.995 0.003 210);
@@ -217,6 +241,23 @@
 @media (max-width: 639px) {
   .registros-form-scope form[role="dialog"] > .flex:last-child { flex-direction: column; }
   .registros-form-scope form[role="dialog"] > .flex:last-child > [data-slot="button"] { width: 100%; }
+
+  /* Registros de frequência tornam-se cards verticais legíveis. */
+  .registros-form-scope [data-slot="card-content"] > .flex.items-center.gap-3.border-b {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-block: 1rem;
+  }
+  .registros-form-scope [data-slot="card-content"] > .flex.items-center.gap-3.border-b > .min-w-24 {
+    min-width: 0;
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+  }
+  .registros-form-scope [data-slot="card-content"] > .flex.items-center.gap-3.border-b > [data-slot="button"] {
+    align-self: flex-start;
+    width: 100%;
+  }
 }
 
 /* Animações suaves */

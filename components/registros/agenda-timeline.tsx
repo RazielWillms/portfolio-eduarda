@@ -1,14 +1,9 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { useRouter } from "next/navigation"
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Clock } from "lucide-react"
+import { Clock } from "lucide-react"
 import type { Agendamento, DisponibilidadeProfissional, OpcoesAgenda, Papel, Profissao } from "@/lib/registros/types"
-import { SeletorBuscaOperacional } from "@/components/registros/seletor-busca-operacional"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { AgendaCabecalho } from "@/components/registros/agenda-cabecalho"
 import { cn } from "@/lib/utils"
 
 const ALTURA_HORA = 60
@@ -44,7 +39,6 @@ function posicionarEventos(eventos: Agendamento[]) {
 }
 
 export function AgendaTimeline({ agendamentos, disponibilidades, opcoes, profissoes, papel, referencia, visao }: { agendamentos: Agendamento[]; disponibilidades: DisponibilidadeProfissional[]; opcoes: OpcoesAgenda | null; profissoes: Profissao[]; papel: Papel; referencia: string; visao: "dia" | "semana" }) {
-  const router = useRouter()
   const podeGerir = papel !== "profissional"
   const [profissional, setProfissional] = useState("todos")
   const [profissionalNome, setProfissionalNome] = useState("")
@@ -61,25 +55,14 @@ export function AgendaTimeline({ agendamentos, disponibilidades, opcoes, profiss
   const fimDia = Math.min(24, Math.ceil(Math.max(...(limitesFim.length ? limitesFim : [1080])) / 60) + 1)
   const alturaGrade = (fimDia - inicioDia) * ALTURA_HORA + MARGEM_VERTICAL * 2
   const horas = Array.from({ length: fimDia - inicioDia + 1 }, (_, i) => inicioDia + i)
-
-  function navegar(dias: number) { const d = new Date(referenciaData); d.setDate(d.getDate() + dias); router.push(`/registros/agenda?data=${chaveData(d)}&visao=${visao}&formato=timeline`) }
-  function mudarVisao(valor: string) { router.push(`/registros/agenda?data=${referencia}&visao=${valor}&formato=timeline`) }
+  const fimPeriodo = new Date(inicio)
+  fimPeriodo.setDate(inicio.getDate() + dias.length - 1)
+  const periodo = visao === "semana"
+    ? `${inicio.toLocaleDateString("pt-BR", { day: "2-digit", month: "long" })} até ${fimPeriodo.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}`
+    : referenciaData.toLocaleDateString("pt-BR", { dateStyle: "long" })
 
   return <div className="space-y-4">
-    <div className="flex flex-col gap-4 rounded-2xl border bg-card p-4 xl:flex-row xl:items-end xl:justify-between">
-      <div className="space-y-2"><Label>Ir para uma data</Label><div className="grid grid-cols-4 items-center gap-2 sm:flex sm:flex-wrap">
-        <Button className="w-full" size="icon" variant="secondary" onClick={() => navegar(-7)} aria-label="Voltar uma semana"><ChevronsLeft className="size-4" /></Button>
-        <Button className="w-full" size="icon" variant="secondary" onClick={() => navegar(-1)} aria-label="Voltar um dia"><ChevronLeft className="size-4" /></Button>
-        <Input type="date" value={referencia} onChange={e => router.push(`/registros/agenda?data=${e.target.value}&visao=${visao}&formato=timeline`)} className="order-first col-span-4 w-full sm:order-none sm:w-40" />
-        <Button className="w-full" size="icon" variant="secondary" onClick={() => navegar(1)} aria-label="Avançar um dia"><ChevronRight className="size-4" /></Button>
-        <Button className="w-full" size="icon" variant="secondary" onClick={() => navegar(7)} aria-label="Avançar uma semana"><ChevronsRight className="size-4" /></Button>
-      </div></div>
-      <div className="flex flex-wrap gap-3">
-        <div className="space-y-2"><Label>Exibição</Label><Select value={visao} onValueChange={mudarVisao}><SelectTrigger className="w-36"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="dia">Um dia</SelectItem><SelectItem value="semana">Uma semana</SelectItem></SelectContent></Select></div>
-        {podeGerir && opcoes && <div className="w-full space-y-2 sm:w-64"><Label>Responsável</Label><SeletorBuscaOperacional tipo="profissional" value={profissional === "todos" ? "" : profissional} label={profissionalNome || "Toda a equipe"} profissoes={profissoes} allowClear onSelect={(item) => { setProfissional(item.id); setProfissionalNome(item.nome) }} onClear={() => { setProfissional("todos"); setProfissionalNome("") }} /></div>}
-        <div className="w-full space-y-2 sm:w-auto"><Label>Status</Label><Select value={status} onValueChange={setStatus}><SelectTrigger className={cn("w-full sm:w-44", status !== "todos" && statusCor[status])}><SelectValue /></SelectTrigger><SelectContent><SelectItem value="todos">Todos os status</SelectItem>{Object.entries(statusLabel).map(([v, l]) => <SelectItem key={v} value={v} className={cn("my-1 border", statusCor[v])}>{l}</SelectItem>)}</SelectContent></Select></div>
-      </div>
-    </div>
+    <AgendaCabecalho referencia={referencia} visao={visao} formato="timeline" periodo={periodo} podeGerir={podeGerir && Boolean(opcoes)} profissoes={profissoes} profissional={profissional} profissionalNome={profissionalNome} status={status} statusCor={statusCor} onProfissional={(item) => { setProfissional(item.id); setProfissionalNome(item.nome) }} onLimparProfissional={() => { setProfissional("todos"); setProfissionalNome("") }} onStatus={setStatus} />
 
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border bg-card px-4 py-3 text-xs" aria-label="Legenda de status da agenda">
       <span className="font-semibold text-muted-foreground">Legenda:</span>

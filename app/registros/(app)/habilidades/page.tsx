@@ -10,15 +10,15 @@ export default async function HabilidadesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Habilidades</h1>
           <p className="text-sm text-muted-foreground mt-1">Catálogo de habilidades e recursos clínicos.</p>
         </div>
-        {podeGerenciar && <Link href="/registros/habilidades/nova">
-          <Button className="rounded-xl font-bold gap-2">
+        {podeGerenciar && <Link href="/registros/habilidades/nova" aria-label="Nova habilidade" title="Nova habilidade">
+          <Button size="icon" className="shrink-0 rounded-xl font-bold sm:!h-9 sm:!w-auto sm:px-4">
             <Plus className="size-4" />
-            Nova habilidade
+            <span className="hidden sm:inline">Nova habilidade</span>
           </Button>
         </Link>}
       </div>

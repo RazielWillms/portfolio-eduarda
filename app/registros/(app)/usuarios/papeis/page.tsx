@@ -1,2 +1,10 @@
-import{redirect}from"next/navigation";import Link from"next/link";import{getConfiguracaoPapeis,getProfile}from"@/lib/registros/queries";import{PapeisAcessoForm}from"@/components/registros/papeis-acesso-form";import{Button}from"@/components/ui/button"
-export default async function Page(){const profile=await getProfile();if(!profile?.admin_principal)redirect("/registros/usuarios");const config=await getConfiguracaoPapeis();return <div className="space-y-6"><div className="flex items-start justify-between gap-4"><div><h1 className="text-2xl font-bold">Papéis e permissões</h1><p className="text-sm text-muted-foreground">Configure capacidades sem substituir vínculo, autoria ou políticas clínicas.</p></div><Button asChild variant="secondary"><Link href="/registros/usuarios">Voltar aos usuários</Link></Button></div>{config?<PapeisAcessoForm config={config}/>:<p>Não foi possível carregar a configuração.</p>}</div>}
+import { redirect } from "next/navigation"
+import { PapeisAcessoForm } from "@/components/registros/papeis-acesso-form"
+import { getConfiguracaoPapeis, getProfile } from "@/lib/registros/queries"
+
+export default async function PapeisPage() {
+  const profile = await getProfile()
+  if (!profile?.admin_principal) redirect("/registros/usuarios")
+  const config = await getConfiguracaoPapeis()
+  return config ? <PapeisAcessoForm config={config} /> : <p>Não foi possível carregar a configuração.</p>
+}

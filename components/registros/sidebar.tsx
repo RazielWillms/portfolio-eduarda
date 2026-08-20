@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useEffect,useState } from "react"
 import { usePathname } from "next/navigation"
-import { CalendarCheck2, CalendarDays, CircleHelp, KeyRound, LayoutDashboard, LoaderCircle, Users, Sparkles, ClipboardList, PanelLeftClose, PanelLeftOpen, UserCog, UserRoundCheck, X } from "lucide-react"
+import { BriefcaseMedical, CalendarCheck2, CalendarDays, CircleHelp, KeyRound, LayoutDashboard, LoaderCircle, Users, ShieldCheck, Sparkles, ClipboardList, PanelLeftClose, PanelLeftOpen, UserCog, UserRoundCheck, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Papel } from "@/lib/registros/types"
 import type { Permissao } from "@/lib/registros/permissoes"
@@ -27,18 +27,27 @@ const linksAjuda = [
   { href: "/registros/conta", label: "Minha conta", icon: KeyRound },
 ]
 
-const linkAdmin = { href: "/registros/usuarios", label: "Usuários", icon: UserCog }
+const linksAdmin = [
+  { href: "/registros/usuarios", label: "Usuários", icon: UserCog, exato: true },
+  { href: "/registros/usuarios/profissoes", label: "Profissões", icon: BriefcaseMedical, exato: false },
+  { href: "/registros/usuarios/papeis", label: "Papéis", icon: ShieldCheck, exato: false },
+]
 
-export function RegistrosSidebar({ papel, permissoes, onNavigate, recolhida=false }: { papel: Papel; permissoes?:Permissao[]; onNavigate?: () => void; recolhida?: boolean }) {
+export function RegistrosSidebar({ papel, permissoes, adminPrincipal=false, onNavigate, recolhida=false }: { papel: Papel; permissoes?:Permissao[]; adminPrincipal?:boolean; onNavigate?: () => void; recolhida?: boolean }) {
   const pathname = usePathname()
   const [navegando,setNavegando]=useState<string|null>(null)
   useEffect(()=>setNavegando(null),[pathname])
-  const itens = [...linksComuns, ...linksClinicos, ...linksAjuda, ...(permissoes?.includes("usuarios.visualizar") || (!permissoes&&papel === "admin") ? [linkAdmin] : [])]
+  const podeVerUsuarios=permissoes?.includes("usuarios.visualizar") || (!permissoes&&papel === "admin")
+  const itens = [...linksComuns, ...linksClinicos, ...linksAjuda, ...(podeVerUsuarios ? [linksAdmin[0]] : []), ...(adminPrincipal ? linksAdmin.slice(1) : [])]
 
   return (
     <nav className={cn("flex flex-col gap-1",recolhida?"px-2 py-4":"p-4")}>
       {itens.map((item) => {
-        const ativo = item.href === "/registros" ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`)
+        const ativo = item.href === "/registros"
+          ? pathname === item.href
+          : "exato" in item && item.exato
+            ? pathname === item.href || pathname.startsWith(`${item.href}/novo`)
+            : pathname === item.href || pathname.startsWith(`${item.href}/`)
         const Icon = item.icon
         return (
           <Link
@@ -64,7 +73,7 @@ export function RegistrosSidebar({ papel, permissoes, onNavigate, recolhida=fals
   )
 }
 
-export function RegistrosSidebarDesktop({ papel,permissoes,recolhida,onAlternar }: { papel: Papel;permissoes?:Permissao[];recolhida:boolean;onAlternar:()=>void }) {
+export function RegistrosSidebarDesktop({ papel,permissoes,adminPrincipal,recolhida,onAlternar }: { papel: Papel;permissoes?:Permissao[];adminPrincipal:boolean;recolhida:boolean;onAlternar:()=>void }) {
   return (
     <aside className={cn("sticky top-0 hidden h-screen shrink-0 flex-col overflow-y-auto border-r border-border bg-card transition-[width] duration-200 print:hidden lg:flex",recolhida?"w-20":"w-64")}>
       <div className={cn("flex h-20 shrink-0 items-center justify-between border-b border-border",recolhida?"px-1":"gap-2 px-5")}>
@@ -73,7 +82,7 @@ export function RegistrosSidebarDesktop({ papel,permissoes,recolhida,onAlternar 
           {recolhida?<PanelLeftOpen className="size-5"/>:<PanelLeftClose className="size-5"/>}
         </button>
       </div>
-      <RegistrosSidebar papel={papel} permissoes={permissoes} recolhida={recolhida}/>
+      <RegistrosSidebar papel={papel} permissoes={permissoes} adminPrincipal={adminPrincipal} recolhida={recolhida}/>
     </aside>
   )
 }
@@ -81,11 +90,13 @@ export function RegistrosSidebarDesktop({ papel,permissoes,recolhida,onAlternar 
 export function RegistrosSidebarMobile({
   papel,
   permissoes,
+  adminPrincipal,
   open,
   onClose,
 }: {
   papel: Papel
   permissoes?:Permissao[]
+  adminPrincipal:boolean
   open: boolean
   onClose: () => void
 }) {
@@ -102,7 +113,7 @@ export function RegistrosSidebarMobile({
             <X className="size-5" />
           </button>
         </div>
-        <RegistrosSidebar papel={papel} permissoes={permissoes} onNavigate={onClose} />
+        <RegistrosSidebar papel={papel} permissoes={permissoes} adminPrincipal={adminPrincipal} onNavigate={onClose} />
       </aside>
     </div>
   )
