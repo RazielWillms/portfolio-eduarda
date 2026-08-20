@@ -14,12 +14,14 @@ export interface Profile {
   papel: Papel
   status: StatusUsuario
   admin_principal: boolean
+  permissoes?: import("./permissoes").Permissao[]
   foto_path: string | null
   foto_url?: string | null
   foto_zoom: number
   foto_pos_x: number
   foto_pos_y: number
   profissao: string | null
+  profissao_id: string | null
   conselho_tipo: string | null
   conselho_numero: string | null
   conselho_uf: string | null
@@ -82,8 +84,24 @@ export interface Paciente {
 }
 
 export type StatusAgendamento="agendado"|"confirmado"|"realizado"|"cancelado"|"falta"|"reagendado"
-export interface Agendamento{id:string;paciente_id:string;profissional_id:string;inicio:string;fim:string;finalidade:string;modalidade:string;local:string|null;status:StatusAgendamento;observacao_administrativa:string|null;sessao_id:string|null;paciente_nome:string;profissional_nome:string;pode_iniciar:boolean}
-export interface OpcoesAgenda{pacientes:{id:string;nome:string;status:string}[];profissionais:{id:string;nome:string;profissao:string|null}[]}
+export interface Agendamento{id:string;paciente_id:string;profissional_id:string;inicio:string;fim:string;finalidade:string;modalidade:string;local:string|null;status:StatusAgendamento;observacao_administrativa:string|null;sessao_id:string|null;paciente_nome:string;profissional_nome:string;pode_iniciar:boolean;updated_at:string;cancelamento_motivo:string|null;ocorrencia_frequencia_id?:string|null;ocorrencia_frequencia_tipo?:TipoOcorrenciaFrequencia|null;ocorrencia_frequencia_motivo?:string|null;historico:{tipo:"reagendamento"|"edicao";inicio_anterior:string;fim_anterior:string;inicio_novo:string;fim_novo:string;motivo:string;created_at:string}[]}
+export interface OpcoesAgenda{pacientes:{id:string;nome:string;status:string;profissionais_vinculados:number}[];profissionais:{id:string;nome:string;profissao:string|null}[]}
+export interface DisponibilidadeProfissional{id:string;profissional_id:string;dia_semana:number;hora_inicio:string;hora_fim:string;ativo:boolean}
+export interface ConsultaDisponibilidade{profissional_id:string;profissional_nome:string;profissao:string|null;status:"disponivel"|"ocupado"|"fora_expediente"|"indisponivel"|"nao_configurada";motivo:string|null}
+export interface HorarioDisponivelAgenda{inicio:string;fim:string}
+export interface Profissao{id:string;nome:string;conselho_sigla:string|null;ativo:boolean;ordem:number}
+export interface PacienteBuscaOperacional{id:string;nome:string;responsavel:string|null;status:string;total:number}
+export interface PacienteCoordenacaoResumo extends PacienteBuscaOperacional{profissionais_vinculados:number;vinculado_usuario:boolean}
+export interface ProfissionalBuscaOperacional{id:string;nome:string;profissao_id:string|null;profissao:string|null;conselho_sigla:string|null;total:number}
+export interface UsuarioResumo{id:string;nome:string;email:string;papel:Papel;status:StatusUsuario;admin_principal:boolean;profissao_id:string|null;profissao:string|null;total:number}
+export interface PainelProfissionalAgregado{totais:{pacientes_ativos:number;sessoes_mes:number;alvos_ativos:number;configuracoes_pendentes:number;solicitacoes_pendentes:number};proximo_compromisso:{id:string;paciente_id:string;paciente_nome:string;inicio:string}|null;pacientes:{id:string;nome:string;alvos_ativos:number;sessoes_mes:number;ultima_sessao:string|null}[];sessoes_recentes:{id:string;paciente_id:string;paciente_nome:string;data:string;contexto:string;alvos:number}[]}
+export interface PainelCoordenacaoAgregado{compromissos_7_dias:number;pacientes_ativos:number;pacientes_sem_profissional:number;proximo:{id:string;paciente_id:string;paciente_nome:string;profissional_nome:string;inicio:string;pode_iniciar:boolean}|null}
+export interface ResultadoSerieAgendamentos{serie_id:string|null;criados:number;conflitos:{data:string;motivo:string}[]}
+export type TipoOcorrenciaFrequencia="falta_justificada"|"falta_nao_justificada"|"cancelamento_clinica"|"cancelamento_profissional"
+export interface OpcoesFrequencia{pacientes:{id:string;nome:string}[];profissionais:{id:string;nome:string;profissao:string|null}[]}
+export interface SugestaoAgendamentoFrequencia{id:string;inicio:string;fim:string;status:string;finalidade:string}
+export interface OcorrenciaFrequencia{id:string;paciente_id:string;paciente_nome:string;profissional_id:string;profissional_nome:string;agendamento_id:string|null;agendamento_inicio?:string|null;agendamento_fim?:string|null;agendamento_status_anterior?:string|null;data_ocorrencia:string;tipo:TipoOcorrenciaFrequencia;motivo:string|null;observacao_administrativa:string|null;criado_por:string;created_at:string}
+export interface RelatorioFrequencia{registros:OcorrenciaFrequencia[];profissionais:{id:string;nome:string;total:number;justificadas:number;nao_justificadas:number;cancelamentos:number}[];pacientes:{id:string;nome:string;total_faltas:number;justificadas:number;nao_justificadas:number}[]}
 
 export type StatusSolicitacaoAcesso = "pendente" | "aprovado" | "negado"
 
@@ -115,6 +133,7 @@ export interface SolicitacaoAcessoComRelacoes extends SolicitacaoAcesso {
   paciente: Pick<Paciente, "id" | "nome_completo"> | null
   solicitante: Pick<Profile, "id" | "nome" | "email">
 }
+export interface SolicitacaoAcessoPaginada extends SolicitacaoAcesso {paciente_nome:string;solicitante_nome:string;solicitante_email:string;total:number}
 
 export function calcularIdade(dataNascimentoISO: string | null): number | null {
   if (!dataNascimentoISO) return null

@@ -9,7 +9,7 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { buscarPossiveisDuplicatasPaciente } from "./queries"
-import type { CandidatoDuplicataPaciente, Papel } from "./types"
+import type { CandidatoDuplicataPaciente, Papel, TipoOcorrenciaFrequencia } from "./types"
 import { reportServerError } from "@/lib/server-log"
 import { extensaoFoto, FOTO_BUCKET, validarFoto } from "./fotos"
 
@@ -73,7 +73,19 @@ export async function signOut() {
 }
 
 export async function criarAgendamento(input:{pacienteId:string;profissionalId:string;inicio:string;fim:string;finalidade:string;modalidade:string;local:string;observacao:string}){const supabase=await createClient(),{error}=await supabase.rpc("criar_agendamento",{p_paciente_id:input.pacienteId,p_profissional_id:input.profissionalId,p_inicio:input.inicio,p_fim:input.fim,p_finalidade:input.finalidade,p_modalidade:input.modalidade,p_local:input.local,p_observacao:input.observacao});if(error){reportServerError("criarAgendamento",error);if(error.message.includes("schedule_conflict")||error.code==="23P01")return genericError("Este profissional já possui um compromisso no horário.");if(error.code==="42501")return genericError("Somente coordenação ou administração pode criar agendamentos.");return genericError("Não foi possível criar o agendamento.")}revalidatePath("/registros/agenda");revalidatePath("/registros");return{success:true}}
-export async function atualizarStatusAgendamento(id:string,status:"agendado"|"confirmado"|"cancelado"|"falta"){const supabase=await createClient(),{error}=await supabase.rpc("atualizar_status_agendamento",{p_id:id,p_status:status});if(error){reportServerError("atualizarStatusAgendamento",error);return genericError("Não foi possível atualizar o compromisso.")}revalidatePath("/registros/agenda");revalidatePath("/registros");return{success:true}}
+export async function atualizarStatusAgendamento(id:string,status:"confirmado"|"falta"){const supabase=await createClient(),{error}=await supabase.rpc("atualizar_status_agendamento",{p_id:id,p_status:status});if(error){reportServerError("atualizarStatusAgendamento",error);if(error.code==="22023")return genericError("O compromisso foi alterado e esta ação não é mais permitida.");return genericError("Não foi possível atualizar o compromisso.")}revalidatePath("/registros/agenda");revalidatePath("/registros");return{success:true}}
+export async function aceitarAtribuicaoAgendamento(id:string){const supabase=await createClient(),{error}=await supabase.rpc("aceitar_atribuicao_agendamento",{p_agendamento_id:id});if(error){reportServerError("aceitarAtribuicaoAgendamento",error);return genericError("Não foi possível aceitar a atribuição deste paciente.")}revalidatePath("/registros/agenda");revalidatePath("/registros/pacientes");return{success:true}}
+export async function reagendarAgendamento(input:{id:string;inicio:string;fim:string;motivo:string}){const supabase=await createClient(),{error}=await supabase.rpc("reagendar_agendamento",{p_id:input.id,p_inicio:input.inicio,p_fim:input.fim,p_motivo:input.motivo});if(error){reportServerError("reagendarAgendamento",error);if(error.code==="23P01")return genericError(error.message.includes("patient_conflict")?"O paciente já possui compromisso neste horário.":"O profissional está ocupado ou fora da disponibilidade configurada.");if(error.code==="22023")return genericError("Revise o novo horário e informe um motivo com pelo menos 5 caracteres.");return genericError("Não foi possível reagendar o compromisso.")}revalidatePath("/registros/agenda");revalidatePath("/registros");return{success:true}}
+export async function salvarDisponibilidadeProfissional(profissionalId:string,periodos:{dia_semana:number;hora_inicio:string;hora_fim:string}[]){const supabase=await createClient(),{error}=await supabase.rpc("salvar_disponibilidade",{p_profissional_id:profissionalId,p_periodos:periodos});if(error){reportServerError("salvarDisponibilidadeProfissional",error);if(error.code==="42501")return genericError("Você não pode alterar a disponibilidade deste profissional.");return genericError("Revise os dias e horários informados.")}revalidatePath("/registros/agenda");return{success:true}}
+export async function cancelarAgendamento(input:{id:string;motivo:string;updatedAt:string}){const supabase=await createClient(),{error}=await supabase.rpc("cancelar_agendamento",{p_id:input.id,p_motivo:input.motivo,p_updated_at:input.updatedAt});if(error){reportServerError("cancelarAgendamento",error);if(error.code==="40001")return genericError("O compromisso foi alterado por outra pessoa. Atualize a página antes de cancelar.");if(error.code==="22023")return genericError("Informe uma justificativa com pelo menos 5 caracteres.");return genericError("Não foi possível cancelar o compromisso.")}revalidatePath("/registros/agenda");revalidatePath("/registros");return{success:true}}
+export async function editarAgendamento(input:{id:string;profissionalId:string;finalidade:string;modalidade:string;local:string;observacao:string;motivo:string;updatedAt:string}){const supabase=await createClient(),{error}=await supabase.rpc("editar_agendamento",{p_id:input.id,p_profissional_id:input.profissionalId,p_finalidade:input.finalidade,p_modalidade:input.modalidade,p_local:input.local,p_observacao:input.observacao,p_motivo:input.motivo,p_updated_at:input.updatedAt});if(error){reportServerError("editarAgendamento",error);if(error.code==="40001")return genericError("O compromisso foi alterado por outra pessoa. Atualize a página antes de editar.");if(error.code==="23P01")return genericError("O novo profissional está ocupado ou indisponível neste horário.");return genericError("Revise os dados e o motivo da edição.")}revalidatePath("/registros/agenda");revalidatePath("/registros");return{success:true}}
+export async function cadastrarPacienteAdministrativo(input:{nome:string;responsavel:string;cpfResponsavel:string;cpfPaciente:string;nascimento:string;contatos:string}){const supabase=await createClient(),{error}=await supabase.rpc("cadastrar_paciente_administrativo",{p_nome:input.nome,p_responsavel:input.responsavel,p_cpf_responsavel:input.cpfResponsavel,p_cpf_paciente:input.cpfPaciente,p_nascimento:input.nascimento,p_contatos:input.contatos});if(error){reportServerError("cadastrarPacienteAdministrativo",error);if(error.message.includes("possible_duplicate")||error.code==="23505")return genericError("Já existe um possível cadastro para este paciente. Localize-o na agenda antes de continuar.");if(error.code==="42501")return genericError("Somente coordenação ou administração pode usar este cadastro administrativo.");return genericError("Não foi possível cadastrar o paciente.")}revalidatePath("/registros/pacientes");revalidatePath("/registros/agenda");return{success:true}}
+export async function consultarDisponibilidadeAgenda(inicio:string,fim:string){const supabase=await createClient(),{data,error}=await supabase.rpc("consultar_disponibilidade_agenda",{p_inicio:inicio,p_fim:fim});if(error){reportServerError("consultarDisponibilidadeAgenda",error);if(["42883","PGRST202"].includes(error.code??""))return genericError("A nova estrutura de disponibilidade ainda não foi instalada no banco.");return genericError("Não foi possível consultar os horários agora.")}return{success:true,data:data??[]}}
+export async function buscarHorariosDisponiveisAgenda(input:{profissionalId:string;pacienteId:string;inicio:string;dias:number;duracao:number}){const supabase=await createClient(),{data,error}=await supabase.rpc("buscar_horarios_disponiveis_agenda",{p_profissional_id:input.profissionalId,p_paciente_id:input.pacienteId,p_inicio:input.inicio,p_dias:input.dias,p_duracao_minutos:input.duracao});if(error){reportServerError("buscarHorariosDisponiveisAgenda",error);if(["42883","PGRST202"].includes(error.code??""))return genericError("A busca de horários por profissional ainda não foi instalada no banco.");if(error.code==="42501")return genericError("Você não possui permissão para consultar estes horários.");return genericError("Não foi possível buscar os horários disponíveis.")}return{success:true,data:data??[]}}
+export async function criarSerieAgendamentos(input:{pacienteId:string;profissionalId:string;inicio:string;duracao:number;frequencia:string;fimRecorrencia:string|null;finalidade:string;modalidade:string;local:string;observacao:string;conflitos:"bloquear"|"ignorar"}){const supabase=await createClient(),{data,error}=await supabase.rpc("criar_serie_agendamentos",{p_paciente_id:input.pacienteId,p_profissional_id:input.profissionalId,p_inicio:input.inicio,p_duracao_minutos:input.duracao,p_frequencia:input.frequencia,p_fim_recorrencia:input.fimRecorrencia,p_finalidade:input.finalidade,p_modalidade:input.modalidade,p_local:input.local,p_observacao:input.observacao,p_conflitos:input.conflitos});if(error){reportServerError("criarSerieAgendamentos",error);if(error.code==="23P01")return genericError("Existem datas fora do expediente ou com conflito. Revise a disponibilidade ou escolha criar somente as datas livres.");if(error.code==="22023")return genericError("Revise o período, a recorrência e os dados do agendamento.");if(["42883","PGRST202"].includes(error.code??""))return genericError("A estrutura de recorrência ainda não foi instalada no banco.");return genericError("Não foi possível criar os agendamentos.")}revalidatePath("/registros/agenda");revalidatePath("/registros");return{success:true,data}}
+export async function salvarIndisponibilidade(input:{profissionalId:string;inicio:string;fim:string;motivo:string}){const supabase=await createClient(),{error}=await supabase.rpc("salvar_indisponibilidade",{p_profissional_id:input.profissionalId,p_inicio:input.inicio,p_fim:input.fim,p_motivo:input.motivo});if(error){reportServerError("salvarIndisponibilidade",error);return genericError("Não foi possível registrar o bloqueio de horário.")}revalidatePath("/registros/agenda");return{success:true}}
+export async function registrarOcorrenciaFrequencia(input:{pacienteId:string;profissionalId:string;data:string;tipo:TipoOcorrenciaFrequencia;motivo:string;observacao:string;agendamentoId?:string|null}){const supabase=await createClient(),{error}=await supabase.rpc("registrar_ocorrencia_frequencia",{p_paciente_id:input.pacienteId,p_profissional_id:input.profissionalId,p_data:input.data,p_tipo:input.tipo,p_motivo:input.motivo,p_observacao:input.observacao,p_agendamento_id:input.agendamentoId||null});if(error){reportServerError("registrarOcorrenciaFrequencia",error);if(error.message.includes("duplicate_schedule_occurrence")||error.code==="23505")return genericError("Este agendamento já possui uma ocorrência de frequência.");if(error.code==="42501")return genericError("Você não pode registrar uma ocorrência para este paciente ou profissional.");if(error.code==="22023")return genericError("Revise a data, o tipo e o motivo informado.");if(["42883","PGRST202"].includes(error.code??""))return genericError("O módulo de frequência ainda não foi instalado no banco.");return genericError("Não foi possível registrar a ocorrência.")}revalidatePath("/registros/frequencia");revalidatePath("/registros/agenda");revalidatePath("/registros");return{success:true}}
+export async function cancelarOcorrenciaFrequencia(id:string,motivo:string){const supabase=await createClient(),{error}=await supabase.rpc("cancelar_ocorrencia_frequencia",{p_id:id,p_motivo:motivo});if(error){reportServerError("cancelarOcorrenciaFrequencia",error);if(error.code==="42501")return genericError("Você não possui permissão para excluir este lançamento.");if(error.message.includes("invalid_reason"))return genericError("Informe um motivo com pelo menos 5 caracteres.");if(error.message.includes("already_cancelled"))return genericError("Este lançamento já foi excluído. Atualize a página.");if(error.code==="P0002")return genericError("O lançamento não foi encontrado.");if(["42883","PGRST202"].includes(error.code??""))return genericError("A correção da exclusão ainda não foi aplicada no banco.");return genericError(`Não foi possível excluir o lançamento (código ${error.code??"desconhecido"}).`)}revalidatePath("/registros/frequencia");revalidatePath("/registros/agenda");revalidatePath("/registros");return{success:true}}
 
 export async function alterarMinhaSenha(senhaAtual: string, novaSenha: string, confirmacao: string) {
   if (!senhaAtual) return genericError("Informe sua senha atual.")
@@ -112,11 +124,20 @@ function lerEnquadramento(formData:FormData){
   if(!Number.isFinite(zoom)||zoom<1||zoom>2.5||!Number.isFinite(posX)||Math.abs(posX)>50||!Number.isFinite(posY)||Math.abs(posY)>50)return null
   return{zoom,posX,posY}
 }
+function mensagemErroUploadFoto(error:{message?:string;statusCode?:string|number}){
+  const mensagem=(error.message??"").toLowerCase(),status=String(error.statusCode??"")
+  if(mensagem.includes("bucket not found")||mensagem.includes("not found")&&mensagem.includes("bucket"))return"O armazenamento de fotos ainda não está configurado. Aplique a migration 20260812610000_reparar_storage_fotos.sql."
+  if(mensagem.includes("row-level security")||mensagem.includes("unauthorized")||status==="401"||status==="403")return"Sua conta não possui permissão para enviar esta foto. Para pacientes, é necessário estar vinculado ou utilizar a conta do administrador principal."
+  if(mensagem.includes("payload too large")||mensagem.includes("maximum allowed size")||status==="413")return"A foto ultrapassa o limite de 2 MB."
+  if(mensagem.includes("mime")||mensagem.includes("content type"))return"O formato da imagem não foi aceito. Use JPEG, PNG ou WebP."
+  if(mensagem.includes("duplicate")||status==="409")return"Ocorreu um conflito ao salvar a foto. Tente novamente."
+  return`Não foi possível enviar a foto${status?` (código ${status})`:""}.`
+}
 async function salvarFotoPrivada(input:{arquivo:File;escopo:"profiles"|"patients";id:string;pathAnterior:string|null;zoom:number;posX:number;posY:number}){
   const erroValidacao=validarFoto(input.arquivo);if(erroValidacao)return genericError(erroValidacao)
   const supabase=await createClient(),path=`${input.escopo}/${input.id}/${Date.now()}.${extensaoFoto(input.arquivo.type)}`
   const{error:uploadError}=await supabase.storage.from(FOTO_BUCKET).upload(path,input.arquivo,{contentType:input.arquivo.type,upsert:false,cacheControl:"3600"})
-  if(uploadError){reportServerError("salvarFotoPrivada.upload",uploadError);return genericError("Não foi possível enviar a foto.")}
+  if(uploadError){reportServerError("salvarFotoPrivada.upload",uploadError);return genericError(mensagemErroUploadFoto(uploadError))}
   const crop={p_foto_path:path,p_zoom:input.zoom,p_pos_x:input.posX,p_pos_y:input.posY}
   const rpc=input.escopo==="profiles"?await supabase.rpc("atualizar_minha_foto",crop):await supabase.rpc("atualizar_foto_paciente",{p_paciente_id:input.id,...crop})
   if(rpc.error){await supabase.storage.from(FOTO_BUCKET).remove([path]);reportServerError("salvarFotoPrivada.referencia",rpc.error);return genericError("Não foi possível associar a foto ao cadastro.")}
@@ -142,13 +163,18 @@ export async function atualizarEnquadramentoFoto(tipo:"profile"|"paciente",id:st
   revalidatePath("/registros","layout");return{success:true}
 }
 
-export async function atualizarMeusDadosProfissionais(input:{profissao:string;conselhoTipo:string;conselhoNumero:string;conselhoUf:string}){
-  const profissao=input.profissao.trim(),conselhoTipo=input.conselhoTipo.trim().toUpperCase(),conselhoNumero=input.conselhoNumero.trim(),conselhoUf=input.conselhoUf.trim().toUpperCase()
-  if(profissao.length>100||conselhoTipo.length>30||conselhoNumero.length>40||conselhoUf&&!/^[A-Z]{2}$/.test(conselhoUf))return genericError("Revise os dados profissionais informados.")
-  const supabase=await createClient(),{error}=await supabase.rpc("atualizar_meus_dados_profissionais",{p_profissao:profissao||null,p_conselho_tipo:conselhoTipo||null,p_conselho_numero:conselhoNumero||null,p_conselho_uf:conselhoUf||null})
+export async function atualizarMeusDadosProfissionais(input:{profissaoId:string;conselhoNumero:string;conselhoUf:string}){
+  const conselhoNumero=input.conselhoNumero.trim(),conselhoUf=input.conselhoUf.trim().toUpperCase()
+  if(conselhoNumero.length>40||conselhoUf&&!/^[A-Z]{2}$/.test(conselhoUf))return genericError("Revise os dados profissionais informados.")
+  const supabase=await createClient(),{error}=await supabase.rpc("atualizar_meus_dados_profissionais_v2",{p_profissao_id:input.profissaoId||null,p_conselho_numero:conselhoNumero||null,p_conselho_uf:conselhoUf||null})
   if(error){reportServerError("atualizarMeusDadosProfissionais",error);return genericError("Não foi possível atualizar os dados profissionais.")}
   revalidatePath("/registros","layout");return{success:true}
 }
+export async function buscarPacientesOperacionais(input:{busca:string;status?:string;limite?:number;offset?:number}){const supabase=await createClient(),{data,error}=await supabase.rpc("buscar_pacientes_operacionais",{p_busca:input.busca,p_status:input.status??"ativo",p_limite:input.limite??20,p_offset:input.offset??0});if(error){reportServerError("buscarPacientesOperacionais",error);return genericError("Não foi possível buscar pacientes.")}return{success:true,data:data??[]}}
+export async function buscarPacientesCoordenacao(input:{busca:string;status?:string;limite?:number;offset?:number}){const supabase=await createClient(),{data,error}=await supabase.rpc("listar_pacientes_coordenacao",{p_busca:input.busca,p_status:input.status??"ativo",p_limite:input.limite??20,p_offset:input.offset??0});if(error){reportServerError("buscarPacientesCoordenacao",error);if(["42883","PGRST202"].includes(error.code??""))return genericError("A listagem paginada ainda não foi instalada no banco.");return genericError("Não foi possível carregar os pacientes.")}return{success:true,data:data??[]}}
+export async function buscarSolicitacoesAcesso(input:{direcao:"recebidas"|"enviadas";busca:string;status:string;limite?:number;offset?:number}){const supabase=await createClient(),{data,error}=await supabase.rpc("listar_solicitacoes_acesso_paginadas",{p_direcao:input.direcao,p_busca:input.busca,p_status:input.status,p_limite:input.limite??10,p_offset:input.offset??0});if(error){reportServerError("buscarSolicitacoesAcesso",error);if(["42883","PGRST202"].includes(error.code??""))return genericError("A listagem paginada de solicitações ainda não foi instalada no banco.");return genericError("Não foi possível carregar as solicitações.")}return{success:true,data:data??[]}}
+export async function buscarProfissionaisOperacionais(input:{busca:string;profissaoId?:string;limite?:number;offset?:number}){const supabase=await createClient(),{data,error}=await supabase.rpc("buscar_profissionais_operacionais",{p_busca:input.busca,p_profissao_id:input.profissaoId||null,p_limite:input.limite??20,p_offset:input.offset??0});if(error){reportServerError("buscarProfissionaisOperacionais",error);return genericError("Não foi possível buscar profissionais.")}return{success:true,data:data??[]}}
+export async function salvarProfissao(input:{id:string|null;nome:string;conselhoSigla:string;ativo:boolean;ordem:number}){const supabase=await createClient(),{error}=await supabase.rpc("salvar_profissao",{p_id:input.id,p_nome:input.nome,p_conselho_sigla:input.conselhoSigla,p_ativo:input.ativo,p_ordem:input.ordem});if(error){reportServerError("salvarProfissao",error);if(error.code==="42501")return genericError("Somente o administrador principal pode gerenciar profissões.");if(error.code==="23505")return genericError("Já existe uma profissão com esse nome.");return genericError("Não foi possível salvar a profissão.")}revalidatePath("/registros/usuarios/profissoes");revalidatePath("/registros/conta");return{success:true}}
 
 // ---------- Pacientes ----------
 
@@ -593,9 +619,10 @@ export async function registrarSessaoClinica(input: {
   integridade: { alvo_id: string; itens: { hierarquia_ajuda: boolean; reforcamento: boolean; correcao_erro: boolean }; desvios: string | null }[]
   observacoesAbc: { alvo_id: string; antecedente: string; comportamento_observado: string; consequencia: string; funcao_hipotese: string | null; intensidade: number | null; duracao_segundos: number | null }[]
   tentativas: { alvo_id:string; itens:{ ordem:number;resultado:string;nivel_ajuda:string;latencia_segundos:number|null;observacao:string|null }[] }[]
+  agendamentoId?: string | null
 }) {
   const supabase = await createClient()
-  const { data, error } = await supabase.rpc("registrar_sessao_clinica_v6", {
+  const { data, error } = await supabase.rpc("registrar_sessao_clinica_v8", {
     p_paciente_id: input.pacienteId, p_data: input.data, p_contexto: input.contexto,
     p_observacoes_privadas: input.observacoesPrivadas, p_registros: input.registros,
     p_ambiente_tipo: input.ambienteTipo, p_aplicador_tipo: input.aplicadorTipo,
@@ -603,10 +630,13 @@ export async function registrarSessaoClinica(input: {
     p_observacoes_abc: input.observacoesAbc,
     p_finalidade: input.finalidade,
     p_tentativas: input.tentativas,
+    p_agendamento_id: input.agendamentoId ?? null,
   })
   if (error) {
     reportServerError("registrarSessaoClinica", error)
-    if (["42883", "PGRST202"].includes(error.code ?? "")) return genericError("A estrutura de tentativas individuais ainda não foi instalada no banco.")
+    if (["42883", "PGRST202"].includes(error.code ?? "")) return genericError("A estrutura mais recente de sessões e agenda ainda não foi instalada no banco.")
+    if (error.message.includes("schedule_not_started")) return genericError("A sessão poderá ser registrada a partir do início do compromisso.")
+    if (error.message.includes("future_session_date")) return genericError("Não é possível registrar uma sessão com data futura.")
     if (error.message.includes("trials_summary_mismatch")) return genericError("O resumo não corresponde às tentativas detalhadas.")
     if (error.message.includes("invalid_trials")) return genericError("Revise os resultados e níveis de ajuda das tentativas.")
     if (error.message.includes("session_requires_target")) return genericError("Esta finalidade exige pelo menos um alvo clínico.")
@@ -614,6 +644,7 @@ export async function registrarSessaoClinica(input: {
     if (error.message.includes("invalid_session_target")) return genericError("Um dos alvos não está disponível para coleta nesta fase.")
     if (error.message.includes("invalid_measurement_data")) return genericError("Revise os valores informados nas medições.")
     if (error.message.includes("duplicate_target_in_session")) return genericError("O mesmo alvo não pode aparecer duas vezes na sessão.")
+    if (error.message.includes("unauthorized_or_duplicate_session")) return genericError("Este agendamento já possui uma sessão ou não está disponível para você.")
     if (error.message.includes("session_context")) return genericError("Selecione um ambiente e um tipo de aplicador válidos.")
     if (error.message.includes("procedural_integrity")) return genericError("Confirme a aplicação do protocolo e descreva eventuais desvios.")
     if (error.message.includes("abc_")) return genericError("Revise os campos do registro ABC.")
@@ -621,6 +652,7 @@ export async function registrarSessaoClinica(input: {
     return genericError("Não foi possível registrar a sessão clínica.")
   }
   revalidatePath(`/registros/pacientes/${input.pacienteId}`)
+  revalidatePath("/registros/agenda")
   revalidatePath("/registros")
   return { success: true, sessaoId: data as string }
 }
@@ -693,11 +725,13 @@ export async function createUsuario(input: {
   email: string
   papel: Papel
   senhaProvisoria: string
+  profissaoId: string
 }) {
   const supabase = await createClient()
-  const profile = await supabase.from("profiles").select("papel").eq("id", (await supabase.auth.getUser()).data.user?.id ?? "").maybeSingle()
-
-  if (profile.data?.papel !== "admin") {
+  const usuarioAtualId=(await supabase.auth.getUser()).data.user?.id??""
+  const {data:podeCriar,error:erroPermissao}=await supabase.rpc("usuario_tem_permissao",{p_chave:"usuarios.criar"})
+  const podeCriarLegado=erroPermissao?(await supabase.from("profiles").select("papel").eq("id",usuarioAtualId).maybeSingle()).data?.papel==="admin":false
+  if (!podeCriar&&!podeCriarLegado) {
     return genericError("Apenas administradores podem cadastrar usuários.")
   }
 
@@ -719,6 +753,8 @@ export async function createUsuario(input: {
   }
 
   if (!usuarioCriado.user) return genericError("O Supabase não retornou a conta criada.")
+  const {data:profissao}=input.profissaoId?await supabase.from("profissoes").select("id,nome,conselho_sigla").eq("id",input.profissaoId).eq("ativo",true).maybeSingle():{data:null}
+  if(input.profissaoId&&!profissao){await admin.auth.admin.deleteUser(usuarioCriado.user.id);return genericError("A profissão selecionada não está mais disponível.")}
   const { error: profileError } = await admin.from("profiles").upsert({
     id: usuarioCriado.user.id,
     nome: input.nome.trim(),
@@ -726,6 +762,9 @@ export async function createUsuario(input: {
     papel: input.papel,
     status: "ativo",
     admin_principal: false,
+    profissao_id: profissao?.id??null,
+    profissao: profissao?.nome??null,
+    conselho_tipo: profissao?.conselho_sigla??null,
   }, { onConflict: "id" })
 
   if (profileError) {
@@ -782,8 +821,9 @@ export async function updateUsuarioStatus(id: string, status: "ativo" | "inativo
   const { data: userData } = await supabase.auth.getUser()
   if (!userData?.user) return genericError("Sessão expirada. Faça login novamente.")
 
-  const profile = await supabase.from("profiles").select("papel").eq("id", userData.user.id).maybeSingle()
-  if (profile.data?.papel !== "admin") {
+  const {data:podeEditar,error:erroPermissao}=await supabase.rpc("usuario_tem_permissao",{p_chave:"usuarios.editar"})
+  const podeEditarLegado=erroPermissao?(await supabase.from("profiles").select("papel").eq("id",userData.user.id).maybeSingle()).data?.papel==="admin":false
+  if (!podeEditar&&!podeEditarLegado) {
     return genericError("Apenas administradores podem alterar usuários.")
   }
 
@@ -812,8 +852,9 @@ export async function updateUsuarioPapel(id: string, papel: Papel) {
   const { data: userData } = await supabase.auth.getUser()
   if (!userData?.user) return genericError("Sessão expirada. Faça login novamente.")
 
-  const profile = await supabase.from("profiles").select("papel").eq("id", userData.user.id).maybeSingle()
-  if (profile.data?.papel !== "admin") {
+  const {data:podeEditar,error:erroPermissao}=await supabase.rpc("usuario_tem_permissao",{p_chave:"usuarios.editar"})
+  const podeEditarLegado=erroPermissao?(await supabase.from("profiles").select("papel").eq("id",userData.user.id).maybeSingle()).data?.papel==="admin":false
+  if (!podeEditar&&!podeEditarLegado) {
     return genericError("Apenas administradores podem alterar usuários.")
   }
 
@@ -836,4 +877,10 @@ export async function updateUsuarioPapel(id: string, papel: Papel) {
 
   revalidatePath("/registros/usuarios")
 }
+
+export async function updateUsuarioProfissao(id:string,profissaoId:string){const supabase=await createClient(),{error}=await supabase.rpc("atualizar_profissao_profile_admin",{p_usuario_id:id,p_profissao_id:profissaoId||null});if(error){reportServerError("updateUsuarioProfissao",error);if(error.code==="42501")return genericError("Você não possui permissão para alterar a profissão.");if(error.code==="22023")return genericError("A profissão selecionada não está disponível.");return genericError("Não foi possível alterar a profissão do usuário.")}revalidatePath("/registros/usuarios");return{success:true}}
+
+export async function salvarPapelAcesso(input:{id:string|null;nome:string;descricao:string;permissoes:string[]}){const supabase=await createClient(),{error}=await supabase.rpc("salvar_papel_acesso",{p_id:input.id,p_nome:input.nome,p_descricao:input.descricao,p_permissoes:input.permissoes});if(error){reportServerError("salvarPapelAcesso",error);return genericError(error.code==="42501"?"Somente o administrador principal pode configurar papéis.":"Não foi possível salvar o papel.")}revalidatePath("/registros/usuarios/papeis");return{success:true}}
+export async function atribuirPapelAcesso(usuarioId:string,papelId:string){const supabase=await createClient(),{error}=await supabase.rpc("atribuir_papel_acesso",{p_profile_id:usuarioId,p_papel_id:papelId});if(error){reportServerError("atribuirPapelAcesso",error);return genericError(error.message.includes("main_admin")?"O administrador principal é protegido.":"Não foi possível atribuir o papel.")}revalidatePath("/registros/usuarios");revalidatePath("/registros/usuarios/papeis");return{success:true}}
+export async function alterarStatusPapelAcesso(id:string,ativo:boolean){const supabase=await createClient(),{error}=await supabase.rpc("alterar_status_papel_acesso",{p_id:id,p_ativo:ativo});if(error){reportServerError("alterarStatusPapelAcesso",error);return genericError(error.message.includes("role_in_use")?"Transfira os usuários ativos antes de desativar este papel.":"Não foi possível alterar o papel.")}revalidatePath("/registros/usuarios/papeis");return{success:true}}
 

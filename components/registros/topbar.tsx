@@ -13,7 +13,7 @@ const PAPEL_LABEL: Record<string, string> = {
 
 export function RegistrosTopbar({ profile, onOpenMenu }: { profile: Profile; onOpenMenu: () => void }) {
   return (
-    <header className="flex items-center justify-between border-b border-border bg-card px-4 py-3 lg:px-6">
+    <header className="flex h-20 items-center justify-between border-b border-border bg-card px-4 lg:px-6">
       <button
         className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors"
         onClick={onOpenMenu}

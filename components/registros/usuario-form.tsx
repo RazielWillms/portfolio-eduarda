@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react"
 import { RefreshCw } from "lucide-react"
 import { createUsuario } from "@/lib/registros/actions"
-import type { Papel } from "@/lib/registros/types"
+import type { Papel, Profissao } from "@/lib/registros/types"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -19,10 +19,11 @@ function gerarSenhaProvisoria() {
   return senha
 }
 
-export function UsuarioForm() {
+export function UsuarioForm({ profissoes }: { profissoes: Profissao[] }) {
   const [nome, setNome] = useState("")
   const [email, setEmail] = useState("")
   const [papel, setPapel] = useState<Papel>("profissional")
+  const [profissaoId, setProfissaoId] = useState("")
   const [senhaProvisoria, setSenhaProvisoria] = useState(gerarSenhaProvisoria)
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState("")
@@ -39,6 +40,7 @@ export function UsuarioForm() {
       email: email.trim().toLowerCase(),
       papel,
       senhaProvisoria,
+      profissaoId,
     })
 
     if (resultado && "error" in resultado) {
@@ -53,6 +55,7 @@ export function UsuarioForm() {
     setNome("")
     setEmail("")
     setPapel("profissional")
+    setProfissaoId("")
     setSenhaProvisoria(gerarSenhaProvisoria())
     setEnviando(false)
   }
@@ -86,6 +89,14 @@ export function UsuarioForm() {
             placeholder="nome@exemplo.com"
             required
           />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="profissao">Profissão (opcional)</Label>
+          <Select value={profissaoId || "nenhuma"} onValueChange={(valor) => setProfissaoId(valor === "nenhuma" ? "" : valor)}>
+            <SelectTrigger id="profissao" className="w-full"><SelectValue /></SelectTrigger>
+            <SelectContent><SelectItem value="nenhuma">Não informada</SelectItem>{profissoes.filter((item) => item.ativo).map((item) => <SelectItem key={item.id} value={item.id}>{item.nome}</SelectItem>)}</SelectContent>
+          </Select>
         </div>
       </div>
 

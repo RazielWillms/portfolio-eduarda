@@ -21,6 +21,30 @@ type Topico = {
 
 const topicos: Topico[] = [
   {
+    id: "agenda-coordenacao",
+    titulo: "Agenda, coordenação e atribuição de pacientes",
+    resumo: "Organização de compromissos sem transformar a agenda em acesso automático ao prontuário.",
+    oQueE: "A agenda registra compromissos planejados separadamente das sessões clínicas. A coordenação pode cadastrar dados administrativos, escolher paciente, pessoa responsável pelo atendimento, horário, finalidade e modalidade. Contas de Coordenação também podem ser designadas para atender; nesse caso, precisam aceitar a atribuição antes de obter vínculo clínico e registrar a sessão. A disponibilidade real resulta do expediente configurado menos bloqueios e compromissos já existentes.",
+    paraQueServe: "Organiza a operação da clínica, evita conflito do profissional e do paciente, mostra o próximo atendimento e mantém a logística separada do conteúdo clínico privado.",
+    quando: "Ao receber um novo paciente, distribuir casos entre profissionais, organizar atendimentos futuros, registrar confirmação ou falta e corrigir mudanças de horário ou responsável.",
+    como: ["A coordenação cadastra o paciente sem receber acesso ao prontuário. Pacientes marcados como sem profissional ainda aguardam um vínculo clínico.", "Na aba Disponibilidade, configure a disponibilidade semanal - o expediente de cada pessoa - e registre férias, reuniões ou outros bloqueios pontuais.", "Em Novo agendamento, use a lupa do campo Paciente para buscar por nome ou responsável sem percorrer uma lista extensa.", "Use Tenho uma data e horário para consultar quem realmente pode atender no intervalo escolhido.", "Quando a continuidade com uma pessoa específica for mais importante, use Tenho um profissional. A busca permite filtrar a equipe por profissão e a semana mostra somente horários livres.", "Selecione uma conta Profissional ou Coordenação disponível como responsável pelo atendimento.", "Para horários fixos, escolha repetição semanal, quinzenal, a cada três semanas ou mensal e defina a data final. Você pode interromper toda a criação quando houver conflito ou criar apenas as datas livres.", "Sem expediente configurado, a pessoa aparece como não configurada e não pode ser escolhida. O sistema também impede sobreposição para o responsável e para o paciente.", "Quem foi designado consulta a própria agenda e usa Aceitar paciente quando ainda não houver vínculo. O agendamento sozinho não libera o prontuário.", "Depois do aceite, use Registrar sessão a partir do compromisso. A sessão e a conclusão do agendamento são salvas juntas, evitando registro duplicado.", "Use Confirmar quando o compromisso estiver acertado e Marcar falta quando ele não ocorreu. Esses estados não devem ser usados para cancelar administrativamente.", "A coordenação deve informar uma justificativa para editar, trocar o responsável, reagendar ou cancelar. O histórico anterior permanece disponível para auditoria."],
+    relevancia: "Mantém responsabilidades claras entre operação e clínica e preserva a autoria dos registros.",
+    cuidado: "Criar um agendamento não concede acesso clínico. Observações administrativas não devem conter diagnóstico, evolução ou anotações da sessão. Um compromisso realizado não deve ser recriado para corrigir conteúdo clínico.",
+    termos: ["agenda", "coordenação", "agendamento", "atribuição", "vínculo", "disponibilidade", "reagendamento", "falta", "cancelamento", "próximo paciente"],
+  },
+  {
+    id: "frequencia-administrativa",
+    titulo: "Frequência, faltas e cancelamentos",
+    resumo: "Controle administrativo rápido, com relatórios por paciente e profissional.",
+    oQueE: "Frequência é um módulo administrativo separado das sessões clínicas. Cada ocorrência identifica data, paciente, profissional previsto e se houve falta justificada, falta não justificada ou cancelamento. O lançamento pode existir sozinho ou ser relacionado a um compromisso da agenda.",
+    paraQueServe: "Permite acompanhar quantas vezes cada paciente faltou, o impacto por profissional e a proporção entre faltas justificadas e não justificadas, sem recorrer a planilhas paralelas.",
+    quando: "Após uma ausência ou cancelamento. Registre assim que a informação administrativa estiver disponível e use os filtros semanal ou mensal para reuniões e fechamento do período.",
+    como: ["Abra Frequência e selecione paciente, profissional, data e situação.", "Quando a falta tiver sido justificada, informe um motivo administrativo breve.", "Se houver um agendamento correspondente, você pode vinculá-lo; o compromisso será marcado como falta.", "Use os filtros para analisar um período, paciente ou profissional.", "Consulte os totalizadores e gráficos e exporte CSV ou use Imprimir / PDF para compartilhar o relatório.", "Se um lançamento estiver incorreto, use Corrigir e informe a justificativa. O dado sai do relatório, mas permanece na auditoria."],
+    relevancia: "A recorrência de faltas afeta continuidade, capacidade da agenda e organização da equipe. O histórico estruturado permite decisões administrativas baseadas no período real.",
+    cuidado: "O motivo e a observação são administrativos. Não inclua diagnóstico, evolução, hipótese clínica ou conteúdo privado da sessão. O lançamento não concede acesso ao prontuário.",
+    termos: ["frequência", "falta", "ausência", "justificada", "não justificada", "cancelamento", "relatório mensal", "relatório semanal"],
+  },
+  {
     id: "primeira-sessao",
     titulo: "Das sessões iniciais ao planejamento",
     resumo: "Percurso entre vínculo, avaliação, síntese clínica, planejamento, linha de base e intervenção.",

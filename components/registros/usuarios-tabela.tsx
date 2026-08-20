@@ -2,8 +2,8 @@
 
 import { Fragment, useState } from "react"
 import { KeyRound, RefreshCw } from "lucide-react"
-import { redefinirSenhaUsuario, updateUsuarioPapel, updateUsuarioStatus } from "@/lib/registros/actions"
-import type { Papel, Profile, StatusUsuario } from "@/lib/registros/types"
+import { redefinirSenhaUsuario, updateUsuarioPapel, updateUsuarioProfissao, updateUsuarioStatus } from "@/lib/registros/actions"
+import type { Papel, Profissao, StatusUsuario, UsuarioResumo } from "@/lib/registros/types"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -21,7 +21,7 @@ function gerarSenhaProvisoria() {
   return Array.from({ length: 12 }, () => chars[Math.floor(Math.random() * chars.length)]).join("")
 }
 
-export function UsuariosTabela({ usuarios, usuarioAtualId, podeRedefinirSenha }: { usuarios: Profile[]; usuarioAtualId: string; podeRedefinirSenha: boolean }) {
+export function UsuariosTabela({ usuarios, profissoes, usuarioAtualId, podeRedefinirSenha }: { usuarios: UsuarioResumo[]; profissoes: Profissao[]; usuarioAtualId: string; podeRedefinirSenha: boolean }) {
   const [erro, setErro] = useState("")
   const [sucesso, setSucesso] = useState("")
   const [redefinindo, setRedefinindo] = useState<string | null>(null)
@@ -40,7 +40,9 @@ export function UsuariosTabela({ usuarios, usuarioAtualId, podeRedefinirSenha }:
     if (resultado && "error" in resultado) setErro(resultado.error)
   }
 
-  async function handleRedefinirSenha(usuario: Profile) {
+  async function handleProfissaoChange(id:string,profissaoId:string){setErro("");const resultado=await updateUsuarioProfissao(id,profissaoId==="nenhuma"?"":profissaoId);if(resultado&&"error"in resultado)setErro(resultado.error)}
+
+  async function handleRedefinirSenha(usuario: UsuarioResumo) {
     setErro(""); setSucesso(""); setProcessando(true)
     const resultado = await redefinirSenhaUsuario({ usuarioId: usuario.id, senhaProvisoria })
     setProcessando(false)
@@ -63,6 +65,7 @@ export function UsuariosTabela({ usuarios, usuarioAtualId, podeRedefinirSenha }:
             <TableRow>
               <TableHead>Nome</TableHead>
               <TableHead>E-mail</TableHead>
+              <TableHead>Profissão</TableHead>
               <TableHead>Papel</TableHead>
               <TableHead>Status</TableHead>
               {podeRedefinirSenha && <TableHead>Suporte</TableHead>}
@@ -80,6 +83,7 @@ export function UsuariosTabela({ usuarios, usuarioAtualId, podeRedefinirSenha }:
                     {isAtual && <span className="text-muted-foreground font-normal"> (você)</span>}
                   </TableCell>
                   <TableCell className="text-muted-foreground">{u.email}</TableCell>
+                  <TableCell><Select value={u.profissao_id??"nenhuma"} onValueChange={(valor)=>handleProfissaoChange(u.id,valor)}><SelectTrigger className="w-48"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="nenhuma">Não informada</SelectItem>{profissoes.map((item)=><SelectItem key={item.id} value={item.id} disabled={!item.ativo}>{item.nome}{!item.ativo?" (inativa)":""}</SelectItem>)}</SelectContent></Select></TableCell>
                   <TableCell>
                     {isAtual || protegido ? (
                       <span className="text-muted-foreground">{protegido ? "Administrador principal" : PAPEL_LABEL[u.papel]}</span>
@@ -113,7 +117,7 @@ export function UsuariosTabela({ usuarios, usuarioAtualId, podeRedefinirSenha }:
                   </TableCell>
                   {podeRedefinirSenha && <TableCell>{!isAtual && !protegido && <Button size="sm" variant="outline" className="hover:border-primary hover:bg-primary hover:text-primary-foreground" onClick={() => { setRedefinindo(u.id); setSenhaProvisoria(gerarSenhaProvisoria()); setErro(""); setSucesso("") }}><KeyRound className="size-4"/>Redefinir senha</Button>}</TableCell>}
                 </TableRow>
-                {redefinindo === u.id && <TableRow><TableCell colSpan={podeRedefinirSenha ? 5 : 4}><div className="flex flex-col gap-3 rounded-xl bg-muted p-4 sm:flex-row sm:items-end"><div className="flex-1"><p className="mb-2 text-sm font-semibold">Nova senha provisória para {u.nome}</p><div className="flex gap-2"><Input className="font-mono" minLength={8} value={senhaProvisoria} onChange={(e) => setSenhaProvisoria(e.target.value)}/><Button type="button" size="icon" variant="outline" aria-label="Gerar outra senha" onClick={() => setSenhaProvisoria(gerarSenhaProvisoria())}><RefreshCw className="size-4"/></Button></div><p className="mt-2 text-xs text-muted-foreground">A senha atual não é exibida. Oriente o usuário a alterá-la em Minha conta após entrar.</p></div><div className="flex gap-2"><Button disabled={processando || senhaProvisoria.length < 8} onClick={() => handleRedefinirSenha(u)}>{processando ? "Redefinindo..." : "Confirmar"}</Button><Button variant="ghost" className="bg-slate-200 text-slate-700 hover:bg-slate-300 hover:text-slate-900" onClick={() => setRedefinindo(null)}>Cancelar</Button></div></div></TableCell></TableRow>}
+                {redefinindo === u.id && <TableRow><TableCell colSpan={podeRedefinirSenha ? 5 : 4}><div className="flex flex-col gap-3 rounded-xl bg-muted p-4 sm:flex-row sm:items-end"><div className="flex-1"><p className="mb-2 text-sm font-semibold">Nova senha provisória para {u.nome}</p><div className="flex gap-2"><Input className="font-mono" minLength={8} value={senhaProvisoria} onChange={(e) => setSenhaProvisoria(e.target.value)}/><Button type="button" size="icon" variant="outline" aria-label="Gerar outra senha" onClick={() => setSenhaProvisoria(gerarSenhaProvisoria())}><RefreshCw className="size-4"/></Button></div><p className="mt-2 text-xs text-muted-foreground">A senha atual não é exibida. Oriente o usuário a alterá-la em Minha conta após entrar.</p></div><div className="flex gap-2"><Button disabled={processando || senhaProvisoria.length < 8} onClick={() => handleRedefinirSenha(u)}>{processando ? "Redefinindo..." : "Confirmar"}</Button><Button variant="secondary" className="bg-slate-200 text-slate-700 hover:bg-slate-300 hover:text-slate-900" onClick={() => setRedefinindo(null)}>Cancelar</Button></div></div></TableCell></TableRow>}
                 </Fragment>
               )
             })}

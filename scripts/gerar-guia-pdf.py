@@ -36,6 +36,20 @@ bullet = ParagraphStyle("Bullet", parent=body, leftIndent=7*mm, firstLineIndent=
 toc = ParagraphStyle("Toc", parent=body, fontSize=9.2, leading=14, leftIndent=7*mm, firstLineIndent=-6*mm)
 
 SECTIONS = [
+("0. Agenda, coordenação e atribuição de pacientes",
+ "A agenda registra compromissos separadamente das sessões clínicas. A coordenação organiza paciente, responsável pelo atendimento, horário, finalidade, modalidade e local. Contas Profissional ou Coordenação podem atender. A disponibilidade real é o expediente configurado menos bloqueios e compromissos existentes.",
+ "Organizar a operação, evitar conflitos do profissional e do paciente e manter logística separada do prontuário.",
+ "Ao receber pacientes, distribuir casos, configurar disponibilidade, planejar atendimentos ou registrar confirmação, falta, mudança e cancelamento.",
+ ["A coordenação cadastra o paciente sem receber acesso clínico.", "Configure o expediente semanal e registre bloqueios como férias ou reuniões.", "Em Novo agendamento, informe paciente, data, horário e duração e consulte quem está livre.", "Sem expediente configurado, a pessoa não pode ser selecionada.", "Selecione uma conta Profissional ou Coordenação para atender.", "Para um horário fixo, escolha repetição semanal, quinzenal, a cada três semanas ou mensal e uma data final.", "Em conflitos, escolha entre cancelar toda a série para revisão ou criar somente as datas livres.", "O sistema também bloqueia sobreposição para o paciente.", "Quem foi designado usa Aceitar paciente antes de abrir o prontuário.", "Use Registrar sessão a partir da agenda; sessão e conclusão do compromisso são gravadas juntas.", "Para editar, reagendar ou cancelar, informe justificativa; o histórico é preservado."],
+ "Define responsabilidades operacionais sem transformar um agendamento em autorização clínica e reduz registros duplicados.",
+ "Não inclua diagnóstico, evolução ou observações clínicas no campo administrativo. Criar um agendamento não concede acesso ao prontuário."),
+("0. Frequência, faltas e cancelamentos",
+ "Módulo administrativo para registrar a data, o paciente, o profissional previsto e a situação: falta justificada, falta não justificada ou cancelamento. Pode funcionar sozinho ou ligado a um compromisso da agenda.",
+ "Acompanhar ausências por período, paciente e profissional sem depender de planilhas paralelas.",
+ "Após uma ausência ou cancelamento e nos fechamentos semanais ou mensais.",
+ ["Selecione paciente, profissional, data e situação.", "Informe um motivo administrativo breve quando a falta for justificada.", "Vincule o agendamento correspondente quando existir; uma falta vinculada também atualiza o compromisso.", "Use Esta semana, Este mês ou um intervalo personalizado.", "Leia totalizadores e gráficos por paciente e profissional.", "Use Imprimir / PDF ou Exportar CSV para gerar o relatório.", "Para corrigir um lançamento, informe a justificativa; ele sai dos indicadores, mas permanece auditado."],
+ "Torna visível o impacto das ausências na continuidade e na capacidade da equipe, preservando uma fonte única de dados.",
+ "Não registre diagnóstico, evolução, hipótese clínica ou observações privadas. Frequência não concede acesso ao prontuário."),
 ("1. Das sessões iniciais ao planejamento",
  "O acompanhamento pode começar com vínculo, entrevista, avaliação ou observação sem alvos. A área Avaliação consolida essas evidências antes do planejamento.",
  "Registrar o trabalho clínico anterior ao planejamento, documentar potencialidades, necessidades e prioridades e manter requisitos progressivos para cada finalidade.",
@@ -202,8 +216,8 @@ story += [
     PageBreak(),
 ]
 
-for heading, what, purpose, when, how, relevance, attention in SECTIONS:
-    section = [Paragraph(heading, h1), Paragraph("O que é", h2), Paragraph(what, body),
+for number, (heading, what, purpose, when, how, relevance, attention) in enumerate(SECTIONS, 1):
+    section = [Paragraph(f"{number}. {heading.split('. ',1)[1]}", h1), Paragraph("O que é", h2), Paragraph(what, body),
         Paragraph("Para que serve", h2), Paragraph(purpose, body),
         Paragraph("Quando preencher ou revisar", h2), Paragraph(when, body),
         Paragraph("Como preencher e utilizar", h2)]
@@ -224,6 +238,8 @@ story += [
     Paragraph("<b>Quando usar observação ABC?</b><br/>Quando houver evento relevante em alvo de redução e for possível registrar antecedente, resposta e consequência de forma descritiva.", body),
     Paragraph("<b>Um treinamento significa competência?</b><br/>Não. O sistema separa os componentes da capacitação da competência efetivamente observada.", body),
     Paragraph("<b>O administrador pode ver tudo?</b><br/>A administração do ambiente não elimina limites de finalidade, autoria, privacidade e responsabilidade clínica.", body),
+    Paragraph("<b>Agendar um paciente libera o prontuário?</b><br/>Não. O profissional precisa aceitar a atribuição; somente então o vínculo clínico é criado.", body),
+    Paragraph("<b>Posso criar duas sessões para o mesmo agendamento?</b><br/>Não. A conclusão do compromisso e a sessão são registradas em uma única operação para impedir duplicidade.", body),
     Spacer(1, 6*mm),
     Paragraph("Versão do manual: agosto de 2026", small),
 ]

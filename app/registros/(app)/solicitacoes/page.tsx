@@ -1,9 +1,6 @@
-import { getSolicitacoesEnviadas, getSolicitacoesRecebidas } from "@/lib/registros/queries"
 import { SolicitacoesLista } from "@/components/registros/solicitacoes-lista"
 
 export default async function SolicitacoesPage() {
-  const [recebidas, enviadas] = await Promise.all([getSolicitacoesRecebidas(), getSolicitacoesEnviadas()])
-
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -13,7 +10,7 @@ export default async function SolicitacoesPage() {
         </p>
       </div>
 
-      <SolicitacoesLista recebidas={recebidas} enviadas={enviadas} />
+      <SolicitacoesLista />
     </div>
   )
 }

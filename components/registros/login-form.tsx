@@ -2,11 +2,12 @@
 
 import { useState, type FormEvent } from "react"
 import Link from "next/link"
-import { ArrowLeft, Lock } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import { signIn } from "@/lib/registros/actions"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
+import { LogoConexao } from "@/components/registros/logo-conexao"
 
 export function LoginForm() {
   const [erro, setErro] = useState<string | null>(null)
@@ -42,12 +43,10 @@ export function LoginForm() {
 
         <div className="bg-card border border-border rounded-3xl shadow-sm p-8">
           <div className="flex items-center gap-3 mb-6">
-            <div className="flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
-              <Lock className="size-5" />
-            </div>
+            <LogoConexao className="size-12" />
             <div>
-              <h1 className="text-lg font-bold text-foreground">Acesso profissional</h1>
-              <p className="text-sm text-muted-foreground">Sistema de registros ABA</p>
+              <h1 className="text-lg font-bold text-foreground">Conexão ABA</h1>
+              <p className="text-sm text-muted-foreground">Gestão clínica integrada</p>
             </div>
           </div>
 

@@ -64,6 +64,13 @@ returns uuid language plpgsql security definer set search_path='' set row_securi
  if exists(select 1 from public.pacientes p where(public.normalizar_cpf(p_cpf_paciente)is not null and public.normalizar_cpf(p.cpf_paciente)=public.normalizar_cpf(p_cpf_paciente))or(public.normalizar_cpf(p_cpf_responsavel)is not null and public.normalizar_cpf(p.cpf_responsavel)=public.normalizar_cpf(p_cpf_responsavel)and p.data_nascimento=p_nascimento)or(public.normalizar_texto(p.nome_completo)=public.normalizar_texto(p_nome)and p.data_nascimento=p_nascimento and public.normalizar_texto(p.nome_responsavel)=public.normalizar_texto(p_responsavel)))then raise exception'possible_duplicate'using errcode='P0001';end if;
  insert into public.pacientes(nome_completo,nome_responsavel,cpf_responsavel,cpf_paciente,data_nascimento,contatos,criado_por)values(trim(p_nome),nullif(trim(p_responsavel),''),public.normalizar_cpf(p_cpf_responsavel),public.normalizar_cpf(p_cpf_paciente),p_nascimento,nullif(trim(p_contatos),''),auth.uid())returning id into v_id;return v_id;end$$;
 
+create or replace function public.vincular_sessao_agendamento(p_agendamento_id uuid,p_sessao_id uuid)
+returns void language plpgsql security definer set search_path='' set row_security=off as $$declare a public.agendamentos%rowtype;s public.sessoes_clinicas%rowtype;begin
+ select*into a from public.agendamentos where id=p_agendamento_id for update;select*into s from public.sessoes_clinicas where id=p_sessao_id;
+ if a.id is null or s.id is null or a.profissional_id<>auth.uid()or s.profissional_id<>auth.uid()or a.paciente_id<>s.paciente_id or a.status not in('agendado','confirmado')then raise exception'unauthorized_or_invalid_link'using errcode='42501';end if;
+ update public.agendamentos set sessao_id=s.id,status='realizado',updated_at=now()where id=a.id;
+ insert into public.audit_logs(user_id,action,entity_type,entity_id,metadata)values(auth.uid(),'AGENDAMENTO_REALIZADO','agendamentos',a.id,jsonb_build_object('sessao_id',s.id));end$$;
+
 create or replace function public.atualizar_profile_admin(p_usuario_id uuid,p_papel text default null,p_status text default null)
 returns void language plpgsql security definer set search_path='pg_catalog','public' set row_security=off as $$declare v public.profiles%rowtype;begin
  if auth.uid()is null or not public.usuario_admin()then raise exception'unauthorized'using errcode='42501';end if;select*into v from public.profiles where id=p_usuario_id for update;if not found then raise exception'profile_not_found'using errcode='P0002';end if;
@@ -71,9 +78,18 @@ returns void language plpgsql security definer set search_path='pg_catalog','pub
  if p_papel is not null and p_papel not in('admin','profissional','coordenacao')then raise exception'invalid_role'using errcode='23514';end if;if p_status is not null and p_status not in('ativo','inativo')then raise exception'invalid_status'using errcode='23514';end if;
  if p_usuario_id=auth.uid()and(p_status='inativo'or(p_papel is not null and p_papel<>'admin'))then raise exception'cannot_remove_own_admin_access'using errcode='42501';end if;update public.profiles set papel=coalesce(p_papel,papel),status=coalesce(p_status,status)where id=p_usuario_id;end$$;
 
+create or replace function public.aceitar_atribuicao_agendamento(p_agendamento_id uuid)
+returns void language plpgsql security definer set search_path='' set row_security=off as $$declare a public.agendamentos%rowtype;begin
+ select*into a from public.agendamentos where id=p_agendamento_id for update;
+ if a.id is null or a.profissional_id<>auth.uid()or a.status not in('agendado','confirmado')or not public.usuario_ativo()then raise exception'unauthorized'using errcode='42501';end if;
+ insert into public.paciente_psicologos(paciente_id,psicologo_id)values(a.paciente_id,auth.uid())on conflict do nothing;
+ insert into public.audit_logs(user_id,action,entity_type,entity_id,metadata)values(auth.uid(),'ATRIBUICAO_AGENDAMENTO_ACEITA','agendamentos',a.id,jsonb_build_object('paciente_id',a.paciente_id));end$$;
+
 revoke all on function public.listar_opcoes_agendamento()from public;grant execute on function public.listar_opcoes_agendamento()to authenticated;
 revoke all on function public.listar_agendamentos(timestamptz,timestamptz)from public;grant execute on function public.listar_agendamentos(timestamptz,timestamptz)to authenticated;
 revoke all on function public.criar_agendamento(uuid,uuid,timestamptz,timestamptz,text,text,text,text)from public;grant execute on function public.criar_agendamento(uuid,uuid,timestamptz,timestamptz,text,text,text,text)to authenticated;
 revoke all on function public.atualizar_status_agendamento(uuid,text)from public;grant execute on function public.atualizar_status_agendamento(uuid,text)to authenticated;
+revoke all on function public.vincular_sessao_agendamento(uuid,uuid)from public;grant execute on function public.vincular_sessao_agendamento(uuid,uuid)to authenticated;
 revoke all on function public.cadastrar_paciente_administrativo(text,text,text,text,date,text)from public;grant execute on function public.cadastrar_paciente_administrativo(text,text,text,text,date,text)to authenticated;
+revoke all on function public.aceitar_atribuicao_agendamento(uuid)from public;grant execute on function public.aceitar_atribuicao_agendamento(uuid)to authenticated;
 notify pgrst,'reload schema';

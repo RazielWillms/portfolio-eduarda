@@ -49,7 +49,7 @@ export function HabilidadeForm({ habilidadeExistente }: HabilidadeFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5 max-w-xl">
+    <form onSubmit={handleSubmit} className="flex w-full max-w-3xl flex-col gap-5 rounded-2xl border bg-card p-5 shadow-sm sm:p-6">
       {erro && (
         <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-2.5 text-sm text-destructive">
           {erro}
@@ -130,10 +130,11 @@ export function HabilidadeForm({ habilidadeExistente }: HabilidadeFormProps) {
         <Button type="submit" disabled={enviando} className="rounded-xl font-bold">
           {enviando ? "Salvando..." : habilidadeExistente ? "Salvar alterações" : "Cadastrar habilidade"}
         </Button>
-        <Button type="button" variant="ghost" onClick={() => router.push("/registros/habilidades")}>
+        <Button type="button" variant="secondary" onClick={() => router.push("/registros/habilidades")}>
           Cancelar
         </Button>
       </div>
     </form>
   )
 }
+

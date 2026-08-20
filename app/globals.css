@@ -237,3 +237,12 @@
 .delay-300 { animation-delay: 0.3s; }
 .delay-400 { animation-delay: 0.4s; }
 .delay-500 { animation-delay: 0.5s; }
+
+@media print {
+  @page { size: A4 portrait; margin: 10mm; }
+  body { background: white !important; }
+  [data-frequency-report] table { font-size: 9pt; }
+  [data-frequency-report] thead { display: table-header-group; }
+  [data-frequency-report] tr { break-inside: avoid; }
+  [data-frequency-report] section { break-inside: auto; }
+}

@@ -100,7 +100,7 @@ export function PacienteForm({ pacienteExistente }: PacienteFormProps) {
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5 max-w-2xl">
+      <form onSubmit={handleSubmit} className="flex w-full max-w-4xl flex-col gap-5 rounded-2xl border bg-card p-5 shadow-sm sm:p-6">
         {erro && (
           <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-2.5 text-sm text-destructive">
             {erro}
@@ -224,7 +224,7 @@ export function PacienteForm({ pacienteExistente }: PacienteFormProps) {
           <Button type="submit" disabled={enviando} className="rounded-xl font-bold">
             {enviando ? "Salvando..." : pacienteExistente ? "Salvar alterações" : "Cadastrar paciente"}
           </Button>
-          <Button type="button" variant="secondary" className="bg-slate-200 text-slate-700 hover:bg-slate-300 hover:text-slate-900" onClick={() => router.push("/registros/pacientes")}>
+          <Button type="button" variant="secondary" onClick={() => router.push("/registros/pacientes")}>
             Cancelar
           </Button>
         </div>
@@ -303,3 +303,4 @@ export function PacienteForm({ pacienteExistente }: PacienteFormProps) {
     </>
   )
 }
+
