@@ -67,17 +67,17 @@ export function HeroSection() {
           </div>
 
           {/* Stats */}
-          <div className="flex gap-8 pt-2">
+          <div className="grid grid-cols-3 gap-3 pt-2 sm:flex sm:gap-8">
             <div>
               <div className="text-3xl font-extrabold text-foreground">+3 anos</div>
               <p className="text-xs text-muted-foreground mt-1">de experiência {/*clínica*/}</p>
             </div>
-            <div className="w-px bg-border" />
+            <div className="hidden w-px bg-border sm:block" />
             <div>
               <div className="text-3xl font-extrabold text-foreground">TEA</div>
               <p className="text-xs text-muted-foreground mt-1">especialização em ABA</p>
             </div>
-            <div className="w-px bg-border" />
+            <div className="hidden w-px bg-border sm:block" />
             <div>
               <div className="text-3xl font-extrabold text-foreground">
                 <Heart className="w-8 h-8 text-rose-400 inline" />
@@ -108,7 +108,7 @@ export function HeroSection() {
 
             {/* Photo */}
             <div
-              className="relative w-80 h-96 rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white"
+              className="relative h-96 w-[min(20rem,calc(100vw-3rem))] overflow-hidden rounded-[2.5rem] border-4 border-white shadow-2xl"
               style={{ background: "linear-gradient(145deg, oklch(0.86 0.07 230), oklch(0.88 0.07 175))" }}
             >
               <img

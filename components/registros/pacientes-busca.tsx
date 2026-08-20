@@ -23,7 +23,7 @@ export function PacientesBusca({ pacientes }: { pacientes: Paciente[] }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="relative max-w-sm">
+      <div className="relative w-full sm:max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
         <Input
           placeholder="Buscar por paciente ou responsável..."
@@ -32,7 +32,11 @@ export function PacientesBusca({ pacientes }: { pacientes: Paciente[] }) {
           className="pl-9"
         />
       </div>
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
+      <div className="space-y-3 md:hidden">
+        {pacientesFiltrados.map((p) => { const idade=calcularIdade(p.data_nascimento); return <Link key={p.id} href={`/registros/pacientes/${p.id}`} className="block rounded-2xl border bg-card p-4 transition-colors active:bg-muted"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="break-words font-semibold">{p.nome_completo}</p><p className="mt-1 text-sm text-muted-foreground">Responsável: {p.nome_responsavel??"—"}</p><p className="text-sm text-muted-foreground">{idade!==null?`${idade} anos`:"Idade não informada"}</p></div><Badge variant={p.status==="ativo"?"default":"outline"}>{p.status==="ativo"?"Ativo":"Inativo"}</Badge></div></Link> })}
+        {pacientesFiltrados.length===0&&<div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">Nenhum paciente encontrado.</div>}
+      </div>
+      <div className="hidden overflow-hidden rounded-2xl border border-border bg-card md:block">
         <Table>
           <TableHeader>
             <TableRow>

@@ -19,5 +19,5 @@ const itens = [
 export function DemonstracaoPacienteNav({ pacienteId }: { pacienteId: string }) {
   const pathname = usePathname()
   const base = `/registros/demonstracao/pacientes/${pacienteId}`
-  return <nav className="flex gap-1 overflow-x-auto rounded-xl border bg-card p-1">{itens.map(([sufixo, label, Icon]) => {const href=base+sufixo; const ativo=sufixo?pathname.startsWith(href):pathname===href; return <Link key={href} href={href} className={cn("flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold",ativo?"bg-primary text-primary-foreground":"text-muted-foreground hover:bg-muted hover:text-foreground")}><Icon className="size-4" />{label}</Link>})}</nav>
+  return <nav className="mobile-tab-scroll -mx-3 flex gap-1 overflow-x-auto px-3 sm:-mx-4 sm:px-4 lg:mx-0 lg:rounded-xl lg:border lg:bg-card lg:p-1">{itens.map(([sufixo, label, Icon]) => {const href=base+sufixo; const ativo=sufixo?pathname.startsWith(href):pathname===href; return <Link key={href} href={href} aria-current={ativo?"page":undefined} className={cn("flex min-h-11 shrink-0 snap-start items-center gap-2 rounded-lg border bg-card px-3 py-2 text-sm font-semibold lg:min-h-0 lg:border-0",ativo?"bg-primary text-primary-foreground":"text-muted-foreground hover:bg-muted hover:text-foreground")}><Icon className="size-4" />{label}</Link>})}</nav>
 }

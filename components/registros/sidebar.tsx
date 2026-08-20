@@ -89,13 +89,14 @@ export function RegistrosSidebarMobile({
   open: boolean
   onClose: () => void
 }) {
+  useEffect(()=>{if(!open)return;const fechar=(event:KeyboardEvent)=>{if(event.key==="Escape")onClose()};window.addEventListener("keydown",fechar);return()=>window.removeEventListener("keydown",fechar)},[open,onClose])
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 print:hidden lg:hidden">
+    <div className="fixed inset-0 z-50 print:hidden lg:hidden" role="dialog" aria-modal="true" aria-label="Menu principal">
       <div className="absolute inset-0 bg-foreground/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
-      <aside className="absolute left-0 top-0 h-full w-72 bg-card border-r border-border flex flex-col">
-        <div className="flex items-center justify-between px-5 py-5 border-b border-border">
+      <aside className="absolute inset-y-0 left-0 flex w-[min(20rem,calc(100vw-3rem))] flex-col overflow-y-auto border-r border-border bg-card shadow-2xl">
+        <div className="sticky top-0 z-10 flex min-h-16 items-center justify-between border-b border-border bg-card px-4 py-3">
           <MarcaConexao />
           <button onClick={onClose} className="p-2 rounded-lg hover:bg-muted transition-colors" aria-label="Fechar menu">
             <X className="size-5" />

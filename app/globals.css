@@ -94,6 +94,19 @@
   }
 }
 
+@media (max-width: 639px) {
+  [aria-label="Como deseja buscar o agendamento"] {
+    display: grid;
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  [aria-label="Como deseja buscar o agendamento"] > button {
+    width: 100%;
+    white-space: normal;
+  }
+}
+
 /* Contraste dos formulários da área profissional, sem afetar o site público. */
 .registros-form-scope {
   --registros-field-background: oklch(0.995 0.003 210);
@@ -196,6 +209,14 @@
 .registros-form-scope [data-slot="switch"][data-state="unchecked"] {
   background-color: var(--registros-field-border);
   border-color: var(--registros-field-border-hover);
+}
+
+.mobile-tab-scroll { scrollbar-width: none; overscroll-behavior-inline: contain; scroll-snap-type: inline proximity; }
+.mobile-tab-scroll::-webkit-scrollbar { display: none; }
+@media (min-width: 768px) { .mobile-tab-scroll { scroll-snap-type: none; } }
+@media (max-width: 639px) {
+  .registros-form-scope form[role="dialog"] > .flex:last-child { flex-direction: column; }
+  .registros-form-scope form[role="dialog"] > .flex:last-child > [data-slot="button"] { width: 100%; }
 }
 
 /* Animações suaves */

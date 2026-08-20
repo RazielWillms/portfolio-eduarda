@@ -4,6 +4,7 @@ import { Menu, LogOut } from "lucide-react"
 import { signOut } from "@/lib/registros/actions"
 import type { Profile } from "@/lib/registros/types"
 import { FotoAvatar } from "@/components/registros/foto-avatar"
+import { MarcaConexao } from "@/components/registros/logo-conexao"
 
 const PAPEL_LABEL: Record<string, string> = {
   admin: "Administrador",
@@ -13,22 +14,16 @@ const PAPEL_LABEL: Record<string, string> = {
 
 export function RegistrosTopbar({ profile, onOpenMenu }: { profile: Profile; onOpenMenu: () => void }) {
   return (
-    <header className="flex h-20 items-center justify-between border-b border-border bg-card px-4 lg:px-6">
-      <button
-        className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors"
-        onClick={onOpenMenu}
-        aria-label="Abrir menu"
-      >
-        <Menu className="size-5" />
-      </button>
+    <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-card/95 px-3 backdrop-blur-sm sm:px-4 lg:static lg:h-20 lg:bg-card lg:px-6 lg:backdrop-blur-none">
+      <div className="flex min-w-0 items-center gap-2 lg:hidden"><button className="shrink-0 rounded-lg p-2 transition-colors hover:bg-muted" onClick={onOpenMenu} aria-label="Abrir menu"><Menu className="size-5" /></button><MarcaConexao compacta/></div>
 
       <div className="hidden lg:block">
         <p className="text-sm text-muted-foreground">Bem-vindo(a) de volta,</p>
         <p className="text-base font-bold text-foreground">{profile.nome}</p>
       </div>
 
-      <div className="flex items-center gap-3">
-        <FotoAvatar nome={profile.nome} src={profile.foto_url} zoom={profile.foto_zoom} posX={profile.foto_pos_x} posY={profile.foto_pos_y} className="size-9" fallbackClassName="text-xs" />
+      <div className="flex items-center gap-2 sm:gap-3">
+        <FotoAvatar nome={profile.nome} src={profile.foto_url} zoom={profile.foto_zoom} posX={profile.foto_pos_x} posY={profile.foto_pos_y} className="size-8 sm:size-9" fallbackClassName="text-xs" />
         <div className="hidden sm:block text-right">
           <p className="text-sm font-semibold text-foreground">{profile.nome}</p>
           <p className="text-xs text-muted-foreground">{profile.admin_principal ? "Administrador principal" : PAPEL_LABEL[profile.papel]}</p>
@@ -36,7 +31,7 @@ export function RegistrosTopbar({ profile, onOpenMenu }: { profile: Profile; onO
         <form action={signOut}>
           <button
             type="submit"
-            className="flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-semibold text-muted-foreground hover:text-destructive hover:border-destructive/40 transition-colors"
+            className="flex size-9 items-center justify-center rounded-xl border border-border text-sm font-semibold text-muted-foreground transition-colors hover:border-destructive/40 hover:text-destructive sm:h-auto sm:w-auto sm:gap-2 sm:px-3 sm:py-2"
           >
             <LogOut className="size-4" />
             <span className="hidden sm:inline">Sair</span>

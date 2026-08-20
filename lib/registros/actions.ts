@@ -638,7 +638,7 @@ export async function registrarSessaoClinica(input: {
   if (error) {
     reportServerError("registrarSessaoClinica", error)
     if (["42883", "PGRST202"].includes(error.code ?? "")) return genericError("A estrutura mais recente de sessões e agenda ainda não foi instalada no banco.")
-    if (error.message.includes("schedule_not_started")) return genericError("A sessão poderá ser registrada a partir do início do compromisso.")
+    if (error.message.includes("schedule_not_started")) return genericError("A sessão poderá ser registrada até 10 minutos antes do início do compromisso.")
     if (error.message.includes("future_session_date")) return genericError("Não é possível registrar uma sessão com data futura.")
     if (error.message.includes("trials_summary_mismatch")) return genericError("O resumo não corresponde às tentativas detalhadas.")
     if (error.message.includes("invalid_trials")) return genericError("Revise os resultados e níveis de ajuda das tentativas.")
