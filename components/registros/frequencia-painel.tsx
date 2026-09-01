@@ -263,7 +263,7 @@ export function FrequenciaPainel({
       )}
       {aba === "indicadores" && (
         <>
-          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             <Indicador label="Faltas" valor={relatorio.resumo.faltas} />
             <Indicador
               label="Justificadas"
@@ -276,6 +276,15 @@ export function FrequenciaPainel({
             <Indicador
               label="Cancelamentos"
               valor={relatorio.resumo.cancelamentos}
+            />
+            <Indicador
+              label="Sequências com 2 faltas"
+              valor={relatorio.resumo.sequencias_em_atencao}
+            />
+            <Indicador
+              label="Sequências com 3 ou mais"
+              valor={relatorio.resumo.sequencias_em_alerta}
+              alerta
             />
           </section>
           <section className="grid gap-5 xl:grid-cols-2">
@@ -317,6 +326,12 @@ export function FrequenciaPainel({
                       {r.profissional_nome} · {rotulos[r.tipo]}
                     </p>
                     {r.motivo && <p className="text-xs">Motivo: {r.motivo}</p>}
+                    {r.tipo === "falta_nao_justificada" && r.sequencia_quantidade && (
+                      <p className={cn("mt-1 inline-flex rounded-full px-2 py-0.5 text-xs font-semibold", r.sequencia_quantidade >= 3 ? "bg-red-100 text-red-800" : r.sequencia_quantidade === 2 ? "bg-amber-100 text-amber-800" : "bg-muted text-muted-foreground")}>
+                        {r.sequencia_quantidade}ª falta consecutiva
+                      </p>
+                    )}
+                    {r.tipo === "falta_nao_justificada" && r.continuidade_falta === "nao_confirmada" && <p className="mt-1 text-xs font-medium text-amber-700">Continuidade não confirmada</p>}
                     {r.agendamento_id && (
                       <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
                         <span className="rounded-full bg-primary/10 px-2 py-0.5 font-semibold text-primary">
@@ -633,11 +648,11 @@ function Campo({
     </div>
   );
 }
-function Indicador({ label, valor }: { label: string; valor: number }) {
+function Indicador({ label, valor, alerta = false }: { label: string; valor: number; alerta?: boolean }) {
   return (
-    <Card>
+    <Card className={alerta && valor > 0 ? "border-red-300 bg-red-50" : undefined}>
       <CardContent className="p-5">
-        <p className="text-3xl font-bold">{valor}</p>
+        <p className={cn("text-3xl font-bold", alerta && valor > 0 && "text-red-700")}>{valor}</p>
         <p className="text-sm text-muted-foreground">{label}</p>
       </CardContent>
     </Card>

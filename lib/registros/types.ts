@@ -101,11 +101,13 @@ export interface SessaoPacienteResumo{id:string;paciente_id:string;profissional_
 export interface ResumoClinicoPaciente{alvos_ativos:number;alvos_sem_protocolo:number;concordancias_pendentes:number;revisoes_vencidas:number;ultima_sessao:{id:string;data:string;alvos:{id:string;nome:string}[]}|null}
 export interface ResultadoSerieAgendamentos{serie_id:string|null;criados:number;conflitos:{data:string;motivo:string}[]}
 export type TipoOcorrenciaFrequencia="falta_justificada"|"falta_nao_justificada"|"cancelamento_clinica"|"cancelamento_profissional"
+export type ContinuidadeFalta="inicio_sequencia"|"consecutiva_confirmada"|"sequencia_interrompida"|"nao_confirmada"
+export interface ContextoFaltaAnterior{id:string;data_ocorrencia:string;sequencia_quantidade:number|null}
 export interface OpcoesFrequencia{pacientes:{id:string;nome:string}[];profissionais:{id:string;nome:string;profissao:string|null}[]}
 export interface SugestaoAgendamentoFrequencia{id:string;inicio:string;fim:string;status:string;finalidade:string}
-export interface OcorrenciaFrequencia{id:string;paciente_id:string;paciente_nome:string;profissional_id:string;profissional_nome:string;agendamento_id:string|null;agendamento_inicio?:string|null;agendamento_fim?:string|null;agendamento_status_anterior?:string|null;data_ocorrencia:string;tipo:TipoOcorrenciaFrequencia;motivo:string|null;observacao_administrativa:string|null;criado_por:string;created_at:string}
+export interface OcorrenciaFrequencia{id:string;paciente_id:string;paciente_nome:string;profissional_id:string;profissional_nome:string;agendamento_id:string|null;agendamento_inicio?:string|null;agendamento_fim?:string|null;agendamento_status_anterior?:string|null;data_ocorrencia:string;tipo:TipoOcorrenciaFrequencia;motivo:string|null;observacao_administrativa:string|null;continuidade_falta:ContinuidadeFalta|null;ocorrencia_anterior_id:string|null;sequencia_quantidade:number|null;criado_por:string;created_at:string}
 export interface RelatorioFrequencia{registros:OcorrenciaFrequencia[];profissionais:{id:string;nome:string;total:number;justificadas:number;nao_justificadas:number;cancelamentos:number}[];pacientes:{id:string;nome:string;total_faltas:number;justificadas:number;nao_justificadas:number}[]}
-export interface RelatorioFrequenciaPaginado extends RelatorioFrequencia{resumo:{ocorrencias:number;faltas:number;justificadas:number;nao_justificadas:number;cancelamentos:number};total_registros:number}
+export interface RelatorioFrequenciaPaginado extends RelatorioFrequencia{resumo:{ocorrencias:number;faltas:number;justificadas:number;nao_justificadas:number;cancelamentos:number;sequencias_em_alerta:number;sequencias_em_atencao:number};total_registros:number}
 
 export type StatusSolicitacaoAcesso = "pendente" | "aprovado" | "negado"
 
