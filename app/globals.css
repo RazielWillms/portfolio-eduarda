@@ -302,9 +302,17 @@
 
 @media print {
   @page { size: A4 portrait; margin: 10mm; }
-  body { background: white !important; }
-  [data-frequency-report] table { font-size: 9pt; }
+  body { background: white !important; overflow: visible !important; }
+  /* O relatório precisa participar do fluxo paginado, sem áreas de rolagem. */
+  [data-frequency-report],
+  [data-frequency-report] .overflow-hidden { overflow: visible; }
+  [data-frequency-report] { padding: 0; }
+  [data-frequency-report] table { width: 100%; table-layout: fixed; font-size: 9pt; }
+  [data-frequency-report] th,
+  [data-frequency-report] td { overflow-wrap: anywhere; }
   [data-frequency-report] thead { display: table-header-group; }
   [data-frequency-report] tr { break-inside: avoid; }
   [data-frequency-report] section { break-inside: auto; }
+  [data-frequency-report] h2,
+  [data-frequency-report] h3 { break-after: avoid; }
 }
