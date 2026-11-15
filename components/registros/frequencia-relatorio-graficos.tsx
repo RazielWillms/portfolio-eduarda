@@ -41,13 +41,17 @@ export function FrequenciaRelatorioGraficos({ relatorio }: { relatorio: Relatori
     .map((item) => ({ nome: item.nome, total: item.total, detalhe: `${item.justificadas} justificadas, ${item.nao_justificadas} não justificadas e ${item.cancelamentos} cancelamentos` }))
 
   return (
-    <section className="space-y-8 print:break-before-page">
+    <>
+      <section data-report-section="grafico-pacientes" className="space-y-8 print:break-before-page">
       <header className="border-b border-slate-300 pb-3">
         <p className="text-sm font-semibold uppercase tracking-wide text-sky-700">Visão gráfica do período</p>
         <h2 className="mt-1 text-xl font-bold">Indicadores de frequência</h2>
       </header>
       <GraficoImpresso titulo="Faltas por paciente" subtitulo="Total de faltas justificadas e não justificadas." itens={pacientes} cor="azul" />
+      </section>
+      <section data-report-section="grafico-profissionais" className="space-y-8 print:break-before-page">
       <GraficoImpresso titulo="Ocorrências por responsável previsto" subtitulo="Faltas e cancelamentos associados a cada profissional." itens={profissionais} cor="verde" />
-    </section>
+      </section>
+    </>
   )
 }
